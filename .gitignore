@@ -1,0 +1,15 @@
+build
+dist
+node_modules
+
+.merlin
+.cljs_node_repl
+.cpcache
+.cache
+
+*.swp
+
+js/packages/**/*.min.js
+
+js2/**/lib/bs
+js2/packages/**/binaries/

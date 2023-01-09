@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "declaration": true,
+    "target": "es6",
+    "module": "es6",
+    "moduleResolution": "node",
+  },
+  "files": [
+    "index.ts",
+  ]
+}

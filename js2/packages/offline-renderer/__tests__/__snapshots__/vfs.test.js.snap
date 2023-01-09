@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`vfs sample 1`] = `
+Float32Array [
+  1,
+  2,
+  3,
+  4,
+  5,
+]
+`;

@@ -1,0 +1,9 @@
+[submodule "juce"]
+	path = juce
+	url = https://github.com/elemaudio/JUCE.git
+[submodule "deps/FFTConvolver"]
+	path = wasm/FFTConvolver
+	url = https://github.com/HiFi-LoFi/FFTConvolver.git
+[submodule "choc"]
+	path = choc
+	url = https://github.com/nick-thompson/choc.git

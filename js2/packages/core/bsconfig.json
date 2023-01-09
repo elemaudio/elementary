@@ -1,0 +1,29 @@
+{
+  "name": "elementary-core",
+  "sources": [
+    {
+      "dir": "src",
+      "subdirs": true
+    }
+  ],
+  "package-specs": [
+    {
+      "module": "es6",
+      "in-source": true
+    }
+  ],
+  "suffix": ".bs.js",
+  "bs-dependencies": [],
+  "gentypeconfig": {
+      "language": "typescript",
+      "shims": {
+        "RescriptPervasives": "RescriptPervasives"
+      },
+      "generatedFileExtension": ".gen.ts",
+      "module": "es6",
+      "debug": {
+        "all": false,
+        "basic": false
+      }
+  }
+}
