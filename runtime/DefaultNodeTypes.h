@@ -24,7 +24,7 @@ namespace elem
         struct GenericNodeFactory
         {
             template <typename NodeIdType>
-            auto operator() (NodeIdType const id, typename NodeType::ValueType fs, int const blockSize) {
+            auto operator() (NodeIdType const id, double fs, int const blockSize) {
                 return std::make_shared<NodeType>(id, fs, blockSize);
             }
         };

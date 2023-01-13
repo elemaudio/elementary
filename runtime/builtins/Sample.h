@@ -71,7 +71,7 @@ namespace elem
         }
 
         void process (const FloatType** inputData, FloatType* outputData, size_t const numChannels, size_t const numSamples, int64_t) override {
-            auto const sampleRate = GraphNode<FloatType>::sampleRate;
+            auto const sampleRate = GraphNode<FloatType>::getSampleRate();
 
             // First order of business: grab the most recent sample buffer to use if
             // there's anything in the queue. This behavior means that changing the buffer

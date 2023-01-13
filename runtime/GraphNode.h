@@ -34,15 +34,12 @@ namespace elem
     template <typename FloatType>
     struct GraphNode {
         //==============================================================================
-        using ValueType = FloatType;
-
-        //==============================================================================
         // GraphNode constructor.
         //
         // The default implementation will hang onto the incoming NodeId and sample rate
         // in member variables. Users may extend this constructor to take the incoming
         // blockSize into account as well.
-        GraphNode(GraphNodeId id, FloatType const sr, int const blockSize);
+        GraphNode(GraphNodeId id, double sr, size_t blockSize);
 
         //==============================================================================
         // GraphNode destructor.
@@ -53,7 +50,7 @@ namespace elem
         GraphNodeId getId() { return nodeId; }
 
         //==============================================================================
-        FloatType getSampleRate() { return sampleRate; }
+        double getSampleRate() { return sampleRate; }
         size_t getBlockSize() { return blockSize; }
 
         //==============================================================================
@@ -67,6 +64,16 @@ namespace elem
         // a non-realtime thread.
         virtual void setProperty(std::string const& key, js::Value const& val);
         virtual void setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources);
+
+        // Retreives a property from the Node's props, falling back to the provided
+        // default value if no property exists by the given name.
+        //
+        // Properties are held in a map<std::string, js::Value>, but the ValueType template
+        // allows fetching a property by a given subtype such as js::Number. If an entry is
+        // found in the props map, its value will be returned by casting to ValueType, therefore
+        // if the cast fails, this method will throw.
+        template <typename ValueType>
+        ValueType getPropertyWithDefault(std::string const& key, ValueType const& df);
 
         // Process the next block of audio data.
         //
@@ -95,22 +102,24 @@ namespace elem
         // on the non-realtime thread. When receiving the call.
         virtual void reset() {}
 
+    private:
         //==============================================================================
         GraphNodeId nodeId;
-        FloatType sampleRate;
         std::unordered_map<std::string, js::Value> props;
 
-    private:
+        double sampleRate;
         size_t blockSize;
     };
 
     //==============================================================================
     // Details...
     template <typename FloatType>
-    GraphNode<FloatType>::GraphNode(GraphNodeId id, FloatType const sr, int const bs)
+    GraphNode<FloatType>::GraphNode(GraphNodeId id, double sr, size_t bs)
         : nodeId(id)
         , sampleRate(sr)
-        , blockSize(static_cast<size_t>(bs)) {}
+        , blockSize(bs)
+    {
+    }
 
     template <typename FloatType>
     void GraphNode<FloatType>::setProperty(std::string const& key, js::Value const& val) {
@@ -120,6 +129,16 @@ namespace elem
     template <typename FloatType>
     void GraphNode<FloatType>::setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>&) {
         setProperty(key, val);
+    }
+
+    template <typename FloatType>
+    template <typename ValueType>
+    ValueType GraphNode<FloatType>::getPropertyWithDefault(std::string const& key, ValueType const& df) {
+        if (props.count(key) > 0) {
+            return static_cast<ValueType>(props.at(key));
+        }
+
+        return df;
     }
 
 } // namespace elem

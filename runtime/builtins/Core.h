@@ -45,7 +45,7 @@ namespace elem
             auto c = currentGain.load();
 
             auto const direction = (t < c) ? FloatType(-1) : FloatType(1);
-            auto const step = direction * FloatType(20) / GraphNode<FloatType>::sampleRate;
+            auto const step = direction * FloatType(20) / FloatType(GraphNode<FloatType>::getSampleRate());
 
             for (auto i = 0; i < numSamples; ++i) {
                 outputData[i] = inputData[0][i] * c;
@@ -65,7 +65,7 @@ namespace elem
         using GraphNode<FloatType>::GraphNode;
 
         FloatType tick (FloatType freq) {
-            FloatType step = freq * (FloatType(1.0) / GraphNode<FloatType>::sampleRate);
+            FloatType step = freq * (FloatType(1.0) / FloatType(GraphNode<FloatType>::getSampleRate()));
             FloatType y = phase;
 
             FloatType next = phase + step;
@@ -133,7 +133,7 @@ namespace elem
 
         void process (const FloatType** /* inputData */, FloatType* outputData, std::size_t const /* numChannels */, std::size_t const numSamples, int64_t) override {
             for (auto i = 0; i < numSamples; ++i) {
-                outputData[i] = FloatType(GraphNode<FloatType>::sampleRate);
+                outputData[i] = FloatType(GraphNode<FloatType>::getSampleRate());
             }
         }
     };
@@ -249,7 +249,7 @@ namespace elem
 
             if (key == "hold") {
                 invariant(val.isNumber(), "hold prop for maxhold node must be a number type.");
-                auto h = GraphNode<FloatType>::sampleRate * 0.001 * (js::Number) val;
+                auto h = GraphNode<FloatType>::getSampleRate() * 0.001 * (js::Number) val;
                 holdTimeSamples.store(static_cast<uint32_t>(h));
             }
         }

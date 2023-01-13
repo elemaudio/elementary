@@ -27,7 +27,7 @@ namespace elem
                 // We don't allow an interval smaller than 2 samples because we need at least
                 // one sample for the train to go high and one sample for the train to go low.
                 // We can't fire a pulse train any faster and have it still be a pulse train.
-                auto const is = ((js::Number) val) * 0.001 * GraphNode<FloatType>::sampleRate;
+                auto const is = ((js::Number) val) * 0.001 * GraphNode<FloatType>::getSampleRate();
                 intervalSamps.store(static_cast<int64_t>(std::max(2.0, is)));
             }
         }
@@ -52,10 +52,8 @@ namespace elem
             auto flag = eventFlag.exchange(false);
 
             if (flag) {
-                // Here the "source" property on the event object reads from our local props
-                // object to find a "name" prop. If it's missing, the lookup will yield an undefined
                 eventHandler("metro", js::Object({
-                    {"source", GraphNode<FloatType>::props["name"]},
+                    {"source", GraphNode<FloatType>::getPropertyWithDefault("name", js::Value())},
                 }));
             }
         }

@@ -50,12 +50,10 @@ namespace elem
             }
 
             // Now we propagate the latest value
-            // Here the "source" property on the event object reads from our local props
-            // object to find a "name" prop. If it's missing, the lookup will yield an undefined
             eventHandler("meter", js::Object({
                 {"min", ro.min},
                 {"max", ro.max},
-                {"source", GraphNode<FloatType>::props["name"]},
+                {"source", GraphNode<FloatType>::getPropertyWithDefault("name", js::Value())},
             }));
         }
 
@@ -116,10 +114,8 @@ namespace elem
                 }
             }
 
-            // Here the "source" property on the event object reads from our local props
-            // object to find a "name" prop. If it's missing, the lookup will yield an undefined
             eventHandler("snapshot", js::Object({
-                {"source", GraphNode<FloatType>::props["name"]},
+                {"source", GraphNode<FloatType>::getPropertyWithDefault("name", js::Value())},
                 {"data", ro},
             }));
         }
@@ -180,8 +176,8 @@ namespace elem
         }
 
         void processEvents(std::function<void(std::string const&, js::Value)>& eventHandler) override {
-            auto const size = static_cast<size_t>((js::Number) GraphNode<FloatType>::props["size"]);
-            auto const channels = static_cast<size_t>((js::Number) GraphNode<FloatType>::props["channels"]);
+            auto const size = static_cast<size_t>((js::Number) GraphNode<FloatType>::getPropertyWithDefault("size", js::Number(512)));
+            auto const channels = static_cast<size_t>((js::Number) GraphNode<FloatType>::getPropertyWithDefault("channels", js::Number(1)));
 
             if (ringBuffer.size() > size) {
                 // Retreive the scope data. Could improve the efficiency here using something
@@ -198,12 +194,8 @@ namespace elem
                     }
 
                     if (ringBuffer.read(scratchPointers.data(), channels, size)) {
-                        // Fetch the name property from our props map; will default-construct
-                        // in place if it doesn't exist, giving us an undefined, which is ok
-                        auto source = GraphNode<FloatType>::props["name"];
-
                         eventHandler("scope", js::Object({
-                            {"source", source},
+                            {"source", GraphNode<FloatType>::getPropertyWithDefault("name", js::Value())},
                             {"data", std::move(scopeData)}
                         }));
                     }
@@ -220,10 +212,6 @@ namespace elem
                     }
 
                     if (ringBuffer.read(scratchPointers.data(), channels, size)) {
-                        // Fetch the name property from our props map; will default-construct
-                        // in place if it doesn't exist, giving us an undefined, which is ok
-                        auto source = GraphNode<FloatType>::props["name"];
-
                         for (size_t i = 0; i < channels; ++i) {
                             auto* dest = scopeData[i].getFloat32Array().data();
 
@@ -233,7 +221,7 @@ namespace elem
                         }
 
                         eventHandler("scope", js::Object({
-                            {"source", source},
+                            {"source", GraphNode<FloatType>::getPropertyWithDefault("name", js::Value())},
                             {"data", std::move(scopeData)}
                         }));
                     }

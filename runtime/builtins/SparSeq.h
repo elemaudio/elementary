@@ -86,7 +86,7 @@ namespace elem
                 auto const ti = (js::Number) val;
                 invariant(ti >= 0.0, "tickInterval prop for sparseq node must be >= 0");
 
-                auto const tickIntervalSamples = GraphNode<FloatType>::sampleRate *  ti;
+                auto const tickIntervalSamples = GraphNode<FloatType>::getSampleRate() *  ti;
                 tickInterval.store(tickIntervalSamples);
             }
 
