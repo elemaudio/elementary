@@ -38,7 +38,7 @@
     "re:start": "rescript build -w",
     "clean": "rm -rf ./dist/",
     "prebuild": "npm run clean",
-    "build": "npm run re:build && tsup index.ts --format cjs,esm --dts --minify",
+    "build": "npm run re:build && tsup index.ts --format cjs,esm --dts",
     "test": "jest",
     "snaps": "jest --updateSnapshot"
   },
