@@ -142,8 +142,6 @@ export function metro(a?) {
 type SampleNodeProps = {
   key?: string,
   path?: string,
-  channel?: number,
-  data?: Array<number> | Float32Array,
   mode?: string,
   startOffset?: number,
   stopOffset?: number,
@@ -157,8 +155,6 @@ export function sample(props: SampleNodeProps, trigger: NodeRepr_t | number, rat
 type TableNodeProps = {
   key?: string,
   path?: string,
-  channel?: number,
-  data?: Array<number> | Float32Array,
 };
 
 export function table(props: TableNodeProps, t: NodeRepr_t | number): NodeRepr_t {
@@ -323,7 +319,6 @@ type TapInNodeProps = {
 
 type TapOutNodeProps = {
   name: string,
-  size?: number,
 };
 
 export function tapIn(props: TapInNodeProps): NodeRepr_t {

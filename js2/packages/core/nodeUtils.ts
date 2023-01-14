@@ -10,9 +10,11 @@ import type {NodeRepr_t} from './src/Reconciler.gen';
 
 
 export function resolve(n : NodeRepr_t | number): NodeRepr_t {
-  return typeof n === 'number'
-    ? NodeRepr_createPrimitive("const", {value: n}, [])
-    : n;
+  if (typeof n === 'number')
+    return NodeRepr_createPrimitive("const", {value: n}, []);
+
+  invariant(isNode(n), `Whoops, expecting a Node type here! Got: ${typeof n}`);
+  return n;
 }
 
 export function isNode(n: any): boolean {
