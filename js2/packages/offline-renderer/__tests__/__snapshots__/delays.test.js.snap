@@ -1,5 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`delay basics 1`] = `
+Float32Array [
+  0,
+  0.5,
+  1,
+  1.5,
+]
+`;
+
 exports[`sdelay basics 1`] = `
 Float32Array [
   0,
