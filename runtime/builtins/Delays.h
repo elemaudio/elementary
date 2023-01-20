@@ -110,16 +110,30 @@ namespace elem
             auto const size = static_cast<int>(activeBuffer->size());
             auto* delayData = activeBuffer->data();
 
-            if (size == 0) {
-                for (size_t i = 0; i < numSamples; ++i) {
-                    outputData[i] = inputData[0][i];
-                }
-
-                return;
-            }
+            if (size == 0)
+                return (void) std::copy_n(inputData[0], numSamples, outputData);
 
             for (size_t i = 0; i < numSamples; ++i) {
                 auto const offset = std::clamp(inputData[0][i], FloatType(0), FloatType(size));
+
+                // In order to get the feedback right for non-zero read offsets, we read from the
+                // line and sum with the input before writing. If we have a read offset of zero, then
+                // reading before writing doesn't work: we should be reading the same thing that we're
+                // writing. In that case, feedback doesn't make much sense anyways, so here we have a
+                // special case which ignores the feedback value and reads and writes correctly
+                if (offset <= std::numeric_limits<FloatType>::epsilon()) {
+                    auto const in = inputData[2][i];
+
+                    delayData[writeIndex] = in;
+                    outputData[i] = in;
+
+                    // Nudge the write index
+                    if (++writeIndex >= size)
+                        writeIndex -= size;
+
+                    continue;
+                }
+
                 auto const readFrac = FloatType(size + writeIndex) - offset;
                 auto const readLeft = static_cast<int>(readFrac);
                 auto const readRight = readLeft + 1;
@@ -256,4 +270,5 @@ namespace elem
         int writeIndex = 0;
         int blockSize = 0;
     };
+
 } // namespace elem
