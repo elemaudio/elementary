@@ -20,12 +20,6 @@ namespace elem
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
             , ringBuffer(1)
         {
-            // TODO: Would be nice to just have a "getDefaultProps" method which
-            // each GraphNode could implement, returning a map<string, Value> of
-            // default values. The GraphNode base class calls that method and sets
-            // calls setProperty for each pair in there. Then we could avoid the
-            // constructor override which feels clunky.
-            setProperty("size", js::Value((js::Number) 1024));
         }
 
         bool isPowerOfTwo (int x) {
@@ -89,7 +83,7 @@ namespace elem
         }
 
         void processEvents(std::function<void(std::string const&, js::Value)>& eventHandler) override {
-            auto const size = static_cast<size_t>((js::Number) GraphNode<FloatType>::props["size"]);
+            auto const size = static_cast<size_t>(GraphNode<FloatType>::getPropertyWithDefault("size", js::Number(1024)));
 
             // If we enough samples, read from the ring buffer into the scratch, then process
             if (ringBuffer.size() >= size)
@@ -108,12 +102,8 @@ namespace elem
 
                 fft.fft(scratchData.data(), re.data(), im.data());
 
-                // Fetch the name property from our props map; will default-construct
-                // in place if it doesn't exist, giving us an undefined, which is ok
-                auto source = GraphNode<FloatType>::props["name"];
-
                 eventHandler("fft", js::Object({
-                    {"source", source},
+                    {"source", GraphNode<FloatType>::getPropertyWithDefault("name", js::Value())},
                     {"data", js::Object({
                         {"real", std::move(re)},
                         {"imag", std::move(im)},
