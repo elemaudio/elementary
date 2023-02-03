@@ -51,6 +51,13 @@ namespace elem
     // Details...
     template <typename FloatType>
     void SharedResourceMap<FloatType>::insert (std::string const& p, SharedResourceBuffer<FloatType>&& srb) {
+        // TODO: This is risky. In the case that a key is already present and we assign to it, it could be
+        // that there's a realtime node somewhere who is also holding a shared_ptr to the existing resource.
+        // If the resource map then drops its reference, it may leave the realtime node holding the last one,
+        // in which case a dealloc there could cause memory troubles on the realtime thread.
+        //
+        // Is there any reason not to enforce that this map is itself immutable? I.e. you can only ever add to it, you can't
+        // change existing entries? That would give the guarantees we need here.
         imms.insert_or_assign(p, std::move(srb));
     }
 

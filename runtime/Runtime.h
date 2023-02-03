@@ -144,6 +144,8 @@ namespace elem
     template <typename FloatType>
     void Runtime<FloatType>::applyInstructions(elem::js::Array const& batch)
     {
+        // TODO: For correct transaction semantics here, we should createNode into a separate
+        // map that only gets merged into the actual nodeMap on commitUpdaes
         for (auto& next : batch) {
             invariant(next.isArray(), "Expected a command array.");
             auto const& ar = next.getArray();
