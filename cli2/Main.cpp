@@ -52,7 +52,7 @@ struct DeviceProxy {
 };
 
 // Our main audio processing callback from the miniaudio device
-void audioCallback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
+void audioCallback(ma_device* pDevice, void* pOutput, const void* /* pInput */, ma_uint32 frameCount)
 {
     auto* proxy = static_cast<DeviceProxy*>(pDevice->pUserData);
 

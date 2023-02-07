@@ -42,7 +42,6 @@ namespace elem
     public:
         //==============================================================================
         Runtime(double sampleRate, int blockSize);
-        Runtime(double sampleRate, int blockSize, int stackSize, int heapSize);
 
         //==============================================================================
         // Apply graph rendering instructions
@@ -132,10 +131,6 @@ namespace elem
     // Details...
     template <typename FloatType>
     Runtime<FloatType>::Runtime(double sampleRate, int blockSize)
-        : Runtime(sampleRate, blockSize, 512, 512) {}
-
-    template <typename FloatType>
-    Runtime<FloatType>::Runtime(double sampleRate, int blockSize, int stackSize, int heapSize)
         : bufferAllocator(blockSize)
         , sampleRate(sampleRate)
         , blockSize(blockSize)

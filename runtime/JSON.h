@@ -98,7 +98,7 @@ namespace js
                 return push(Value((double) val));
             }
 
-            bool number_float(number_float_t val, const string_t& s) override
+            bool number_float(number_float_t val, const string_t& /* s */) override
             {
                 return push(Value((double) val));
             }
@@ -108,7 +108,7 @@ namespace js
                 return push(Value(val));
             }
 
-            bool start_object(std::size_t elements) override
+            bool start_object(std::size_t /* elements */) override
             {
                 return push(Object());
             }
@@ -119,7 +119,7 @@ namespace js
                 return true;
             }
 
-            bool start_array(std::size_t elements) override
+            bool start_array(std::size_t /* elements */) override
             {
                 return push(Array());
             }
@@ -136,12 +136,12 @@ namespace js
                 return true;
             }
 
-            bool binary(json::binary_t& val) override
+            bool binary(json::binary_t& /* val */) override
             {
                 throw std::runtime_error("Deserializing binary is not supported.");
             }
 
-            bool parse_error(std::size_t position, const std::string& last_token, const json::exception& ex) override
+            bool parse_error(std::size_t /* position */, const std::string& /* last_token */, const json::exception& ex) override
             {
                 throw std::runtime_error("Parse error:" + std::string(ex.what()));
             }

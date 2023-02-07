@@ -52,7 +52,7 @@ namespace elem
             auto const direction = (t < c) ? FloatType(-1) : FloatType(1);
             auto const step = direction * FloatType(20) / FloatType(GraphNode<FloatType>::getSampleRate());
 
-            for (auto i = 0; i < numSamples; ++i) {
+            for (size_t i = 0; i < numSamples; ++i) {
                 outputData[i] = inputData[0][i] * c;
                 c = std::clamp(c + step, FloatType(0), FloatType(1));
             }
@@ -131,7 +131,7 @@ namespace elem
 
             auto const v = value.load();
 
-            for (auto i = 0; i < numSamples; ++i) {
+            for (size_t i = 0; i < numSamples; ++i) {
                 outputData[i] = v;
             }
         }
@@ -148,7 +148,7 @@ namespace elem
             auto* outputData = ctx.outputData;
             auto numSamples = ctx.numSamples;
 
-            for (auto i = 0; i < numSamples; ++i) {
+            for (size_t i = 0; i < numSamples; ++i) {
                 outputData[i] = FloatType(GraphNode<FloatType>::getSampleRate());
             }
         }
@@ -361,7 +361,7 @@ namespace elem
 
             auto const isArmed = armed.load();
 
-            for (auto i = 0; i < numSamples; ++i) {
+            for (size_t i = 0; i < numSamples; ++i) {
                 auto const delta = change(inputData[0][i]);
                 auto const risingEdge = delta > FloatType(0.5);
                 auto const fallingEdge = delta < FloatType(-0.5);
@@ -477,7 +477,7 @@ namespace elem
             bool const hold = wantsHold.load();
             bool const loop = wantsLoop.load();
 
-            for (auto i = 0; i < numSamples; ++i) {
+            for (size_t i = 0; i < numSamples; ++i) {
                 auto const in = inputData[0][i];
                 auto const reset = hasResetSignal ? inputData[1][i] : FloatType(0);
 
@@ -511,7 +511,7 @@ namespace elem
                     hasReceivedFirstPulse = true;
 
                     // When looping we wrap around back to 0
-                    if ((++seqIndex >= static_cast<int>(activeSequence->size())) && loop) {
+                    if ((++seqIndex >= activeSequence->size()) && loop) {
                         seqIndex = 0;
                     }
                 }

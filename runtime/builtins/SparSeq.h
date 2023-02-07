@@ -68,11 +68,6 @@ namespace elem
                 followAction.store((bool) val);
             }
 
-            if (key == "resetOnLoop") {
-                invariant(val.isBool(), "resetOnLoop prop for sparseq node must be a boolean type.");
-                resetAtLoopBoundaries.store((bool) val);
-            }
-
             if (key == "interpolate") {
                 invariant(val.isNumber(), "interpolate prop for sparseq node must be a number type.");
                 holdOrder.store(static_cast<int32_t>((js::Number) val));
@@ -197,7 +192,6 @@ namespace elem
 
             auto const offset = seqOffset.load();
             auto const follow = followAction.load();
-            auto const ralb = resetAtLoopBoundaries.load();
             auto const ho = holdOrder.load();
             auto const samplesPerClockCycle = tickInterval.load();
 
@@ -343,7 +337,6 @@ namespace elem
         std::optional<LoopPoints> pendingLoopPoints;
 
         std::atomic<size_t> seqOffset = 0;
-        std::atomic<bool> resetAtLoopBoundaries { false };
         std::atomic<bool> followAction { false };
 
         // The number of rising edges counted since the last reset event, or

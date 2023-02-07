@@ -21,7 +21,7 @@ namespace elem
             if (numChannels < 1)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
-            for (auto i = 0; i < numSamples; ++i) {
+            for (size_t i = 0; i < numSamples; ++i) {
                 outputData[i] = op(inputData[0][i]);
             }
         }
@@ -48,7 +48,7 @@ namespace elem
             }
 
             // Then walk the second channel with the operator
-            for (auto i = 0; i < numSamples; ++i) {
+            for (size_t i = 0; i < numSamples; ++i) {
                 outputData[i] = op(outputData[i], inputData[1][i]);
             }
         }
@@ -78,8 +78,8 @@ namespace elem
 
             // Then for each remaining channel, perform the arithmetic operation
             // into the output buffer.
-            for (auto i = 1; i < numChannels; ++i) {
-                for (auto j = 0; j < numSamples; ++j) {
+            for (size_t i = 1; i < numChannels; ++i) {
+                for (size_t j = 0; j < numSamples; ++j) {
                     outputData[j] = op(outputData[j], inputData[i][j]);
                 }
             }

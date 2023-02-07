@@ -90,7 +90,7 @@ namespace elem
         // event handler callback provided.
         //
         // Thread safety must be managed by the user.
-        virtual void processEvents(std::function<void(std::string const&, js::Value)>& eventHandler) {}
+        virtual void processEvents(std::function<void(std::string const&, js::Value)>& /* eventHandler */) {}
 
         // Derived classes may override this method to reset themselves.
         //

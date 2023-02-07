@@ -101,7 +101,7 @@ namespace elem
             bool const loop = wantsLoop.load();
             auto const offset = seqOffset.load();
 
-            for (auto i = 0; i < numSamples; ++i) {
+            for (size_t i = 0; i < numSamples; ++i) {
                 auto const in = inputData[0][i];
                 auto const reset = hasResetSignal ? inputData[1][i] : FloatType(0);
 

@@ -29,7 +29,7 @@ namespace elem
             auto* outputData = ctx.outputData;
             auto numSamples = ctx.numSamples;
 
-            for (auto i = 0; i < numSamples; ++i) {
+            for (size_t i = 0; i < numSamples; ++i) {
                 outputData[i] = (fastRand() / static_cast<FloatType>(0x7FFF));
             }
         }

@@ -183,7 +183,7 @@ namespace elem
             }
 
             // Linear interpolation on the buffer read
-            auto readLeft = static_cast<int>(pos);
+            auto readLeft = static_cast<size_t>(pos);
             auto readRight = readLeft + 1;
             auto const frac = FloatType(pos - (double) readLeft);
 

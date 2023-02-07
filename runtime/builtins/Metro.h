@@ -33,15 +33,13 @@ namespace elem
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
-            auto** inputData = ctx.inputData;
             auto* outputData = ctx.outputData;
-            auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
             auto sampleTime = ctx.sampleTime;
 
             auto is = (double) intervalSamps.load();
 
-            for (auto i = 0; i < numSamples; ++i) {
+            for (size_t i = 0; i < numSamples; ++i) {
                 auto const t = (double) (sampleTime + i) / is;
                 auto const nextOut = FloatType((t - std::floor(t)) < 0.5);
 
