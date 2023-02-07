@@ -69,7 +69,12 @@ namespace elem
             GraphNode<FloatType>::setProperty(key, val);
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, size_t const numChannels, size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // If we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
             if (numChannels < 1)

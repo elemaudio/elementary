@@ -37,7 +37,7 @@ public:
             scratchPointers.push_back(scratchBuffers[i].data());
 
         // Configure the runtime
-        runtime = std::make_unique<elem::Runtime<float>>(sampleRate, maxBlockSize, 2048, 2048);
+        runtime = std::make_unique<elem::Runtime<float>>(sampleRate, maxBlockSize);
 
         // Register extension nodes
         runtime->registerNodeType("convolve", [](elem::GraphNodeId const id, double fs, int const bs) {
