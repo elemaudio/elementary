@@ -50,11 +50,11 @@ namespace elem
         // Run the internal audio processing callback
         void process(
             const FloatType** inputChannelData,
-            int numInputChannels,
+            size_t numInputChannels,
             FloatType** outputChannelData,
-            int numOutputChannels,
-            int numSamples,
-            int64_t sampleTime);
+            size_t numOutputChannels,
+            size_t numSamples,
+            void* userData = nullptr);
 
         //==============================================================================
         // Process queued events
@@ -189,14 +189,14 @@ namespace elem
     }
 
     template <typename FloatType>
-    void Runtime<FloatType>::process(const FloatType** inputChannelData, int numInputChannels, FloatType** outputChannelData, int numOutputChannels, int numSamples, int64_t sampleTime)
+    void Runtime<FloatType>::process(const FloatType** inputChannelData, size_t numInputChannels, FloatType** outputChannelData, size_t numOutputChannels, size_t numSamples, void* userData)
     {
         while (rseqQueue.size() > 0) {
             rseqQueue.pop(rtRenderSeq);
         }
 
         if (rtRenderSeq) {
-            rtRenderSeq->process(inputChannelData, numInputChannels, outputChannelData, numOutputChannels, numSamples, sampleTime);
+            rtRenderSeq->process(inputChannelData, numInputChannels, outputChannelData, numOutputChannels, numSamples, userData);
         }
     }
 

@@ -6,7 +6,6 @@
 #include "builtins/Feedback.h"
 #include "builtins/Filters.h"
 #include "builtins/Math.h"
-#include "builtins/Metro.h"
 #include "builtins/Noise.h"
 #include "builtins/Sample.h"
 #include "builtins/Seq2.h"
@@ -77,7 +76,6 @@ namespace elem
             callback("const",     GenericNodeFactory<ConstNode<FloatType>>());
             callback("phasor",    GenericNodeFactory<PhasorNode<FloatType>>());
             callback("sr",        GenericNodeFactory<SampleRateNode<FloatType>>());
-            callback("time",      GenericNodeFactory<SampleTimeNode<FloatType>>());
             callback("seq",       GenericNodeFactory<SequenceNode<FloatType>>());
             callback("seq2",      GenericNodeFactory<Seq2Node<FloatType>>());
             callback("sparseq",   GenericNodeFactory<SparSeqNode<FloatType>>());
@@ -87,7 +85,6 @@ namespace elem
             callback("maxhold",   GenericNodeFactory<MaxHold<FloatType>>());
             callback("once",      GenericNodeFactory<OnceNode<FloatType>>());
             callback("rand",      GenericNodeFactory<UniformRandomNoiseNode<FloatType>>());
-            callback("metro",     GenericNodeFactory<MetronomeNode<FloatType>>());
 
             // Delay nodes
             callback("delay",     GenericNodeFactory<VariableDelayNode<FloatType>>());

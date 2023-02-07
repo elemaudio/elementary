@@ -20,7 +20,7 @@ namespace elem
         FloatType** outputData;
         size_t numOutputChannels;
         size_t numSamples;
-        int64_t sampleTime;
+        void* userData;
     };
 
     template <typename FloatType>
@@ -91,7 +91,7 @@ namespace elem
                     ctx.numInputChannels,
                     outputData,
                     ctx.numSamples,
-                    ctx.sampleTime,
+                    ctx.userData,
                 });
             });
         }
@@ -119,7 +119,7 @@ namespace elem
                     numChildren,
                     outputData,
                     ctx.numSamples,
-                    ctx.sampleTime,
+                    ctx.userData,
                 });
             });
         }
@@ -177,24 +177,24 @@ namespace elem
 
         void process(
             const FloatType** inputChannelData,
-            int numInputChannels,
+            size_t numInputChannels,
             FloatType** outputChannelData,
-            int numOutputChannels,
-            int numSamples,
-            int64_t sampleTime)
+            size_t numOutputChannels,
+            size_t numSamples,
+            void* userData)
         {
             HostContext<FloatType> ctx {
                 inputChannelData,
-                static_cast<size_t>(numInputChannels),
+                numInputChannels,
                 outputChannelData,
-                static_cast<size_t>(numOutputChannels),
-                static_cast<size_t>(numSamples),
-                sampleTime,
+                numOutputChannels,
+                numSamples,
+                userData,
             };
 
             // Clear the output channels
-            for (int i = 0; i < numOutputChannels; ++i) {
-                for (int j = 0; j < numSamples; ++j) {
+            for (size_t i = 0; i < numOutputChannels; ++i) {
+                for (size_t j = 0; j < numSamples; ++j) {
                     outputChannelData[i][j] = FloatType(0);
                 }
             }

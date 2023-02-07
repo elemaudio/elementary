@@ -35,7 +35,7 @@ struct DeviceProxy {
             ptrs.data(),
             numChannels,
             numFrames,
-            0
+            nullptr
         );
 
         for (size_t i = 0; i < numChannels; ++i)

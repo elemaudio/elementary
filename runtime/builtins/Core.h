@@ -155,21 +155,6 @@ namespace elem
     };
 
     template <typename FloatType>
-    struct SampleTimeNode : public GraphNode<FloatType> {
-        using GraphNode<FloatType>::GraphNode;
-
-        void process (BlockContext<FloatType> const& ctx) override {
-            auto* outputData = ctx.outputData;
-            auto numSamples = ctx.numSamples;
-            auto sampleTime = ctx.sampleTime;
-
-            for (size_t i = 0; i < numSamples; ++i) {
-                outputData[i] = static_cast<double>(sampleTime + i);
-            }
-        }
-    };
-
-    template <typename FloatType>
     struct CounterNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 

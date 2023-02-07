@@ -16,7 +16,7 @@ namespace elem
         size_t numInputChannels;
         FloatType* outputData;
         size_t numSamples;
-        int64_t sampleTime;
+        void* userData;
     };
 
     //==============================================================================
