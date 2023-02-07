@@ -14,3 +14,9 @@ target_compile_features(${TARGET_NAME} PRIVATE
 
 target_link_libraries(${TARGET_NAME} PRIVATE
   runtime)
+
+if(MSVC)
+  target_compile_options(${TARGET_NAME} PRIVATE /W4)
+else()
+  target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra)
+endif()
