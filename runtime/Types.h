@@ -6,6 +6,20 @@
 namespace elem
 {
 
+    //==============================================================================
+    // A simple struct representing the inputs to a given GraphNode during the realtime
+    // audio block processing step.
+    template <typename FloatType>
+    struct BlockContext
+    {
+        FloatType const** inputData;
+        size_t numInputChannels;
+        FloatType* outputData;
+        size_t numSamples;
+        int64_t sampleTime;
+    };
+
+    //==============================================================================
     template <typename FloatType>
     using SharedResourceBuffer = std::shared_ptr<std::vector<FloatType> const>;
 

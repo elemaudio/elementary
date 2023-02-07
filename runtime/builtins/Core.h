@@ -35,7 +35,12 @@ namespace elem
             }
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, std::size_t const numChannels, std::size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // If we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
             if (numChannels < 1)
@@ -74,7 +79,12 @@ namespace elem
             return y;
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, size_t const numChannels, size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // If we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
             if (numChannels < 1)
@@ -115,7 +125,10 @@ namespace elem
             }
         }
 
-        void process (const FloatType** /* inputData */, FloatType* outputData, std::size_t const /* numChannels */, std::size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto* outputData = ctx.outputData;
+            auto numSamples = ctx.numSamples;
+
             auto const v = value.load();
 
             for (auto i = 0; i < numSamples; ++i) {
@@ -131,7 +144,10 @@ namespace elem
     struct SampleRateNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void process (const FloatType** /* inputData */, FloatType* outputData, std::size_t const /* numChannels */, std::size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto* outputData = ctx.outputData;
+            auto numSamples = ctx.numSamples;
+
             for (auto i = 0; i < numSamples; ++i) {
                 outputData[i] = FloatType(GraphNode<FloatType>::getSampleRate());
             }
@@ -142,7 +158,11 @@ namespace elem
     struct SampleTimeNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void process (const FloatType**, FloatType* outputData, size_t const, size_t const numSamples, int64_t sampleTime) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto* outputData = ctx.outputData;
+            auto numSamples = ctx.numSamples;
+            auto sampleTime = ctx.sampleTime;
+
             for (size_t i = 0; i < numSamples; ++i) {
                 outputData[i] = static_cast<double>(sampleTime + i);
             }
@@ -153,7 +173,12 @@ namespace elem
     struct CounterNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void process (const FloatType** inputData, FloatType* outputData, size_t const numChannels, size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // If we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
             if (numChannels < 1)
@@ -183,7 +208,12 @@ namespace elem
     struct AccumNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void process (const FloatType** inputData, FloatType* outputData, size_t const numChannels, size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // If we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
             if (numChannels < 2)
@@ -210,7 +240,12 @@ namespace elem
     struct LatchNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void process (const FloatType** inputData, FloatType* outputData, std::size_t const numChannels, std::size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // We need the first channel to be the latch signal and the second channel to
             // represent the signal we want to sample when the latch changes
             if (numChannels < 2)
@@ -254,7 +289,12 @@ namespace elem
             }
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, size_t const numChannels, size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // We want two input signals: the input to monitor and the reset signal
             if (numChannels < 2)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
@@ -310,7 +350,12 @@ namespace elem
             }
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, std::size_t const numChannels, std::size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             if (numChannels < 1)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
@@ -387,7 +432,12 @@ namespace elem
             }
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, size_t const numChannels, size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // First order of business: grab the most recent sequence buffer to use if
             // there's anything in the queue
             if (sequenceQueue.size() > 0) {

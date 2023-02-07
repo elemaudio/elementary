@@ -32,7 +32,12 @@ namespace elem
             }
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, std::size_t const numChannels, std::size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             while (bufferQueue.size() > 0) {
                 bufferQueue.pop(activeBuffer);
             }
@@ -94,7 +99,12 @@ namespace elem
             std::copy_n(delayBuffer.data(), numSamples, activeTapBuffer->data());
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, std::size_t const numChannels, std::size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // We can shortcut if there's nothing to fill the feedback buffer with
             if (numChannels < 1 || numSamples > delayBuffer.size())
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));

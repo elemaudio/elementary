@@ -37,7 +37,12 @@ namespace elem
     struct SingleSampleDelayNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void process (const FloatType** inputData, FloatType* outputData, std::size_t const numChannels, std::size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // If we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
             if (numChannels < 1)
@@ -94,7 +99,12 @@ namespace elem
             }
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, size_t const numChannels, size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // First order of business: grab the most recent delay buffer to use if
             // there's anything in the queue
             while (bufferQueue.size() > 0) {
@@ -220,7 +230,12 @@ namespace elem
             }
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, size_t const numChannels, size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // First order of business: grab the most recent delay buffer to use if
             // there's anything in the queue
             while (bufferQueue.size() > 0) {

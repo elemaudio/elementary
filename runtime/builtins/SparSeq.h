@@ -185,7 +185,12 @@ namespace elem
             return tickTime;
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, size_t const numChannels, size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             // We let the user optionally supply a second input, a pulse train whose
             // rising edge will reset our sequence position back to the start
             bool hasResetSignal = numChannels > 1;

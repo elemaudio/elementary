@@ -25,7 +25,10 @@ namespace elem
             return (seed >> 16) & 0x7FFF;
         }
 
-        void process (const FloatType** /* inputData */, FloatType* outputData, size_t const /* numChannels */, size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto* outputData = ctx.outputData;
+            auto numSamples = ctx.numSamples;
+
             for (auto i = 0; i < numSamples; ++i) {
                 outputData[i] = (fastRand() / static_cast<FloatType>(0x7FFF));
             }

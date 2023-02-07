@@ -70,7 +70,12 @@ namespace elem
             readers[1].noteOff();
         }
 
-        void process (const FloatType** inputData, FloatType* outputData, size_t const numChannels, size_t const numSamples, int64_t) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
             auto const sampleRate = GraphNode<FloatType>::getSampleRate();
 
             // First order of business: grab the most recent sample buffer to use if

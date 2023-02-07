@@ -32,7 +32,13 @@ namespace elem
             }
         }
 
-        void process (const FloatType** /* inputData */, FloatType* outputData, size_t const /* numChannels */, size_t const numSamples, int64_t sampleTime) override {
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData;
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+            auto sampleTime = ctx.sampleTime;
+
             auto is = (double) intervalSamps.load();
 
             for (auto i = 0; i < numSamples; ++i) {

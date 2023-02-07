@@ -9,8 +9,11 @@
 namespace elem
 {
 
+    //==============================================================================
+    // A simple struct representing the audio processing inputs given to the runtime
+    // by the host application.
     template <typename FloatType>
-    struct BlockContext
+    struct HostContext
     {
         FloatType const** inputData;
         size_t numInputChannels;
@@ -80,9 +83,16 @@ namespace elem
         {
             bufferMap.emplace(node->getId(), ba.next());
 
-            renderOps.push_back([=, bufferMap = this->bufferMap](BlockContext<FloatType>& ctx) {
+            renderOps.push_back([=, bufferMap = this->bufferMap](HostContext<FloatType>& ctx) {
                 auto* outputData = bufferMap.at(node->getId());
-                node->process(ctx.inputData, outputData, ctx.numInputChannels, ctx.numSamples, ctx.sampleTime);
+
+                node->process(BlockContext<FloatType> {
+                    ctx.inputData,
+                    ctx.numInputChannels,
+                    outputData,
+                    ctx.numSamples,
+                    ctx.sampleTime,
+                });
             });
         }
 
@@ -90,7 +100,7 @@ namespace elem
         {
             bufferMap.emplace(node->getId(), ba.next());
 
-            renderOps.push_back([=, bufferMap = this->bufferMap](BlockContext<FloatType>& ctx) {
+            renderOps.push_back([=, bufferMap = this->bufferMap](HostContext<FloatType>& ctx) {
                 auto* outputData = bufferMap.at(node->getId());
                 auto const numChildren = children.size();
 
@@ -104,11 +114,17 @@ namespace elem
                     ptrs[j] = bufferMap.at(children[j]);
                 }
 
-                node->process(const_cast<const FloatType**>(ptrs.data()), outputData, numChildren, ctx.numSamples, ctx.sampleTime);
+                node->process(BlockContext<FloatType> {
+                    const_cast<const FloatType**>(ptrs.data()),
+                    numChildren,
+                    outputData,
+                    ctx.numSamples,
+                    ctx.sampleTime,
+                });
             });
         }
 
-        void process(BlockContext<FloatType>& ctx)
+        void process(HostContext<FloatType>& ctx)
         {
             size_t const outChan = rootPtr->getChannelNumber();
 
@@ -134,7 +150,7 @@ namespace elem
         std::shared_ptr<RootNode<FloatType>> rootPtr;
         std::unordered_map<GraphNodeId, FloatType*>& bufferMap;
 
-        using RenderOperation = std::function<void(BlockContext<FloatType>& context)>;
+        using RenderOperation = std::function<void(HostContext<FloatType>& context)>;
         std::vector<RenderOperation> renderOps;
     };
 
@@ -167,7 +183,7 @@ namespace elem
             int numSamples,
             int64_t sampleTime)
         {
-            BlockContext<FloatType> ctx {
+            HostContext<FloatType> ctx {
                 inputChannelData,
                 static_cast<size_t>(numInputChannels),
                 outputChannelData,

@@ -81,11 +81,7 @@ namespace elem
         //
         // This method will be called from the realtime thread. Thread safety
         // for any custom operations must be managed by the user.
-        virtual void process (const FloatType** inputData,
-                              FloatType* outputData,
-                              size_t const numChannels,
-                              size_t const numSamples,
-                              int64_t sampleTime)  = 0;
+        virtual void process (BlockContext<FloatType> const&)  = 0;
 
         // Derived classes may override this method to relay events.
         //
