@@ -2,7 +2,7 @@ import OfflineRenderer from '../index';
 import { el } from '@elemaudio/core';
 
 
-test.only('feedback taps', async function() {
+test('feedback taps', async function() {
   let core = new OfflineRenderer();
 
   await core.initialize({

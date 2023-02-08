@@ -5,6 +5,8 @@
 
 #include "Convolve.h"
 #include "FFT.h"
+#include "Metro.h"
+#include "SampleTime.h"
 
 
 using namespace emscripten;
@@ -46,6 +48,14 @@ public:
 
         runtime->registerNodeType("fft", [](elem::GraphNodeId const id, double fs, int const bs) {
             return std::make_shared<elem::FFTNode<float>>(id, fs, bs);
+        });
+
+        runtime->registerNodeType("metro", [](elem::GraphNodeId const id, double fs, int const bs) {
+            return std::make_shared<elem::MetronomeNode<float>>(id, fs, bs);
+        });
+
+        runtime->registerNodeType("time", [](elem::GraphNodeId const id, double fs, int const bs) {
+            return std::make_shared<elem::SampleTimeNode<float>>(id, fs, bs);
         });
     }
 
@@ -128,7 +138,7 @@ public:
             scratchPointers.data() + numInputChannels,
             numOutputChannels,
             numSamples,
-            sampleTime
+            static_cast<void*>(&sampleTime)
         );
 
         sampleTime += static_cast<int64_t>(numSamples);
