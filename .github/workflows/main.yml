@@ -27,7 +27,7 @@ jobs:
           cmake \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=./out/ \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.11 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 \
             ../..
 
           cmake --build . --config Release -j 8
