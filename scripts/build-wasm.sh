@@ -16,7 +16,6 @@ el__build() {
         -DCMAKE_BUILD_TYPE=Release \
         -DONLY_BUILD_WASM=ON \
         -DCMAKE_CXX_FLAGS="-O3" \
-        -DELEM_BUILD_LITE="${ELEM_BUILD_LITE:-0}" \
         /src
 
     emmake make
@@ -59,7 +58,6 @@ el__main() {
 
         docker run \
           -v $(pwd):/src \
-          --env ELEM_BUILD_LITE="${ELEM_BUILD_LITE:-0}" \
           --env ELEM_BUILD_ASYNC="$ELEM_BUILD_ASYNC" \
           emscripten/emsdk:3.1.8 \
           ./scripts/build-wasm.sh build

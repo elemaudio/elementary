@@ -6,5 +6,4 @@ set (TargetName runtime)
 add_library(${TargetName} INTERFACE)
 
 target_include_directories(${TargetName} INTERFACE
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_SOURCE_DIR}/deps/FFTConvolver)
+  ${CMAKE_CURRENT_SOURCE_DIR})
