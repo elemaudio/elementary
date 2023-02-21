@@ -5,5 +5,5 @@
 	path = wasm/FFTConvolver
 	url = https://github.com/HiFi-LoFi/FFTConvolver.git
 [submodule "choc"]
-	path = choc
+	path = cli/choc
 	url = https://github.com/nick-thompson/choc.git
