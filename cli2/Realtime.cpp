@@ -11,6 +11,24 @@
 #include "miniaudio.h"
 
 
+const auto* kConsoleShimScript = R"script(
+(function() {
+  if (typeof globalThis.console === 'undefined') {
+    globalThis.console = {
+      log(...args) {
+        return __log__('[log]', ...args);
+      },
+      warn(...args) {
+        return __log__('[warn]', ...args);
+      },
+      error(...args) {
+        return __log__('[error]', ...args);
+      },
+    };
+  }
+})();
+)script";
+
 // A simple struct to proxy between the audio device and the Elementary engine
 struct DeviceProxy {
     DeviceProxy(double sampleRate, size_t blockSize)
@@ -105,6 +123,9 @@ int main(int argc, char** argv) {
 
         return choc::value::Value();
     });
+
+    // Shim the js environment for console logging
+    (void) ctx.evaluate(kConsoleShimScript);
 
     // Then we'll try to read the user's JavaScript file from disk
     if (argc < 2) {

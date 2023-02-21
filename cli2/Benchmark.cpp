@@ -10,6 +10,24 @@
 #include "Runtime.h"
 
 
+const auto* kConsoleShimScript = R"script(
+(function() {
+  if (typeof globalThis.console === 'undefined') {
+    globalThis.console = {
+      log(...args) {
+        return __log__('[log]', ...args);
+      },
+      warn(...args) {
+        return __log__('[warn]', ...args);
+      },
+      error(...args) {
+        return __log__('[error]', ...args);
+      },
+    };
+  }
+})();
+)script";
+
 template <typename FloatType>
 void runBenchmark(std::string const& name, std::string const& inputFile) {
     elem::Runtime<FloatType> runtime(44100.0, 512);
@@ -28,6 +46,9 @@ void runBenchmark(std::string const& name, std::string const& inputFile) {
 
         return choc::value::Value();
     });
+
+    // Shim the js environment for console logging
+    (void) ctx.evaluate(kConsoleShimScript);
 
     // Execute the input file
     auto rv = ctx.evaluate(inputFile);
