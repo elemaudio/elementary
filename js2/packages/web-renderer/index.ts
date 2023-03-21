@@ -15,7 +15,7 @@ export default class WebAudioRenderer extends events.EventEmitter {
   private _renderer: Renderer;
   private _timer: any;
 
-  async initialize(audioContext: AudioContext, workletOptions: AudioWorkletNodeOptions = {}): Promise<AudioWorkletNode> {
+  async initialize(audioContext: AudioContext, workletOptions: AudioWorkletNodeOptions = {}, eventInterval: number = 16): Promise<AudioWorkletNode> {
     invariant(typeof audioContext === 'object' && audioContext !== null, 'First argument to initialize must be a valid AudioContext instance.');
     invariant(typeof workletOptions === 'object' && workletOptions !== null, 'The optional second argument to initialize must be an object.');
 
@@ -71,13 +71,12 @@ export default class WebAudioRenderer extends events.EventEmitter {
         this.emit(type, evt);
       };
 
-      // TODO: When do I clean this up? Should I add a `deinitialize` or `teardown` or
-      // something method which calls clearInterval on this timer?
+      // TODO: Clean up? Unsubscribe option?
       this._timer = window.setInterval(() => {
         this._worklet.port.postMessage({
           type: 'processQueuedEvents',
         });
-      }, 8);
+      }, eventInterval);
     });
   }
 
