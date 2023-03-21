@@ -45,35 +45,40 @@ export default class WebAudioRenderer extends events.EventEmitter {
       outputChannelCount: [2],
     }, workletOptions));
 
-    this._worklet.port.onmessage = (e) => {
-      const [type, evt] = e.data;
+    // We defer the resolution of this method's result until we get the load
+    // event back from the worklet. That way, if the user is awaiting the result
+    // of the initialize event before calling `render`, we guarantee that we've
+    // actually created our Renderer instance here in time.
+    return await new Promise((resolve, reject) => {
+      this._worklet.port.onmessage = (e) => {
+        const [type, evt] = e.data;
 
-      if (type === 'load') {
-        this._renderer = new Renderer(e.sampleRate, (batch) => {
-          this._worklet.port.postMessage({
-            type: 'renderInstructions',
-            batch,
+        if (type === 'load') {
+          this._renderer = new Renderer(e.sampleRate, (batch) => {
+            this._worklet.port.postMessage({
+              type: 'renderInstructions',
+              batch,
+            });
           });
+
+          resolve(this._worklet);
+        }
+
+        if (type === 'error') {
+          return this.emit(type, new Error(evt));
+        }
+
+        this.emit(type, evt);
+      };
+
+      // TODO: When do I clean this up? Should I add a `deinitialize` or `teardown` or
+      // something method which calls clearInterval on this timer?
+      this._timer = window.setInterval(() => {
+        this._worklet.port.postMessage({
+          type: 'processQueuedEvents',
         });
-      }
-
-      if (type === 'error') {
-        return this.emit(type, new Error(evt));
-      }
-
-      this.emit(type, evt);
-    };
-
-    // TODO: When do I clean this up? Should I add a `deinitialize` or `teardown` or
-    // something method which calls clearInterval on this timer?
-    this._timer = window.setInterval(() => {
-      this._worklet.port.postMessage({
-        type: 'processQueuedEvents',
-      });
-    }, 8);
-
-    // Return the worklet node so that users may connect inputs and whatnot
-    return this._worklet;
+      }, 8);
+    });
   }
 
   render(...args) {
