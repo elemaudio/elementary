@@ -52,7 +52,7 @@ jobs:
         run: |
           npm install
           npx lerna bootstrap
-          npx lerna run wasm
+          npx lerna run wasm --concurrency=1
           npx lerna run build
           npx lerna run test
 
