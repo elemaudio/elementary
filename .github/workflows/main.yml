@@ -71,4 +71,4 @@ jobs:
           # Therefore we run lerna publish on every build, and set fetch-depth: 0 for the checkout
           # step in this job which will collect all tags. Lerna will then find them and publish if
           # they're there, else skip.
-          lerna publish from-git --yes --no-verify-access --dist-tag next
+          lerna publish from-git --yes --dist-tag next
