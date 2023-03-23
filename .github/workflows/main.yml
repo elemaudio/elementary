@@ -50,10 +50,11 @@ jobs:
         shell: bash
         working-directory: ./js2
         run: |
-          lerna bootstrap
-          lerna run wasm
-          lerna run build
-          lerna run test
+          npm install
+          npx lerna bootstrap
+          npx lerna run wasm
+          npx lerna run build
+          npx lerna run test
 
       - name: Publish
         shell: bash
@@ -62,13 +63,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          # See https://github.com/lerna/lerna/issues/2788 for --no-verify-access reasoning
-          #
-          # Also, note that Github will not trigger a workflow event for tags in cases where
-          # more than three tags are pushed at once:
-          # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push
-          #
-          # Therefore we run lerna publish on every build, and set fetch-depth: 0 for the checkout
-          # step in this job which will collect all tags. Lerna will then find them and publish if
-          # they're there, else skip.
+          # We only run this step when the build trigger was a push to the develop branch, thus
+          # we need to set the fetch-depth to 0 to collect necessary tags so that we can successfully
+          # execute this from-git step
           lerna publish from-git --yes --dist-tag next
