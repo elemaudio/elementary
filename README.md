@@ -43,7 +43,16 @@ If you need help, join the community on the [Elementary Audio Discord](https://d
 
 ## Contributing
 
-TODO
+We'd love to get you involved! Right now, the primary focus is to promote and grow the Elementary community. So if you want to help, consider:
+
+* Making an open source project with Elementary, like [this one](https://github.com/bgins/coincident-spectra) or [this one](https://github.com/teetow/elementary_grid)
+* Writing your own higher-level modules and sharing them on npm, [like this](https://github.com/nick-thompson/drumsynth/)
+* Writing your own custom native nodes to extend the engine and sharing them on GitHub
+
+If you're more interested in digging in under the hood, check out the [open issues](https://github.com/elemaudio/elementary/issues) to see where we need help right now. Note that while we're
+focusing on the community around Elementary, the immediate goals in this repository are ease of use, extensibility, and performance. We will likely be
+careful and slow to add new features, so if there's a particular feature you want to see here, please [open an issue](https://github.com/elemaudio/elementary/issues/new) to start a conversation around your
+proposal first.
 
 ## License
 
