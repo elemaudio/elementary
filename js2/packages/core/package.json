@@ -14,7 +14,7 @@
   ],
   "author": "Nick Thompson <nick@elementary.audio>",
   "homepage": "https://www.elementary.audio",
-  "license": "See LICENSE.md",
+  "license": "MIT",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
