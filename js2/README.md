@@ -1,9 +1,6 @@
-# @elemaudio npm packages
+# npm packages
 
-This directory manages the main `@elemaudio` packages available on npm. We do so
-using Lerna from this directory root with each package listed in the `packages/`
-directory.
-
+This directory manages the main `@elemaudio` packages available on npm via Lerna.
 We use Lerna's idea of versioning and publishing to manage our packages, with versioning
 done locally and publishing automatically from CI via Github Actions.
 
@@ -13,10 +10,10 @@ To mark a new version:
 npx lerna version --no-push
 ```
 
-Finally, from Github Actions we have a publish action which runs any time a tag
-is pushed to the remote. We use Lerna's `from-git` feature to seek out those tags
-and publish the associated packages.
+Finally, from Github Actions we have a publish action which runs lerna's `from-package` feature
+to push any package versions to the registry that are not already there.
 
 ```bash
-lerna publish from-git
+# See our Github Actions workflow file
+npx lerna publish from-package
 ```
