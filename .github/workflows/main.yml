@@ -54,7 +54,7 @@ jobs:
 
       - name: Lerna build and test
         shell: bash
-        working-directory: ./js2
+        working-directory: ./js
         run: |
           npm install
           npx lerna bootstrap
@@ -64,7 +64,7 @@ jobs:
 
       - name: Publish
         shell: bash
-        working-directory: ./js2
+        working-directory: ./js
         if: ${{ github.ref_type == 'branch' && github.ref_name == 'develop' }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
