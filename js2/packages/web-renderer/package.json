@@ -14,7 +14,7 @@
   ],
   "author": "Nick Thompson <nick@elementary.audio>",
   "homepage": "https://www.elementary.audio",
-  "license": "See LICENSE.md",
+  "license": "MIT",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -25,8 +25,7 @@
   ],
   "scripts": {
     "wasm": "./scripts/prebuild.sh",
-    "build": "rollup -c rollup.config.js",
-    "build-lite": "ELEM_BUILD_LITE=1 rollup -c rollup.config.js"
+    "build": "rollup -c rollup.config.js"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.2",
@@ -35,7 +34,6 @@
     "@rollup/plugin-typescript": "^8.3.1",
     "invariant": "^2.2.4",
     "rollup": "^2.70.0",
-    "rollup-plugin-terser": "^7.0.2",
     "rollup-pluginutils": "^2.8.2",
     "terser": "^5.12.0"
   },

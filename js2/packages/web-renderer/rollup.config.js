@@ -1,6 +1,5 @@
 import cjs from '@rollup/plugin-commonjs';
 import replace from '@rollup/plugin-replace';
-import { terser } from 'rollup-plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 
 import { createFilter } from 'rollup-pluginutils';
@@ -57,6 +56,5 @@ export default {
     }),
     cjs(),
     typescript(),
-    terser(),
   ],
 };
