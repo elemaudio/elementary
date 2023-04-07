@@ -1,7 +1,6 @@
 import cjs from '@rollup/plugin-commonjs';
 import ignore from 'rollup-plugin-ignore';
 import replace from '@rollup/plugin-replace';
-import { terser } from 'rollup-plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 
 
@@ -28,6 +27,5 @@ export default {
     }),
     ignore(['path', 'fs']),
     typescript(),
-    terser(),
   ],
 };
