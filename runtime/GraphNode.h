@@ -10,22 +10,6 @@ namespace elem
 {
 
     //==============================================================================
-    // Identifier type for GraphNode instances
-    using GraphNodeId = int64_t;
-
-    // A simple helper for returning a 0-padded hex string representing a
-    // given node id.
-    inline std::string graphNodeIdToString (GraphNodeId const& i) {
-        std::stringstream ss;
-        ss << std::hex << i;
-
-        auto s = ss.str();
-        s.insert(0, 8 - s.size(), '0');
-
-        return s;
-    }
-
-    //==============================================================================
     // The GraphNode represents a single audio processing operation within the
     // larger audio graph.
     //
@@ -39,15 +23,15 @@ namespace elem
         // The default implementation will hang onto the incoming NodeId and sample rate
         // in member variables. Users may extend this constructor to take the incoming
         // blockSize into account as well.
-        GraphNode(GraphNodeId id, double sr, size_t blockSize);
+        GraphNode(NodeId id, double sr, size_t blockSize);
 
         //==============================================================================
         // GraphNode destructor.
         virtual ~GraphNode() = default;
 
         //==============================================================================
-        // Returns the GraphNodeId associated with this node
-        GraphNodeId getId() { return nodeId; }
+        // Returns the NodeId associated with this node
+        NodeId getId() { return nodeId; }
 
         //==============================================================================
         double getSampleRate() { return sampleRate; }
@@ -100,7 +84,7 @@ namespace elem
 
     private:
         //==============================================================================
-        GraphNodeId nodeId;
+        NodeId nodeId;
         std::unordered_map<std::string, js::Value> props;
 
         double sampleRate;
@@ -110,7 +94,7 @@ namespace elem
     //==============================================================================
     // Details...
     template <typename FloatType>
-    GraphNode<FloatType>::GraphNode(GraphNodeId id, double sr, size_t bs)
+    GraphNode<FloatType>::GraphNode(NodeId id, double sr, size_t bs)
         : nodeId(id)
         , sampleRate(sr)
         , blockSize(bs)

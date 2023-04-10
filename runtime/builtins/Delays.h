@@ -71,7 +71,7 @@ namespace elem
     // a simple comb filter.
     template <typename FloatType>
     struct VariableDelayNode : public GraphNode<FloatType> {
-        VariableDelayNode(GraphNodeId id, FloatType const sr, int const blockSize)
+        VariableDelayNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
         {
             setProperty("size", js::Value((js::Number) blockSize));
@@ -194,7 +194,7 @@ namespace elem
     // can provide helpful performance benefits.
     template <typename FloatType>
     struct SampleDelayNode : public GraphNode<FloatType> {
-        SampleDelayNode(GraphNodeId id, FloatType const sr, int const bs)
+        SampleDelayNode(NodeId id, FloatType const sr, int const bs)
             : GraphNode<FloatType>::GraphNode(id, sr, bs)
             , blockSize(bs)
         {

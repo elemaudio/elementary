@@ -134,11 +134,11 @@ module RenderDelegate = {
   @send external getActiveRoots: t => array<int> = "getActiveRoots"
   @send external getTerminalGeneration: t => int = "getTerminalGeneration"
 
-  @send external createNode: (t, string, string) => () = "createNode"
-  @send external deleteNode: (t, string) => () = "deleteNode"
-  @send external appendChild: (t, string, string) => () = "appendChild"
-  @send external setProperty: (t, string, string, 'a) => () = "setProperty"
-  @send external activateRoots: (t, array<string>) => () = "activateRoots"
+  @send external createNode: (t, int, string) => () = "createNode"
+  @send external deleteNode: (t, int) => () = "deleteNode"
+  @send external appendChild: (t, int, int) => () = "appendChild"
+  @send external setProperty: (t, int, string, 'a) => () = "setProperty"
+  @send external activateRoots: (t, array<int>) => () = "activateRoots"
   @send external commitUpdates: t => () = "commitUpdates"
 }
 
@@ -172,21 +172,21 @@ let mount = (
   node: NodeRepr.t,
   kind: string,
   hash: int,
-  childHashes: array<int>,
+  childHashes: list<int>,
 ) => {
   let nodeMap = RenderDelegate.getNodeMap(delegate)
 
   if Map.has(nodeMap, hash) {
     let existing = Map.get(nodeMap, hash)
-    HashUtils.updateNodeProps(delegate, HashUtils.hashToHexId(hash), existing.props, node.props)
+    HashUtils.updateNodeProps(delegate, hash, existing.props, node.props)
 
     Map.set(nodeMap, hash, NodeRepr.shallowCopy(node))
   } else {
-    RenderDelegate.createNode(delegate, HashUtils.hashToHexId(hash), kind)
-    HashUtils.updateNodeProps(delegate, HashUtils.hashToHexId(hash), Js.Obj.empty(), node.props)
+    RenderDelegate.createNode(delegate, hash, kind)
+    HashUtils.updateNodeProps(delegate, hash, Js.Obj.empty(), node.props)
 
-    Js.Array2.forEach(childHashes, ch => {
-      RenderDelegate.appendChild(delegate, HashUtils.hashToHexId(hash), HashUtils.hashToHexId(ch))
+    Belt.List.forEach(childHashes, ch => {
+      RenderDelegate.appendChild(delegate, hash, ch)
     })
 
     Map.set(nodeMap, hash, NodeRepr.shallowCopy(node))
@@ -212,12 +212,12 @@ let rec visit = (
       if !childrenVisited {
         visit(delegate, visitSet, compositeMap, Belt.List.concat(n.children, ns))
       } else {
-        let childHashes = Belt.List.toArray(Belt.List.map(n.children, child => {
+        let childHashes = Belt.List.map(n.children, child => {
           switch child.kind {
             | #Primitive(_) => NodeRepr.getHashUnchecked(child)
             | #Composite(_) => NodeRepr.getHashUnchecked(Map.get(compositeMap, child))
           }
-        }))
+        })
 
         switch n.kind {
           | #Composite(fn) => {
@@ -226,7 +226,7 @@ let rec visit = (
             // to this composite node `n` will hit the memo lookup and then hit the visited check
             let mfn = getOrCreateMemo(RenderDelegate.getMemoMap(delegate), fn)
             let context = RenderDelegate.getRenderContext(delegate)
-            let lookupKey = HashUtils.hashMemoInputs(n.props, childHashes)
+            let lookupKey = HashUtils.hashMemoInputs(. NodeRepr.asObjectType(n.props), childHashes)
             let resolved = mfn(lookupKey, context, n.props, n.children)
 
             // AH! HERE: We could do the same as the above !childrenVisited case: if the resolved node
@@ -248,7 +248,7 @@ let rec visit = (
           | #Primitive(k) => {
             // Else we've got a primitive node that needs to be hashed and mounted before
             // visiting the remaining nodes
-            let hash = HashUtils.hashNode(k, n.props, childHashes)
+            let hash = HashUtils.hashNode(. k, NodeRepr.asObjectType(n.props), childHashes)
 
             n.hash = Some(hash)
             mount(delegate, n, k, hash, childHashes)
@@ -272,7 +272,7 @@ let renderWithDelegate = (delegate, graphs) => {
 
   visit(delegate, visitSet, compositeMap, roots)
 
-  RenderDelegate.activateRoots(delegate, Belt.List.toArray(Belt.List.map(roots, r => HashUtils.hashToHexId(NodeRepr.getHashUnchecked(r)))))
+  RenderDelegate.activateRoots(delegate, Belt.List.toArray(Belt.List.map(roots, r => NodeRepr.getHashUnchecked(r))))
   RenderDelegate.commitUpdates(delegate)
 }
 
@@ -294,7 +294,7 @@ let stepGarbageCollector = (delegate: RenderDelegate.t): () => {
     n.generation := n.generation.contents + 1
 
     if (n.generation.contents >= term) {
-      RenderDelegate.deleteNode(delegate, HashUtils.hashToHexId(n.hash))
+      RenderDelegate.deleteNode(delegate, n.hash)
       Belt.List.add(acc, n)
     } else {
       acc

@@ -7,6 +7,24 @@ namespace elem
 {
 
     //==============================================================================
+    // Our graph node identifier type
+    using NodeId = int32_t;
+
+    // A simple helper for pretty printing NodeId types
+    std::string nodeIdToHex (NodeId i) {
+        std::stringstream ss;
+        ss << std::hex << i;
+
+        auto s = ss.str();
+
+        if (s.size() <= 8) {
+            s.insert(0, 8 - s.size(), '0');
+        }
+
+        return "0x" + s;
+    }
+
+    //==============================================================================
     // A simple struct representing the inputs to a given GraphNode during the realtime
     // audio block processing step.
     template <typename FloatType>

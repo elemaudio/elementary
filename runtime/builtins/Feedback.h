@@ -58,7 +58,7 @@ namespace elem
     // the render pass.
     template <typename FloatType>
     struct TapOutNode : public GraphNode<FloatType> {
-        TapOutNode(GraphNodeId id, FloatType const sr, int const blockSize)
+        TapOutNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
         {
             delayBuffer.resize(blockSize);

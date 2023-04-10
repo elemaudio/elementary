@@ -145,7 +145,7 @@ namespace elem
     // child's buffer, so that we have coordinated streams
     template <typename FloatType>
     struct ScopeNode : public GraphNode<FloatType> {
-        ScopeNode(GraphNodeId id, FloatType const sr, int const blockSize)
+        ScopeNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
             , ringBuffer(4)
         {

@@ -4,6 +4,7 @@
 #include <unordered_map>
 
 #include "DefaultNodeTypes.h"
+#include "Types.h"
 
 
 namespace elem
@@ -74,7 +75,7 @@ namespace elem
     class RootRenderSequence
     {
     public:
-        RootRenderSequence(std::unordered_map<GraphNodeId, FloatType*>& bm, std::shared_ptr<RootNode<FloatType>>& root)
+        RootRenderSequence(std::unordered_map<NodeId, FloatType*>& bm, std::shared_ptr<RootNode<FloatType>>& root)
             : rootPtr(root)
             , bufferMap(bm)
         {}
@@ -96,7 +97,7 @@ namespace elem
             });
         }
 
-        void push(BufferAllocator<FloatType>& ba, std::shared_ptr<GraphNode<FloatType>>& node, std::vector<GraphNodeId> const& children)
+        void push(BufferAllocator<FloatType>& ba, std::shared_ptr<GraphNode<FloatType>>& node, std::vector<NodeId> const& children)
         {
             bufferMap.emplace(node->getId(), ba.next());
 
@@ -148,7 +149,7 @@ namespace elem
 
     private:
         std::shared_ptr<RootNode<FloatType>> rootPtr;
-        std::unordered_map<GraphNodeId, FloatType*>& bufferMap;
+        std::unordered_map<NodeId, FloatType*>& bufferMap;
 
         using RenderOperation = std::function<void(HostContext<FloatType>& context)>;
         std::vector<RenderOperation> renderOps;
@@ -210,7 +211,7 @@ namespace elem
             });
         }
 
-        std::unordered_map<GraphNodeId, FloatType*> bufferMap;
+        std::unordered_map<NodeId, FloatType*> bufferMap;
 
     private:
         std::vector<std::shared_ptr<TapOutNode<FloatType>>> taps;

@@ -84,7 +84,7 @@ namespace elem
         // After registering your node type, the runtime instance will be ready to receive
         // instructions for your new type, such as those produced by the frontend
         // from, e.g., `core.render(createNode("myNewNodeType", props, [children]))`
-        using NodeFactoryFn = std::function<std::shared_ptr<GraphNode<FloatType>>(GraphNodeId const id, double sampleRate, int const blockSize)>;
+        using NodeFactoryFn = std::function<std::shared_ptr<GraphNode<FloatType>>(NodeId const id, double sampleRate, int const blockSize)>;
         void registerNodeType (std::string const& type, NodeFactoryFn && fn);
 
     private:
@@ -99,26 +99,26 @@ namespace elem
           COMMIT_UPDATES = 5,
         };
 
-        void createNode(std::string const& hash, std::string const& type);
-        void deleteNode(std::string const& hash);
-        void setProperty(std::string const& hash, std::string const& prop, js::Value const& v);
-        void appendChild(std::string const& parentHash, std::string const& childHash);
+        void createNode(int32_t const& nodeId, std::string const& type);
+        void deleteNode(int32_t const& nodeId);
+        void setProperty(int32_t const& nodeId, std::string const& prop, js::Value const& v);
+        void appendChild(int32_t const& parentId, int32_t const& childId);
         void activateRoots(js::Array const& v);
 
         BufferAllocator<FloatType> bufferAllocator;
         std::shared_ptr<GraphRenderSequence<FloatType>> rtRenderSeq;
         std::shared_ptr<GraphRenderSequence<FloatType>> buildRenderSequence();
-        void traverse(std::set<GraphNodeId>& visited, std::vector<GraphNodeId>& visitOrder, GraphNodeId const& n);
+        void traverse(std::set<NodeId>& visited, std::vector<NodeId>& visitOrder, NodeId const& n);
 
         SingleWriterSingleReaderQueue<std::shared_ptr<GraphRenderSequence<FloatType>>> rseqQueue;
 
         //==============================================================================
         std::unordered_map<std::string, NodeFactoryFn> nodeFactory;
-        std::unordered_map<int64_t, std::shared_ptr<GraphNode<FloatType>>> nodeTable;
-        std::unordered_map<int64_t, std::vector<int64_t>> edgeTable;
-        std::unordered_map<int64_t, std::shared_ptr<GraphNode<FloatType>>> garbageTable;
+        std::unordered_map<NodeId, std::shared_ptr<GraphNode<FloatType>>> nodeTable;
+        std::unordered_map<NodeId, std::vector<NodeId>> edgeTable;
+        std::unordered_map<NodeId, std::shared_ptr<GraphNode<FloatType>>> garbageTable;
 
-        std::set<GraphNodeId> currentRoots;
+        std::set<NodeId> currentRoots;
         RefCountedPool<GraphRenderSequence<FloatType>> renderSeqPool;
 
         SharedResourceMap<FloatType> sharedResourceMap;
@@ -153,18 +153,23 @@ namespace elem
             invariant(ar[0].isNumber(), "Expected a number type command.");
             auto const cmd = static_cast<InstructionType>(static_cast<int>((elem::js::Number) ar[0]));
 
+            auto varToInt = [](elem::js::Value const& v) -> int32_t {
+                invariant(v.isNumber(), "Expected a number type node identifier. Make sure you are using @elemaudio/core@v2.0+");
+                return static_cast<int32_t>((elem::js::Number) v);
+            };
+
             switch (cmd) {
                 case InstructionType::CREATE_NODE:
-                    createNode((elem::js::String) ar[1], (elem::js::String) ar[2]);
+                    createNode(varToInt(ar[1]), (elem::js::String) ar[2]);
                     break;
                 case InstructionType::DELETE_NODE:
-                    deleteNode((elem::js::String) ar[1]);
+                    deleteNode(varToInt(ar[1]));
                     break;
                 case InstructionType::SET_PROPERTY:
-                    setProperty((elem::js::String) ar[1], (elem::js::String) ar[2], ar[3]);
+                    setProperty(varToInt(ar[1]), (elem::js::String) ar[2], ar[3]);
                     break;
                 case InstructionType::APPEND_CHILD:
-                    appendChild((elem::js::String) ar[1], (elem::js::String) ar[2]);
+                    appendChild(varToInt(ar[1]), varToInt(ar[2]));
                     break;
                 case InstructionType::ACTIVATE_ROOTS:
                     activateRoots(ar[1].getArray());
@@ -182,7 +187,7 @@ namespace elem
         // thread has already seen the corresponding DeleteNode events and dropped its references
         for (auto it = garbageTable.begin(); it != garbageTable.end();) {
             if (it->second.use_count() == 1) {
-                ELEM_DBG("[Native] pruneNode " << graphNodeIdToString(it->second->getId()));
+                ELEM_DBG("[Native] pruneNode " << nodeIdToHex(it->second->getId()));
                 it = garbageTable.erase(it);
             } else {
                 it++;
@@ -204,11 +209,9 @@ namespace elem
 
     //==============================================================================
     template <typename FloatType>
-    void Runtime<FloatType>::createNode(std::string const& hash, std::string const& type)
+    void Runtime<FloatType>::createNode(int32_t const& nodeId, std::string const& type)
     {
-        ELEM_DBG("[Native] createNode " << type << "#" << hash);
-
-        int64_t nodeId = std::stoll(hash, nullptr, 16);
+        ELEM_DBG("[Native] createNode " << type << "#" << nodeIdToHex(nodeId));
 
         invariant(nodeFactory.find(type) != nodeFactory.end(), "Unknown node type " + type);
         invariant(nodeTable.find(nodeId) == nodeTable.end(), "Trying to create a node which already exists.");
@@ -220,11 +223,10 @@ namespace elem
     }
 
     template <typename FloatType>
-    void Runtime<FloatType>::deleteNode(std::string const& hash)
+    void Runtime<FloatType>::deleteNode(int32_t const& nodeId)
     {
-        ELEM_DBG("[Native] deleteNode " << hash);
+        ELEM_DBG("[Native] deleteNode " << nodeIdToHex(nodeId));
 
-        int64_t nodeId = std::stoll(hash, nullptr, 16);
         invariant(nodeTable.find(nodeId) != nodeTable.end(), "Trying to delete an unrecognized node.");
         invariant(edgeTable.find(nodeId) != edgeTable.end(), "Trying to delete an unrecognized node.");
 
@@ -235,11 +237,10 @@ namespace elem
     }
 
     template <typename FloatType>
-    void Runtime<FloatType>::setProperty(std::string const& hash, std::string const& prop, js::Value const& v)
+    void Runtime<FloatType>::setProperty(int32_t const& nodeId, std::string const& prop, js::Value const& v)
     {
-        ELEM_DBG("[Native] setProperty " << hash << " " << prop << " " << v.toString());
+        ELEM_DBG("[Native] setProperty " << nodeIdToHex(nodeId) << " " << prop << " " << v.toString());
 
-        int64_t nodeId = std::stoll(hash, nullptr, 16);
         invariant(nodeTable.find(nodeId) != nodeTable.end(), "Trying to set a property for an unrecognized node.");
 
         // This is intentionally called on the non-realtime thread. It is the job
@@ -249,12 +250,9 @@ namespace elem
     }
 
     template <typename FloatType>
-    void Runtime<FloatType>::appendChild(std::string const& parentHash, std::string const& childHash)
+    void Runtime<FloatType>::appendChild(int32_t const& parentId, int32_t const& childId)
     {
-        ELEM_DBG("[Native] appendChild " << childHash << " to parent " << parentHash);
-
-        int64_t parentId = std::stoll(parentHash, nullptr, 16);
-        int64_t childId = std::stoll(childHash, nullptr, 16);
+        ELEM_DBG("[Native] appendChild " << nodeIdToHex(childId) << " to parent " << nodeIdToHex(parentId));
 
         invariant(nodeTable.find(parentId) != nodeTable.end(), "Trying to append a child to an unknown parent.");
         invariant(edgeTable.find(parentId) != edgeTable.end(), "Trying to append a child to an unknown parent.");
@@ -266,14 +264,12 @@ namespace elem
     template <typename FloatType>
     void Runtime<FloatType>::activateRoots(js::Array const& roots)
     {
-        ELEM_DBG("[Native] activateRoots " << roots);
-
         // Populate and activate from the incoming event
-        std::set<GraphNodeId> active;
+        std::set<NodeId> active;
 
         for (auto const& v : roots) {
-            auto const nodeHash = (js::String) v;
-            int64_t nodeId = std::stoll(nodeHash, nullptr, 16);
+            int32_t nodeId = static_cast<int32_t>((js::Number) v);
+            ELEM_DBG("[Native] activateRoot " << nodeIdToHex(nodeId));
 
             invariant(nodeTable.find(nodeId) != nodeTable.end(), "Trying to activate an unrecognized root node.");
 
@@ -349,7 +345,7 @@ namespace elem
 
     //==============================================================================
     template <typename FloatType>
-    void Runtime<FloatType>::traverse(std::set<GraphNodeId>& visited, std::vector<GraphNodeId>& visitOrder, GraphNodeId const& n) {
+    void Runtime<FloatType>::traverse(std::set<NodeId>& visited, std::vector<NodeId>& visitOrder, NodeId const& n) {
         // If we've already visited this node, skip
         if (visited.count(n) > 0)
             return;
@@ -385,7 +381,7 @@ namespace elem
         }
 
         // Keep track of visits
-        std::set<GraphNodeId> visited;
+        std::set<NodeId> visited;
 
         // Here we iterate all current roots and visit the graph from each
         // root, pushing onto the render sequence.
@@ -395,8 +391,8 @@ namespace elem
         // afterwards. That way, once the deactivated nodes finish their fade out, we can just stop
         // processing their subtrees without risking skipping a node needed by another root.
         //
-        // std::vector<GraphNodeId> sorted(currentRoots.begin(), currentRoots.end());
-        // std::sort(sorted.begin(), sorted.end(), [=](GraphNodeId a, GraphNodeId b) {
+        // std::vector<NodeId> sorted(currentRoots.begin(), currentRoots.end());
+        // std::sort(sorted.begin(), sorted.end(), [=](NodeId a, NodeId b) {
         //     auto na = nodeTable.at(a);
         //     auto nb = nodeTable.at(b);
         //
@@ -408,10 +404,10 @@ namespace elem
                 // with the buffer map access. auto rrs = rseq->newRootSequence(ptr);
                 RootRenderSequence<FloatType> rrs(rseq->bufferMap, ptr);
 
-                std::vector<GraphNodeId> visitOrder;
+                std::vector<NodeId> visitOrder;
                 traverse(visited, visitOrder, ptr->getId());
 
-                std::for_each(visitOrder.begin(), visitOrder.end(), [&](GraphNodeId const& nid) {
+                std::for_each(visitOrder.begin(), visitOrder.end(), [&](NodeId const& nid) {
                     auto& node = nodeTable.at(nid);
                     auto& children = edgeTable.at(nid);
 

@@ -120,15 +120,15 @@ function mount(delegate, node, kind, hash, childHashes) {
   var nodeMap = delegate.getNodeMap();
   if (nodeMap.has(hash)) {
     var existing = nodeMap.get(hash);
-    HashUtils.updateNodeProps(delegate, HashUtils.hashToHexId(hash), existing.props, node.props);
+    HashUtils.updateNodeProps(delegate, hash, existing.props, node.props);
     nodeMap.set(hash, shallowCopy(node));
     return ;
   }
-  delegate.createNode(HashUtils.hashToHexId(hash), kind);
-  HashUtils.updateNodeProps(delegate, HashUtils.hashToHexId(hash), {}, node.props);
-  childHashes.forEach(function (ch) {
-        delegate.appendChild(HashUtils.hashToHexId(hash), HashUtils.hashToHexId(ch));
-      });
+  delegate.createNode(hash, kind);
+  HashUtils.updateNodeProps(delegate, hash, {}, node.props);
+  Belt_List.forEach(childHashes, (function (ch) {
+          delegate.appendChild(hash, ch);
+        }));
   nodeMap.set(hash, shallowCopy(node));
 }
 
@@ -149,14 +149,14 @@ function visit(delegate, visitSet, compositeMap, _ns) {
     }
     var childrenVisited = Belt_List.every(n.children, visited);
     if (childrenVisited) {
-      var childHashes = Belt_List.toArray(Belt_List.map(n.children, (function (child) {
-                  var match = child.kind;
-                  if (match.NAME === "Composite") {
-                    return getHashUnchecked(compositeMap.get(child));
-                  } else {
-                    return getHashUnchecked(child);
-                  }
-                })));
+      var childHashes = Belt_List.map(n.children, (function (child) {
+              var match = child.kind;
+              if (match.NAME === "Composite") {
+                return getHashUnchecked(compositeMap.get(child));
+              } else {
+                return getHashUnchecked(child);
+              }
+            }));
       var match = n.kind;
       if (match.NAME === "Composite") {
         var mfn = getOrCreateMemo(delegate.getMemoMap(), match.VAL);
@@ -190,9 +190,7 @@ function renderWithDelegate(delegate, graphs) {
                     }, [g]);
         }));
   visit(delegate, visitSet, compositeMap, roots);
-  delegate.activateRoots(Belt_List.toArray(Belt_List.map(roots, (function (r) {
-                  return HashUtils.hashToHexId(getHashUnchecked(r));
-                }))));
+  delegate.activateRoots(Belt_List.toArray(Belt_List.map(roots, getHashUnchecked)));
   delegate.commitUpdates();
 }
 
@@ -202,7 +200,7 @@ function stepGarbageCollector(delegate) {
   var deleted = Array.from(nodeMap.values()).reduce((function (acc, n) {
           n.generation.contents = n.generation.contents + 1 | 0;
           if (n.generation.contents >= term) {
-            delegate.deleteNode(HashUtils.hashToHexId(n.hash));
+            delegate.deleteNode(n.hash);
             return Belt_List.add(acc, n);
           } else {
             return acc;
