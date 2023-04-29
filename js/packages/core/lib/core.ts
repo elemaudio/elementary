@@ -270,6 +270,75 @@ export function sdelay(props: DelayNodeProps, x: NodeRepr_t | number): NodeRepr_
   return createNode("sdelay", props, [resolve(x)]);
 }
 
+// SVF
+export function svf(
+  fc: NodeRepr_t | number,
+  q: NodeRepr_t | number,
+  x: NodeRepr_t | number,
+): NodeRepr_t;
+
+export function svf(
+  props: {
+    key?: string,
+    mode?: string,
+  },
+  fc: NodeRepr_t | number,
+  q: NodeRepr_t | number,
+  x: NodeRepr_t | number,
+): NodeRepr_t;
+
+export function svf(a, b, c, d?) {
+  if (typeof a === "number" || isNode(a)) {
+    return createNode("svf", {}, [
+      resolve(a),
+      resolve(b),
+      resolve(c),
+    ]);
+  }
+
+  return createNode("svf", a, [
+    resolve(b),
+    resolve(c),
+    resolve(d),
+  ]);
+}
+
+export function svfshelf(
+  fc: NodeRepr_t | number,
+  q: NodeRepr_t | number,
+  gainDecibels: NodeRepr_t | number,
+  x: NodeRepr_t | number,
+): NodeRepr_t;
+
+export function svfshelf(
+  props: {
+    key?: string,
+    mode?: string,
+  },
+  fc: NodeRepr_t | number,
+  q: NodeRepr_t | number,
+  gainDecibels: NodeRepr_t | number,
+  x: NodeRepr_t | number,
+): NodeRepr_t;
+
+export function svfshelf(a, b, c, d, e?) {
+  if (typeof a === "number" || isNode(a)) {
+    return createNode("svfshelf", {}, [
+      resolve(a),
+      resolve(b),
+      resolve(c),
+      resolve(d),
+    ]);
+  }
+
+  return createNode("svfshelf", a, [
+    resolve(b),
+    resolve(c),
+    resolve(d),
+    resolve(e),
+  ]);
+}
+
 // Biquad node
 export function biquad(
   b0: NodeRepr_t | number,

@@ -123,46 +123,8 @@ export function df11(a, b, c, d, e?) {
   return el.pole(a1, zero(b0, b1, x));
 }
 
-// Helper for the below el.lowpass
-function LowpassComposite({context, children}) {
-  const [fc, q, x] = children;
-  const w0 = el.div(el.mul(2 * Math.PI, fc), context.sampleRate);
-  const cosw0 = el.cos(w0);
-  const alpha = el.div(el.sin(w0), el.mul(2, q));
-
-  const b0 = el.mul(0.5, el.sub(1, cosw0));
-  const b1 = el.sub(1, cosw0);
-  const b2 = el.mul(0.5, el.sub(1, cosw0));
-  const a0 = el.add(1, alpha);
-  const a1 = el.mul(-2, cosw0);
-  const a2 = el.sub(1, alpha);
-
-  const a0inv = el.div(1, a0);
-
-  // TODO: After we implement the task for eagerly computing el.mul/div/add/sub
-  // over primitive number types, we'll arrive at the follow expression being
-  // a series of primitive numbers to el.biquad if the provided fc, q are also primitive
-  // numbers. In that case, we want `resolveNode` from the reconciler to optionally take
-  // some props to stick onto that resulting `const` node. That way, a user can pass a key
-  // prop to the lowpass node along with two numbers for fc and q, and we can do all of the
-  // mapping onto biquad coeffs right here even with changing fc/q as long as the key holds.
-  return el.biquad(
-    el.mul(b0, a0inv),
-    el.mul(b1, a0inv),
-    el.mul(b2, a0inv),
-    el.mul(a1, a0inv),
-    el.mul(a2, a0inv),
-    x
-  );
-}
-
 /**
- * A second order lowpass filter, derived from the classic RBJ Audio EQ Cookbook.
- *
- * The underlying filter is the transposed Direct Form II `el.biquad`.
- * Coefficients are computed ahead of the realtime thread when possible,
- *
- * Reference: https://www.musicdsp.org/en/latest/Filters/197-rbj-audio-eq-cookbook.html
+ * A second order lowpass filter
  *
  * @param {Object} [props]
  * @param {core.Node|number} fc - Cutoff frequency
@@ -174,45 +136,14 @@ export function lowpass(fc: NodeRepr_t | number, q: NodeRepr_t | number, x: Node
 export function lowpass(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
 export function lowpass(a, b, c, d?) {
   if (typeof a === "number" || isNode(a)) {
-    return createNode(LowpassComposite, {}, [a, b, c]);
+    return el.svf({mode: 'lowpass'}, a, b, c);
   }
 
-  return createNode(LowpassComposite, a, [b, c, d]);
-}
-
-// Helper for the below el.highpass
-function HighpassComposite({context, children}) {
-  const [fc, q, x] = children;
-  const w0 = el.div(el.mul(2 * Math.PI, fc), context.sampleRate);
-  const cosw0 = el.cos(w0);
-  const alpha = el.div(el.sin(w0), el.mul(2, q));
-
-  const b0 = el.mul(0.5, el.add(1, cosw0));
-  const b1 = el.mul(-1.0, el.add(1, cosw0));
-  const b2 = el.mul(0.5, el.add(1, cosw0));
-  const a0 = el.add(1, alpha);
-  const a1 = el.mul(-2, cosw0);
-  const a2 = el.sub(1, alpha);
-
-  const a0inv = el.div(1, a0);
-
-  return el.biquad(
-    el.mul(b0, a0inv),
-    el.mul(b1, a0inv),
-    el.mul(b2, a0inv),
-    el.mul(a1, a0inv),
-    el.mul(a2, a0inv),
-    x
-  );
+  return el.svf(Object.assign({}, a, {mode: 'lowpass'}), b, c, d);
 }
 
 /**
- * A second order highpass filter, derived from the classic RBJ Audio EQ Cookbook.
- *
- * The underlying filter is the transposed Direct Form II `el.biquad`.
- * Coefficients are computed ahead of the realtime thread when possible,
- *
- * Reference: https://www.musicdsp.org/en/latest/Filters/197-rbj-audio-eq-cookbook.html
+ * A second order highpass filter
  *
  * @param {Object} [props]
  * @param {core.Node|number} fc - Cutoff frequency
@@ -224,45 +155,14 @@ export function highpass(fc: NodeRepr_t | number, q: NodeRepr_t | number, x: Nod
 export function highpass(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
 export function highpass(a, b, c, d?) {
   if (typeof a === "number" || isNode(a)) {
-    return createNode(HighpassComposite, {}, [a, b, c]);
+    return el.svf({mode: 'highpass'}, a, b, c);
   }
 
-  return createNode(HighpassComposite, a, [b, c, d]);
-}
-
-// Helper for the below el.bandpass
-function BandpassComposite({context, children}) {
-  const [fc, q, x] = children;
-  const w0 = el.div(el.mul(2 * Math.PI, fc), context.sampleRate);
-  const cosw0 = el.cos(w0);
-  const alpha = el.div(el.sin(w0), el.mul(2, q));
-
-  const b0 = alpha;
-  const b1 = 0;
-  const b2 = el.mul(-1, alpha);
-  const a0 = el.add(1, alpha);
-  const a1 = el.mul(-2, cosw0);
-  const a2 = el.sub(1, alpha);
-
-  const a0inv = el.div(1, a0);
-
-  return el.biquad(
-    el.mul(b0, a0inv),
-    el.mul(b1, a0inv),
-    el.mul(b2, a0inv),
-    el.mul(a1, a0inv),
-    el.mul(a2, a0inv),
-    x
-  );
+  return el.svf(Object.assign({}, a, {mode: 'highpass'}), b, c, d);
 }
 
 /**
- * A second order bandpass filter, derived from the classic RBJ Audio EQ Cookbook.
- *
- * The underlying filter is the transposed Direct Form II `el.biquad`.
- * Coefficients are computed ahead of the realtime thread when possible,
- *
- * Reference: https://www.musicdsp.org/en/latest/Filters/197-rbj-audio-eq-cookbook.html
+ * A second order bandpass filter
  *
  * @param {Object} [props]
  * @param {core.Node|number} fc - Cutoff frequency
@@ -274,45 +174,14 @@ export function bandpass(fc: NodeRepr_t | number, q: NodeRepr_t | number, x: Nod
 export function bandpass(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
 export function bandpass(a, b, c, d?) {
   if (typeof a === "number" || isNode(a)) {
-    return createNode(BandpassComposite, {}, [a, b, c]);
+    return el.svf({mode: 'bandpass'}, a, b, c);
   }
 
-  return createNode(BandpassComposite, a, [b, c, d]);
-}
-
-// Helper for the below el.notch
-function NotchComposite({context, children}) {
-  const [fc, q, x] = children;
-  const w0 = el.div(el.mul(2 * Math.PI, fc), context.sampleRate);
-  const cosw0 = el.cos(w0);
-  const alpha = el.div(el.sin(w0), el.mul(2, q));
-
-  const b0 = 1;
-  const b1 = el.mul(-2, cosw0);
-  const b2 = 1;
-  const a0 = el.add(1, alpha);
-  const a1 = el.mul(-2, cosw0);
-  const a2 = el.sub(1, alpha);
-
-  const a0inv = el.div(1, a0);
-
-  return el.biquad(
-    el.mul(b0, a0inv),
-    el.mul(b1, a0inv),
-    el.mul(b2, a0inv),
-    el.mul(a1, a0inv),
-    el.mul(a2, a0inv),
-    x
-  );
+  return el.svf(Object.assign({}, a, {mode: 'bandpass'}), b, c, d);
 }
 
 /**
- * A second order notch filter, derived from the classic RBJ Audio EQ Cookbook.
- *
- * The underlying filter is the transposed Direct Form II `el.biquad`.
- * Coefficients are computed ahead of the realtime thread when possible,
- *
- * Reference: https://www.musicdsp.org/en/latest/Filters/197-rbj-audio-eq-cookbook.html
+ * A second order notch filter
  *
  * @param {Object} [props]
  * @param {core.Node|number} fc - Cutoff frequency
@@ -324,45 +193,14 @@ export function notch(fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRe
 export function notch(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
 export function notch(a, b, c, d?) {
   if (typeof a === "number" || isNode(a)) {
-    return createNode(NotchComposite, {}, [a, b, c]);
+    return el.svf({mode: 'notch'}, a, b, c);
   }
 
-  return createNode(NotchComposite, a, [b, c, d]);
-}
-
-// Helper for the below el.allpass
-function AllpassComposite({context, children}) {
-  const [fc, q, x] = children;
-  const w0 = el.div(el.mul(2 * Math.PI, fc), context.sampleRate);
-  const cosw0 = el.cos(w0);
-  const alpha = el.div(el.sin(w0), el.mul(2, q));
-
-  const b0 = el.sub(1, alpha);
-  const b1 = el.mul(-2, cosw0);
-  const b2 = el.add(1, alpha);
-  const a0 = el.add(1, alpha);
-  const a1 = el.mul(-2, cosw0);
-  const a2 = el.sub(1, alpha);
-
-  const a0inv = el.div(1, a0);
-
-  return el.biquad(
-    el.mul(b0, a0inv),
-    el.mul(b1, a0inv),
-    el.mul(b2, a0inv),
-    el.mul(a1, a0inv),
-    el.mul(a2, a0inv),
-    x
-  );
+  return el.svf(Object.assign({}, a, {mode: 'notch'}), b, c, d);
 }
 
 /**
- * A second order allpass filter, derived from the classic RBJ Audio EQ Cookbook.
- *
- * The underlying filter is the transposed Direct Form II `el.biquad`.
- * Coefficients are computed ahead of the realtime thread when possible,
- *
- * Reference: https://www.musicdsp.org/en/latest/Filters/197-rbj-audio-eq-cookbook.html
+ * A second order allpass filter
  *
  * @param {Object} [props]
  * @param {core.Node|number} fc - Cutoff frequency
@@ -374,10 +212,10 @@ export function allpass(fc: NodeRepr_t | number, q: NodeRepr_t | number, x: Node
 export function allpass(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
 export function allpass(a, b, c, d?) {
   if (typeof a === "number" || isNode(a)) {
-    return createNode(AllpassComposite, {}, [a, b, c]);
+    return el.svf({mode: 'allpass'}, a, b, c);
   }
 
-  return createNode(AllpassComposite, a, [b, c, d]);
+  return el.svf(Object.assign({}, a, {mode: 'allpass'}), b, c, d);
 }
 
 // Helper for the below el.peak
@@ -408,12 +246,7 @@ function PeakComposite({context, children}) {
 }
 
 /**
- * A second order peaking (bell) filter, derived from the classic RBJ Audio EQ Cookbook.
- *
- * The underlying filter is the transposed Direct Form II `el.biquad`.
- * Coefficients are computed ahead of the realtime thread when possible,
- *
- * Reference: https://www.musicdsp.org/en/latest/Filters/197-rbj-audio-eq-cookbook.html
+ * A second order peak (bell) filter
  *
  * @param {Object} [props]
  * @param {core.Node|number} fc - Cutoff frequency
@@ -426,52 +259,14 @@ export function peak(fc: NodeRepr_t | number, q: NodeRepr_t | number, gainDecibe
 export function peak(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, gainDecibels: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
 export function peak(a, b, c, d, e?) {
   if (typeof a === "number" || isNode(a)) {
-    return createNode(PeakComposite, {}, [a, b, c, d]);
+    return el.svfshelf({mode: 'peak'}, a, b, c, d);
   }
 
-  return createNode(PeakComposite, a, [b, c, d, e]);
-}
-
-// Helper for the below el.lowshelf
-function LowshelfComposite({context, children}) {
-  const [fc, q, gainDecibels, x] = children;
-  const A = el.pow(10, el.div(gainDecibels, 40));
-  const w0 = el.div(el.mul(2 * Math.PI, fc), context.sampleRate);
-  const cosw0 = el.cos(w0);
-  const alpha = el.div(el.sin(w0), el.mul(2, q));
-  const alphaRootA2 = el.mul(2, alpha, el.sqrt(A));
-
-  const ap1 = el.add(A, 1);
-  const as1 = el.sub(A, 1);
-  const ap1cosw0 = el.mul(ap1, cosw0);
-  const as1cosw0 = el.mul(as1, cosw0);
-
-  const b0 = el.mul(A, el.add(alphaRootA2, el.sub(ap1, as1cosw0)));
-  const b1 = el.mul(2, A, el.sub(as1, ap1cosw0));
-  const b2 = el.mul(A, el.sub(ap1, as1cosw0, alphaRootA2));
-  const a0 = el.add(ap1, as1cosw0, alphaRootA2);
-  const a1 = el.mul(-2, el.add(as1, ap1cosw0));
-  const a2 = el.sub(el.add(ap1, as1cosw0), alphaRootA2);
-
-  const a0inv = el.div(1, a0);
-
-  return el.biquad(
-    el.mul(b0, a0inv),
-    el.mul(b1, a0inv),
-    el.mul(b2, a0inv),
-    el.mul(a1, a0inv),
-    el.mul(a2, a0inv),
-    x
-  );
+  return el.svfshelf(Object.assign({}, a, {mode: 'peak'}), b, c, d, e);
 }
 
 /**
- * A second order lowshelf filter, derived from the classic RBJ Audio EQ Cookbook.
- *
- * The underlying filter is the transposed Direct Form II `el.biquad`.
- * Coefficients are computed ahead of the realtime thread when possible,
- *
- * Reference: https://www.musicdsp.org/en/latest/Filters/197-rbj-audio-eq-cookbook.html
+ * A second order lowshelf filter
  *
  * @param {Object} [props]
  * @param {core.Node|number} fc - Cutoff frequency
@@ -484,52 +279,14 @@ export function lowshelf(fc: NodeRepr_t | number, q: NodeRepr_t | number, gainDe
 export function lowshelf(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, gainDecibels: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
 export function lowshelf(a, b, c, d, e?) {
   if (typeof a === "number" || isNode(a)) {
-    return createNode(LowshelfComposite, {}, [a, b, c, d]);
+    return el.svfshelf({mode: 'lowshelf'}, a, b, c, d);
   }
 
-  return createNode(LowshelfComposite, a, [b, c, d, e]);
-}
-
-// Helper for the below el.highshelf
-function HighshelfComposite({context, children}) {
-  const [fc, q, gainDecibels, x] = children;
-  const A = el.pow(10, el.div(gainDecibels, 40));
-  const w0 = el.div(el.mul(2 * Math.PI, fc), context.sampleRate);
-  const cosw0 = el.cos(w0);
-  const alpha = el.div(el.sin(w0), el.mul(2, q));
-  const alphaRootA2 = el.mul(2, alpha, el.sqrt(A));
-
-  const ap1 = el.add(A, 1);
-  const as1 = el.sub(A, 1);
-  const ap1cosw0 = el.mul(ap1, cosw0);
-  const as1cosw0 = el.mul(as1, cosw0);
-
-  const b0 = el.mul(A, el.add(alphaRootA2, ap1, as1cosw0));
-  const b1 = el.mul(-2, A, el.add(as1, ap1cosw0));
-  const b2 = el.mul(A, el.sub(el.add(ap1, as1cosw0), alphaRootA2));
-  const a0 = el.add(el.sub(ap1, as1cosw0), alphaRootA2);
-  const a1 = el.mul(2, el.sub(as1, ap1cosw0));
-  const a2 = el.sub(ap1, as1cosw0, alphaRootA2);
-
-  const a0inv = el.div(1, a0);
-
-  return el.biquad(
-    el.mul(b0, a0inv),
-    el.mul(b1, a0inv),
-    el.mul(b2, a0inv),
-    el.mul(a1, a0inv),
-    el.mul(a2, a0inv),
-    x
-  );
+  return el.svfshelf(Object.assign({}, a, {mode: 'lowshelf'}), b, c, d, e);
 }
 
 /**
- * A second order highshelf filter, derived from the classic RBJ Audio EQ Cookbook.
- *
- * The underlying filter is the transposed Direct Form II `el.biquad`.
- * Coefficients are computed ahead of the realtime thread when possible,
- *
- * Reference: https://www.musicdsp.org/en/latest/Filters/197-rbj-audio-eq-cookbook.html
+ * A second order highshelf filter
  *
  * @param {Object} [props]
  * @param {core.Node|number} fc - Cutoff frequency
@@ -542,10 +299,10 @@ export function highshelf(fc: NodeRepr_t | number, q: NodeRepr_t | number, gainD
 export function highshelf(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, gainDecibels: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
 export function highshelf(a, b, c, d, e?) {
   if (typeof a === "number" || isNode(a)) {
-    return createNode(HighshelfComposite, {}, [a, b, c, d]);
+    return el.svfshelf({mode: 'highshelf'}, a, b, c, d);
   }
 
-  return createNode(HighshelfComposite, a, [b, c, d, e]);
+  return el.svfshelf(Object.assign({}, a, {mode: 'highshelf'}), b, c, d, e);
 }
 
 /**
