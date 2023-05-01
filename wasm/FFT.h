@@ -16,7 +16,7 @@ namespace elem
     // Expects exactly one child.
     template <typename FloatType>
     struct FFTNode : public GraphNode<FloatType> {
-        FFTNode(GraphNodeId id, FloatType const sr, int const blockSize)
+        FFTNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
             , ringBuffer(1)
         {

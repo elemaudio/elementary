@@ -9,7 +9,7 @@ namespace elem
 
     template <typename FloatType>
     struct MetronomeNode : public GraphNode<FloatType> {
-        MetronomeNode(GraphNodeId id, FloatType const sr, int const bs)
+        MetronomeNode(NodeId id, FloatType const sr, int const bs)
             : GraphNode<FloatType>::GraphNode(id, sr, bs)
         {
             // By default the metro interval is exactly one second
