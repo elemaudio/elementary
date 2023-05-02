@@ -274,7 +274,7 @@ namespace elem
             invariant(nodeTable.find(nodeId) != nodeTable.end(), "Trying to activate an unrecognized root node.");
 
             if (auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(nodeTable.at(nodeId))) {
-                ptr->activate(); // TODO: Do this with props
+                ptr->setProperty("active", true);
                 active.insert(nodeId);
             }
         }
@@ -284,7 +284,7 @@ namespace elem
             if (auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(nodeTable.at(n))) {
                 // If any current root was not marked active in this event, we deactivate it
                 if (active.count(n) == 0) {
-                    ptr->deactivate();
+                    ptr->setProperty("active", false);
                 }
 
                 // And if it's still running, we hang onto it
@@ -380,46 +380,53 @@ namespace elem
             }
         }
 
-        // Keep track of visits
-        std::set<NodeId> visited;
-
         // Here we iterate all current roots and visit the graph from each
         // root, pushing onto the render sequence.
         //
-        // TODO currentRoots is a set of graph node ids. We need to copy the set into a vector
-        // and then sort it to make sure we visit the active nodes first, and the deactivated nodes
-        // afterwards. That way, once the deactivated nodes finish their fade out, we can just stop
-        // processing their subtrees without risking skipping a node needed by another root.
+        // We're careful to traverse the graph starting from all active root
+        // nodes before we traverse from any roots marked inactive. This way, after an
+        // inactive root node has finished its fade, we can safely stop running its
+        // associated RootRenderSequence knowing that any nodes in the dependency graph
+        // of the active roots will still get visited.
         //
-        // std::vector<NodeId> sorted(currentRoots.begin(), currentRoots.end());
-        // std::sort(sorted.begin(), sorted.end(), [=](NodeId a, NodeId b) {
-        //     auto na = nodeTable.at(a);
-        //     auto nb = nodeTable.at(b);
-        //
-        //     return a.isActive(); // something like that
-        // });
+        // To put that another way, we make sure that all "live" nodes are associated with
+        // the RootRenderSequences of the active roots, and any nodes which will be "dead" after
+        // the associated root has finished its fade can be safely skipped.
+        std::list<std::shared_ptr<RootNode<FloatType>>> sortedRoots;
+
+        // Keep track of visits
+        std::set<NodeId> visited;
+
         for (auto const& n : currentRoots) {
             if (auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(nodeTable.at(n))) {
-                // The GraphRenderSequence should make RootRenderSequence instances already provisioned
-                // with the buffer map access. auto rrs = rseq->newRootSequence(ptr);
-                RootRenderSequence<FloatType> rrs(rseq->bufferMap, ptr);
+                auto isActive = ptr->getPropertyWithDefault("active", (js::Boolean) false);
 
-                std::vector<NodeId> visitOrder;
-                traverse(visited, visitOrder, ptr->getId());
-
-                std::for_each(visitOrder.begin(), visitOrder.end(), [&](NodeId const& nid) {
-                    auto& node = nodeTable.at(nid);
-                    auto& children = edgeTable.at(nid);
-
-                    if (children.size() > 0) {
-                        rrs.push(bufferAllocator, node, children);
-                    } else {
-                        rrs.push(bufferAllocator, node);
-                    }
-                });
-
-                rseq->push(std::move(rrs));
+                if (isActive) {
+                    sortedRoots.push_front(ptr);
+                } else {
+                    sortedRoots.push_back(ptr);
+                }
             }
+        }
+
+        for (auto& ptr : sortedRoots) {
+            RootRenderSequence<FloatType> rrs(rseq->bufferMap, ptr);
+
+            std::vector<NodeId> visitOrder;
+            traverse(visited, visitOrder, ptr->getId());
+
+            std::for_each(visitOrder.begin(), visitOrder.end(), [&](NodeId const& nid) {
+                auto& node = nodeTable.at(nid);
+                auto& children = edgeTable.at(nid);
+
+                if (children.size() > 0) {
+                    rrs.push(bufferAllocator, node, children);
+                } else {
+                    rrs.push(bufferAllocator, node);
+                }
+            });
+
+            rseq->push(std::move(rrs));
         }
 
         return rseq;
