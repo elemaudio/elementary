@@ -25,11 +25,15 @@ namespace elem
             return (t >= 0.5 || (std::abs(c - t) >= std::numeric_limits<FloatType>::epsilon()));
         }
 
-        void activate() { targetGain.store(FloatType(1)); }
-        void deactivate() { targetGain.store(FloatType(0)); }
-
         void setProperty(std::string const& key, js::Value const& val) override
         {
+            GraphNode<FloatType>::setProperty(key, val);
+
+            if (key == "active") {
+                invariant(val.isBool(), "active prop for root node must be a boolean type");
+                targetGain.store(FloatType(val ? 1 : 0));
+            }
+
             if (key == "channel") {
                 channelIndex.store(static_cast<int>((js::Number) val));
             }

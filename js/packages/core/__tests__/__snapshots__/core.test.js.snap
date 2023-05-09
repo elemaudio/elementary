@@ -1,0 +1,1141 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`distinguish by props 1`] = `
+Array [
+  Array [
+    "createNode",
+    1557538697,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1557538697,
+    "value",
+    2,
+  ],
+  Array [
+    "createNode",
+    1616670699,
+    "phasor",
+  ],
+  Array [
+    "appendChild",
+    1616670699,
+    1557538697,
+  ],
+  Array [
+    "createNode",
+    1181055054,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1181055054,
+    "value",
+    0.5,
+  ],
+  Array [
+    "createNode",
+    1049815855,
+    "le",
+  ],
+  Array [
+    "appendChild",
+    1049815855,
+    1616670699,
+  ],
+  Array [
+    "appendChild",
+    1049815855,
+    1181055054,
+  ],
+  Array [
+    "createNode",
+    1089078935,
+    "seq",
+  ],
+  Array [
+    "setProperty",
+    1089078935,
+    "seq",
+    Array [
+      0,
+      0,
+      1,
+    ],
+  ],
+  Array [
+    "appendChild",
+    1089078935,
+    1049815855,
+  ],
+  Array [
+    "createNode",
+    1440666767,
+    "sample",
+  ],
+  Array [
+    "setProperty",
+    1440666767,
+    "path",
+    "test/path.wav",
+  ],
+  Array [
+    "appendChild",
+    1440666767,
+    1089078935,
+  ],
+  Array [
+    "createNode",
+    1840069255,
+    "root",
+  ],
+  Array [
+    "setProperty",
+    1840069255,
+    "channel",
+    0,
+  ],
+  Array [
+    "appendChild",
+    1840069255,
+    1440666767,
+  ],
+  Array [
+    "createNode",
+    493667567,
+    "seq",
+  ],
+  Array [
+    "setProperty",
+    493667567,
+    "seq",
+    Array [
+      0,
+      1,
+      0,
+    ],
+  ],
+  Array [
+    "appendChild",
+    493667567,
+    1049815855,
+  ],
+  Array [
+    "createNode",
+    1741781271,
+    "sample",
+  ],
+  Array [
+    "setProperty",
+    1741781271,
+    "path",
+    "test/path.wav",
+  ],
+  Array [
+    "appendChild",
+    1741781271,
+    493667567,
+  ],
+  Array [
+    "createNode",
+    383156298,
+    "root",
+  ],
+  Array [
+    "setProperty",
+    383156298,
+    "channel",
+    1,
+  ],
+  Array [
+    "appendChild",
+    383156298,
+    1741781271,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      1840069255,
+      383156298,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`distinguished subtrees by key 1`] = `
+Array [
+  Array [
+    "createNode",
+    1097289128,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1097289128,
+    "value",
+    6.283185307179586,
+  ],
+  Array [
+    "createNode",
+    1427558172,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1427558172,
+    "key",
+    "fq1",
+  ],
+  Array [
+    "setProperty",
+    1427558172,
+    "value",
+    440,
+  ],
+  Array [
+    "createNode",
+    453812052,
+    "phasor",
+  ],
+  Array [
+    "appendChild",
+    453812052,
+    1427558172,
+  ],
+  Array [
+    "createNode",
+    453550641,
+    "mul",
+  ],
+  Array [
+    "appendChild",
+    453550641,
+    1097289128,
+  ],
+  Array [
+    "appendChild",
+    453550641,
+    453812052,
+  ],
+  Array [
+    "createNode",
+    1074324112,
+    "sin",
+  ],
+  Array [
+    "appendChild",
+    1074324112,
+    453550641,
+  ],
+  Array [
+    "createNode",
+    1193164375,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1193164375,
+    "key",
+    "fq2",
+  ],
+  Array [
+    "setProperty",
+    1193164375,
+    "value",
+    440,
+  ],
+  Array [
+    "createNode",
+    197128117,
+    "phasor",
+  ],
+  Array [
+    "appendChild",
+    197128117,
+    1193164375,
+  ],
+  Array [
+    "createNode",
+    364394878,
+    "mul",
+  ],
+  Array [
+    "appendChild",
+    364394878,
+    1097289128,
+  ],
+  Array [
+    "appendChild",
+    364394878,
+    197128117,
+  ],
+  Array [
+    "createNode",
+    787548653,
+    "sin",
+  ],
+  Array [
+    "appendChild",
+    787548653,
+    364394878,
+  ],
+  Array [
+    "createNode",
+    555467758,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    555467758,
+    "key",
+    "fq3",
+  ],
+  Array [
+    "setProperty",
+    555467758,
+    "value",
+    440,
+  ],
+  Array [
+    "createNode",
+    1492179306,
+    "phasor",
+  ],
+  Array [
+    "appendChild",
+    1492179306,
+    555467758,
+  ],
+  Array [
+    "createNode",
+    220712335,
+    "mul",
+  ],
+  Array [
+    "appendChild",
+    220712335,
+    1097289128,
+  ],
+  Array [
+    "appendChild",
+    220712335,
+    1492179306,
+  ],
+  Array [
+    "createNode",
+    1512310154,
+    "sin",
+  ],
+  Array [
+    "appendChild",
+    1512310154,
+    220712335,
+  ],
+  Array [
+    "createNode",
+    1661951969,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1661951969,
+    "key",
+    "fq4",
+  ],
+  Array [
+    "setProperty",
+    1661951969,
+    "value",
+    440,
+  ],
+  Array [
+    "createNode",
+    79046899,
+    "phasor",
+  ],
+  Array [
+    "appendChild",
+    79046899,
+    1661951969,
+  ],
+  Array [
+    "createNode",
+    1376555748,
+    "mul",
+  ],
+  Array [
+    "appendChild",
+    1376555748,
+    1097289128,
+  ],
+  Array [
+    "appendChild",
+    1376555748,
+    79046899,
+  ],
+  Array [
+    "createNode",
+    866439039,
+    "sin",
+  ],
+  Array [
+    "appendChild",
+    866439039,
+    1376555748,
+  ],
+  Array [
+    "createNode",
+    1808164672,
+    "add",
+  ],
+  Array [
+    "appendChild",
+    1808164672,
+    1074324112,
+  ],
+  Array [
+    "appendChild",
+    1808164672,
+    787548653,
+  ],
+  Array [
+    "appendChild",
+    1808164672,
+    1512310154,
+  ],
+  Array [
+    "appendChild",
+    1808164672,
+    866439039,
+  ],
+  Array [
+    "createNode",
+    19209078,
+    "root",
+  ],
+  Array [
+    "setProperty",
+    19209078,
+    "channel",
+    0,
+  ],
+  Array [
+    "appendChild",
+    19209078,
+    1808164672,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      19209078,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`garbage collection 1`] = `
+Array [
+  Array [
+    "createNode",
+    1511449914,
+    "cos",
+  ],
+  Array [
+    "appendChild",
+    1511449914,
+    1913760094,
+  ],
+  Array [
+    "createNode",
+    1305352856,
+    "root",
+  ],
+  Array [
+    "setProperty",
+    1305352856,
+    "channel",
+    0,
+  ],
+  Array [
+    "appendChild",
+    1305352856,
+    1511449914,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      1305352856,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`garbage collection 2`] = `
+Array [
+  Array [
+    "deleteNode",
+    520300429,
+  ],
+  Array [
+    "deleteNode",
+    1423955117,
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`memo and keyed props 1`] = `
+Array [
+  Array [
+    "createNode",
+    1097289128,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1097289128,
+    "value",
+    6.283185307179586,
+  ],
+  Array [
+    "createNode",
+    1547624029,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1547624029,
+    "key",
+    "hi",
+  ],
+  Array [
+    "setProperty",
+    1547624029,
+    "value",
+    440,
+  ],
+  Array [
+    "createNode",
+    1633409319,
+    "phasor",
+  ],
+  Array [
+    "appendChild",
+    1633409319,
+    1547624029,
+  ],
+  Array [
+    "createNode",
+    367474440,
+    "mul",
+  ],
+  Array [
+    "appendChild",
+    367474440,
+    1097289128,
+  ],
+  Array [
+    "appendChild",
+    367474440,
+    1633409319,
+  ],
+  Array [
+    "createNode",
+    593917483,
+    "sin",
+  ],
+  Array [
+    "appendChild",
+    593917483,
+    367474440,
+  ],
+  Array [
+    "createNode",
+    70054491,
+    "root",
+  ],
+  Array [
+    "setProperty",
+    70054491,
+    "channel",
+    0,
+  ],
+  Array [
+    "appendChild",
+    70054491,
+    593917483,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      70054491,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`memo and keyed props 2`] = `
+Array [
+  Array [
+    "setProperty",
+    1547624029,
+    "value",
+    880,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      70054491,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`memo and keyed props 3`] = `
+Array [
+  Array [
+    "setProperty",
+    1547624029,
+    "value",
+    440,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      70054491,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`multi-channel basics 1`] = `
+Array [
+  Array [
+    "createNode",
+    1097289128,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1097289128,
+    "value",
+    6.283185307179586,
+  ],
+  Array [
+    "createNode",
+    1709345783,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1709345783,
+    "key",
+    "fq",
+  ],
+  Array [
+    "setProperty",
+    1709345783,
+    "value",
+    440,
+  ],
+  Array [
+    "createNode",
+    1952747413,
+    "phasor",
+  ],
+  Array [
+    "appendChild",
+    1952747413,
+    1709345783,
+  ],
+  Array [
+    "createNode",
+    1689717726,
+    "mul",
+  ],
+  Array [
+    "appendChild",
+    1689717726,
+    1097289128,
+  ],
+  Array [
+    "appendChild",
+    1689717726,
+    1952747413,
+  ],
+  Array [
+    "createNode",
+    872803085,
+    "sin",
+  ],
+  Array [
+    "appendChild",
+    872803085,
+    1689717726,
+  ],
+  Array [
+    "createNode",
+    805437229,
+    "root",
+  ],
+  Array [
+    "setProperty",
+    805437229,
+    "channel",
+    0,
+  ],
+  Array [
+    "appendChild",
+    805437229,
+    872803085,
+  ],
+  Array [
+    "createNode",
+    1850081212,
+    "root",
+  ],
+  Array [
+    "setProperty",
+    1850081212,
+    "channel",
+    1,
+  ],
+  Array [
+    "appendChild",
+    1850081212,
+    872803085,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      805437229,
+      1850081212,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`nested memo 1`] = `
+Array [
+  Array [
+    "createNode",
+    457840088,
+    "const",
+  ],
+  Array [
+    "createNode",
+    1077660872,
+    "phasor",
+  ],
+  Array [
+    "createNode",
+    1181055054,
+    "const",
+  ],
+  Array [
+    "createNode",
+    291907936,
+    "le",
+  ],
+  Array [
+    "createNode",
+    359268767,
+    "const",
+  ],
+  Array [
+    "createNode",
+    506430402,
+    "mul",
+  ],
+  Array [
+    "createNode",
+    233383955,
+    "pole",
+  ],
+  Array [
+    "createNode",
+    1669286131,
+    "root",
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      1669286131,
+    ],
+  ],
+]
+`;
+
+exports[`nested memo 2`] = `
+Array [
+  Array [
+    "createNode",
+    296118334,
+    "const",
+  ],
+  Array [
+    "createNode",
+    1622847450,
+    "phasor",
+  ],
+  Array [
+    "createNode",
+    1733698402,
+    "le",
+  ],
+  Array [
+    "createNode",
+    848282268,
+    "mul",
+  ],
+  Array [
+    "createNode",
+    1856203021,
+    "pole",
+  ],
+  Array [
+    "createNode",
+    1331733805,
+    "root",
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      1331733805,
+    ],
+  ],
+]
+`;
+
+exports[`numeric literals 1`] = `
+Array [
+  Array [
+    "createNode",
+    1097289128,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1097289128,
+    "value",
+    6.283185307179586,
+  ],
+  Array [
+    "createNode",
+    198353271,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    198353271,
+    "value",
+    440,
+  ],
+  Array [
+    "createNode",
+    1406216981,
+    "phasor",
+  ],
+  Array [
+    "appendChild",
+    1406216981,
+    198353271,
+  ],
+  Array [
+    "createNode",
+    1913760094,
+    "mul",
+  ],
+  Array [
+    "appendChild",
+    1913760094,
+    1097289128,
+  ],
+  Array [
+    "appendChild",
+    1913760094,
+    1406216981,
+  ],
+  Array [
+    "createNode",
+    520300429,
+    "sin",
+  ],
+  Array [
+    "appendChild",
+    520300429,
+    1913760094,
+  ],
+  Array [
+    "createNode",
+    1423955117,
+    "root",
+  ],
+  Array [
+    "setProperty",
+    1423955117,
+    "channel",
+    0,
+  ],
+  Array [
+    "appendChild",
+    1423955117,
+    520300429,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      1423955117,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`shared reference to composite node 1`] = `
+Array [
+  Array [
+    "activateRoots",
+    Array [
+      1788915191,
+      242861936,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`simple memo 1`] = `
+Array [
+  Array [
+    "createNode",
+    389270948,
+    "tanh",
+  ],
+  Array [
+    "appendChild",
+    389270948,
+    1808164672,
+  ],
+  Array [
+    "createNode",
+    705626658,
+    "root",
+  ],
+  Array [
+    "setProperty",
+    705626658,
+    "channel",
+    0,
+  ],
+  Array [
+    "appendChild",
+    705626658,
+    389270948,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      705626658,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`simple sharing 1`] = `
+Array [
+  Array [
+    "createNode",
+    23247763,
+    "tanh",
+  ],
+  Array [
+    "appendChild",
+    23247763,
+    872803085,
+  ],
+  Array [
+    "createNode",
+    188983667,
+    "root",
+  ],
+  Array [
+    "setProperty",
+    188983667,
+    "channel",
+    0,
+  ],
+  Array [
+    "appendChild",
+    188983667,
+    23247763,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      188983667,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`structural equality with value change 1`] = `
+Array [
+  Array [
+    "setProperty",
+    1427558172,
+    "value",
+    441,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      19209078,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`switch and switch back 1`] = `
+Array [
+  Array [
+    "activateRoots",
+    Array [
+      70054491,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;
+
+exports[`the basics 1`] = `
+Array [
+  Array [
+    "createNode",
+    1097289128,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1097289128,
+    "value",
+    6.283185307179586,
+  ],
+  Array [
+    "createNode",
+    1709345783,
+    "const",
+  ],
+  Array [
+    "setProperty",
+    1709345783,
+    "key",
+    "fq",
+  ],
+  Array [
+    "setProperty",
+    1709345783,
+    "value",
+    440,
+  ],
+  Array [
+    "createNode",
+    1952747413,
+    "phasor",
+  ],
+  Array [
+    "appendChild",
+    1952747413,
+    1709345783,
+  ],
+  Array [
+    "createNode",
+    1689717726,
+    "mul",
+  ],
+  Array [
+    "appendChild",
+    1689717726,
+    1097289128,
+  ],
+  Array [
+    "appendChild",
+    1689717726,
+    1952747413,
+  ],
+  Array [
+    "createNode",
+    872803085,
+    "sin",
+  ],
+  Array [
+    "appendChild",
+    872803085,
+    1689717726,
+  ],
+  Array [
+    "createNode",
+    805437229,
+    "root",
+  ],
+  Array [
+    "setProperty",
+    805437229,
+    "channel",
+    0,
+  ],
+  Array [
+    "appendChild",
+    805437229,
+    872803085,
+  ],
+  Array [
+    "activateRoots",
+    Array [
+      805437229,
+    ],
+  ],
+  Array [
+    "commitUpdates",
+  ],
+]
+`;

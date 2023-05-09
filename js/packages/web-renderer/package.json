@@ -1,0 +1,45 @@
+{
+  "name": "@elemaudio/web-renderer",
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Official package for rendering Elementary Audio applications to Web Audio",
+  "keywords": [
+    "audio",
+    "dsp",
+    "signal",
+    "processing",
+    "functional",
+    "declarative",
+    "webaudio"
+  ],
+  "author": "Nick Thompson <nick@elementary.audio>",
+  "homepage": "https://www.elementary.audio",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "README.md",
+    "LICENSE.md"
+  ],
+  "scripts": {
+    "wasm": "./scripts/prebuild.sh",
+    "build": "rollup -c rollup.config.js"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.0.2",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-typescript": "^8.3.1",
+    "invariant": "^2.2.4",
+    "rollup": "^2.70.0",
+    "rollup-pluginutils": "^2.8.2",
+    "terser": "^5.12.0"
+  },
+  "dependencies": {
+    "@elemaudio/core": "^2.0.0",
+    "@types/events": "^3.0.0",
+    "events": "^3.3.0"
+  }
+}

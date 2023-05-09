@@ -101,7 +101,7 @@ namespace elem
                 // on the positive-going transition from a zero value to a non-zero
                 // value.
                 if (std::abs(z) <= eps && l > eps) {
-                    (void) readoutQueue.push(FloatType(x));
+                    (void) readoutQueue.push({ x });
                 }
 
                 z = l;
@@ -116,7 +116,7 @@ namespace elem
 
             // Clear the readoutQueue into a local struct here. This way the readout
             // we propagate is the latest one and empties the queue for the processing thread
-            auto ro = FloatType(0);
+            ValueReadout ro;
 
             while (readoutQueue.size() > 0) {
                 if (!readoutQueue.pop(ro)) {
@@ -126,11 +126,15 @@ namespace elem
 
             eventHandler("snapshot", js::Object({
                 {"source", GraphNode<FloatType>::getPropertyWithDefault("name", js::Value())},
-                {"data", ro},
+                {"data", ro.val},
             }));
         }
 
-        SingleWriterSingleReaderQueue<FloatType> readoutQueue;
+        struct ValueReadout {
+            FloatType val = 0;
+        };
+
+        SingleWriterSingleReaderQueue<ValueReadout> readoutQueue;
         FloatType z = 0;
     };
 
@@ -141,7 +145,7 @@ namespace elem
     // child's buffer, so that we have coordinated streams
     template <typename FloatType>
     struct ScopeNode : public GraphNode<FloatType> {
-        ScopeNode(GraphNodeId id, FloatType const sr, int const blockSize)
+        ScopeNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
             , ringBuffer(4)
         {

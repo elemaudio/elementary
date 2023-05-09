@@ -42,19 +42,19 @@ public:
         runtime = std::make_unique<elem::Runtime<float>>(sampleRate, maxBlockSize);
 
         // Register extension nodes
-        runtime->registerNodeType("convolve", [](elem::GraphNodeId const id, double fs, int const bs) {
+        runtime->registerNodeType("convolve", [](elem::NodeId const id, double fs, int const bs) {
             return std::make_shared<elem::ConvolutionNode<float>>(id, fs, bs);
         });
 
-        runtime->registerNodeType("fft", [](elem::GraphNodeId const id, double fs, int const bs) {
+        runtime->registerNodeType("fft", [](elem::NodeId const id, double fs, int const bs) {
             return std::make_shared<elem::FFTNode<float>>(id, fs, bs);
         });
 
-        runtime->registerNodeType("metro", [](elem::GraphNodeId const id, double fs, int const bs) {
+        runtime->registerNodeType("metro", [](elem::NodeId const id, double fs, int const bs) {
             return std::make_shared<elem::MetronomeNode<float>>(id, fs, bs);
         });
 
-        runtime->registerNodeType("time", [](elem::GraphNodeId const id, double fs, int const bs) {
+        runtime->registerNodeType("time", [](elem::NodeId const id, double fs, int const bs) {
             return std::make_shared<elem::SampleTimeNode<float>>(id, fs, bs);
         });
     }

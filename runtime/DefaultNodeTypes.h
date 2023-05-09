@@ -5,6 +5,8 @@
 #include "builtins/Delays.h"
 #include "builtins/Feedback.h"
 #include "builtins/Filters.h"
+#include "builtins/filters/SVF.h"
+#include "builtins/filters/SVFShelf.h"
 #include "builtins/Math.h"
 #include "builtins/Noise.h"
 #include "builtins/Sample.h"
@@ -95,6 +97,8 @@ namespace elem
             callback("pole",      GenericNodeFactory<OnePoleNode<FloatType>>());
             callback("env",       GenericNodeFactory<EnvelopeNode<FloatType>>());
             callback("biquad",    GenericNodeFactory<BiquadFilterNode<FloatType>>());
+            callback("svf",       GenericNodeFactory<StateVariableFilterNode<FloatType>>());
+            callback("svfshelf",  GenericNodeFactory<StateVariableShelfFilterNode<FloatType>>());
 
             // Feedback nodes
             callback("tapIn",     GenericNodeFactory<TapInNode<FloatType>>());
