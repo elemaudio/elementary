@@ -7,7 +7,7 @@ done locally and publishing automatically from CI via Github Actions.
 To mark a new version:
 
 ```bash
-npx lerna version --no-push
+npx lerna version -m 'Publish v2.0.0' --no-push
 ```
 
 Finally, from Github Actions we have a publish action which runs lerna's `from-package` feature

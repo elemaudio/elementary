@@ -2,9 +2,10 @@
   <img height="120px" src="https://www.elementary.audio/Lockup.svg" alt="Elementary Audio logo" />
   <br /><br />
 
-  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/elemaudio/elementary/blob/main/LICENSE.md)
   [![CI Status](https://github.com/elemaudio/elementary/actions/workflows/main.yml/badge.svg)](https://github.com/elemaudio/elementary/actions)
   ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/elemaudio/elementary/blob/main/LICENSE.md)
+  [![Discord Community](https://img.shields.io/discord/826071713426178078?label=Discord)](https://discord.gg/xSu9JjHwYc)
 
 </div>
 
@@ -18,11 +19,14 @@
 
 ## Getting Started
 
-Elementary is designed to be used in a number of different environments, which makes for several different ways to get started. If you're new to the project, we recommend
-starting with one of the following workflows to get the feel of working in Elementary:
+Every Elementary application starts with the [@elemaudio/core](https://www.elementary.audio/docs/packages/core) package ([npm](https://www.npmjs.com/package/@elemaudio/core), [source](./js/packages/core)), which provides the
+framework for defining your audio processes and a generic set of utilities for performing the graph rendering and reconciling steps.
 
-* Use the [web-renderer](https://www.elementary.audio/docs/packages/web-renderer) with your favorite frontend UI library to make an audio web application
-* Use the [offline-renderer](https://www.elementary.audio/docs/packages/offline-renderer) with Node.js for static file processing
+Next, because Elementary is designed to be used in a number of different environments, there are several different ways to integrate.
+If you're new to the project, we recommend starting with one of the following workflows to get the feel of working in Elementary:
+
+* Use the [@elemaudio/web-renderer](https://www.elementary.audio/docs/packages/web-renderer) package ([npm](https://www.npmjs.com/package/@elemaudio/web-renderer), [source](./js/packages/web-renderer)) with your favorite frontend UI library to make an audio web application
+* Use the [@elemaudio/offline-renderer](https://www.elementary.audio/docs/packages/offline-renderer) package ([npm](https://www.npmjs.com/package/@elemaudio/offline-renderer), [source](./js/packages/offline-renderer)) with Node.js for static file processing
 
 Once you're comfortable with the basics, you can dive deeper into integrating and extending Elementary with your existing stack:
 
