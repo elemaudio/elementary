@@ -17,7 +17,7 @@ namespace elem
         // Returns the next largest power of two for a given integer.
         //
         // If the provided integer is a power of two, returns its input.
-        int bitciel (int n) {
+        inline int bitciel (int n) {
             if ((n & (n - 1)) == 0)
                 return n;
 

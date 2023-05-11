@@ -7,3 +7,5 @@ add_library(${TargetName} INTERFACE)
 
 target_include_directories(${TargetName} INTERFACE
   ${CMAKE_CURRENT_SOURCE_DIR})
+
+add_library(elementary::${TargetName} ALIAS ${TargetName})
