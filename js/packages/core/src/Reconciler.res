@@ -127,9 +127,6 @@ module RenderDelegate = {
   // Maps hashes to node objects
   @send external getNodeMap: t => Map.t<int, NodeRepr.shallow> = "getNodeMap"
 
-  // Maps composite function instances to memoized composite function instances
-  @send external getMemoMap: t => Map.t<'a, 'b> = "getMemoMap"
-
   @send external getRenderContext: t => NodeRepr.renderContext = "getRenderContext"
   @send external getActiveRoots: t => array<int> = "getActiveRoots"
   @send external getTerminalGeneration: t => int = "getTerminalGeneration"
@@ -140,31 +137,6 @@ module RenderDelegate = {
   @send external setProperty: (t, int, string, 'a) => () = "setProperty"
   @send external activateRoots: (t, array<int>) => () = "activateRoots"
   @send external commitUpdates: t => () = "commitUpdates"
-}
-
-let getOrCreateMemo = (memoMap, fn) => {
-  if Map.has(memoMap, fn) {
-    Map.get(memoMap, fn)
-  } else {
-    let memTable = Map.make()
-    let memoized = (lookupKey: int, context: NodeRepr.renderContext, props: NodeRepr.props, children: list<NodeRepr.t>) => {
-      if Map.has(memTable, lookupKey) {
-        Map.get(memTable, lookupKey)
-      } else {
-        let resolved = fn({
-          "context": context,
-          "props": props,
-          "children": Belt.List.toArray(children),
-        })
-
-        Map.set(memTable, lookupKey, resolved)
-        resolved
-      }
-    }
-
-    Map.set(memoMap, fn, memoized)
-    memoized
-  }
 }
 
 let mount = (
@@ -196,21 +168,20 @@ let mount = (
 let rec visit = (
   delegate: RenderDelegate.t,
   visitSet: Set.t<NodeRepr.t>,
-  compositeMap: Map.t<NodeRepr.t, NodeRepr.t>,
   ns: list<NodeRepr.t>,
 ) => {
   let visited = (x: NodeRepr.t) => Set.has(visitSet, x)
 
   switch ns {
   | list{} => ()
-  | list{n, ...rest} if visited(n) => visit(delegate, visitSet, compositeMap, rest)
+  | list{n, ...rest} if visited(n) => visit(delegate, visitSet, rest)
   | list{n, ...rest} => {
       let childrenVisited = n.children->Belt.List.every(visited)
 
       // If our children haven't yet been visited, push them onto the list
       // and reinsert `n` to be visited afterward
       if !childrenVisited {
-        visit(delegate, visitSet, compositeMap, Belt.List.concat(n.children, ns))
+        visit(delegate, visitSet, Belt.List.concat(n.children, ns))
       } else {
         let childHashes = Belt.List.map(n.children, child => Js.Option.getExn(child.hash))
 
@@ -236,9 +207,9 @@ let rec visit = (
             if (visited(resolved)) {
               n.hash = Some(Js.Option.getExn(resolved.hash))
               Set.add(visitSet, n)
-              visit(delegate, visitSet, compositeMap, rest)
+              visit(delegate, visitSet, rest)
             } else {
-              visit(delegate, visitSet, compositeMap, Belt.List.add(Belt.List.add(rest, n), resolved))
+              visit(delegate, visitSet, Belt.List.add(Belt.List.add(rest, n), resolved))
             }
           }
           | #Primitive(k) => {
@@ -250,7 +221,7 @@ let rec visit = (
             mount(delegate, n, k, hash, childHashes)
             Set.add(visitSet, n)
 
-            visit(delegate, visitSet, compositeMap, rest)
+            visit(delegate, visitSet, rest)
           }
         }
       }
@@ -261,12 +232,11 @@ let rec visit = (
 @genType
 let renderWithDelegate = (delegate, graphs) => {
   let visitSet = Set.make()
-  let compositeMap = Map.make()
   let roots = Belt.List.mapWithIndex(Belt.List.fromArray(graphs), (i, g) => {
     NodeRepr.createPrimitive("root", NodeRepr.asPropsType({"channel": i}), [g])
   })
 
-  visit(delegate, visitSet, compositeMap, roots)
+  visit(delegate, visitSet, roots)
 
   RenderDelegate.activateRoots(delegate, Belt.List.toArray(Belt.List.map(roots, r => NodeRepr.getHashUnchecked(r))))
   RenderDelegate.commitUpdates(delegate)

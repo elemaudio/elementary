@@ -101,27 +101,6 @@ var $$Set = {};
 
 var RenderDelegate = {};
 
-function getOrCreateMemo(memoMap, fn) {
-  if (memoMap.has(fn)) {
-    return memoMap.get(fn);
-  }
-  var memTable = new Map();
-  var memoized = function (lookupKey, context, props, children) {
-    if (memTable.has(lookupKey)) {
-      return memTable.get(lookupKey);
-    }
-    var resolved = Curry._1(fn, {
-          context: context,
-          props: props,
-          children: Belt_List.toArray(children)
-        });
-    memTable.set(lookupKey, resolved);
-    return resolved;
-  };
-  memoMap.set(fn, memoized);
-  return memoized;
-}
-
 function mount(delegate, node, kind, hash, childHashes) {
   var nodeMap = delegate.getNodeMap();
   if (nodeMap.has(hash)) {
@@ -138,7 +117,7 @@ function mount(delegate, node, kind, hash, childHashes) {
   nodeMap.set(hash, shallowCopy(node));
 }
 
-function visit(delegate, visitSet, compositeMap, _ns) {
+function visit(delegate, visitSet, _ns) {
   while(true) {
     var ns = _ns;
     var visited = function (x) {
@@ -194,13 +173,12 @@ function visit(delegate, visitSet, compositeMap, _ns) {
 
 function renderWithDelegate(delegate, graphs) {
   var visitSet = new Set();
-  var compositeMap = new Map();
   var roots = Belt_List.mapWithIndex(Belt_List.fromArray(graphs), (function (i, g) {
           return createPrimitive("root", {
                       channel: i
                     }, [g]);
         }));
-  visit(delegate, visitSet, compositeMap, roots);
+  visit(delegate, visitSet, roots);
   delegate.activateRoots(Belt_List.toArray(Belt_List.map(roots, getHashUnchecked)));
   delegate.commitUpdates();
 }
@@ -231,7 +209,6 @@ export {
   $$Map ,
   $$Set ,
   RenderDelegate ,
-  getOrCreateMemo ,
   mount ,
   visit ,
   renderWithDelegate ,

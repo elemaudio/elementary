@@ -52,7 +52,6 @@ class Delegate {
   public propsWritten: number;
 
   private nodeMap: Map<number, any>;
-  private memoMap: Map<number, any>;
 
   private renderContext: any;
   private batch: Array<any>;
@@ -64,7 +63,6 @@ class Delegate {
     this.edgesAdded = 0;
     this.propsWritten = 0;
     this.nodeMap = new Map();
-    this.memoMap = new Map();
 
     this.renderContext = {
       sampleRate,
@@ -78,7 +76,6 @@ class Delegate {
   }
 
   getNodeMap() { return this.nodeMap; }
-  getMemoMap() { return this.memoMap; }
   getTerminalGeneration() { return 4; }
   getRenderContext() { return this.renderContext; }
 
