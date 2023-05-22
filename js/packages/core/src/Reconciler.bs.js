@@ -5,6 +5,7 @@ import * as Js_exn from "rescript/lib/es6/js_exn.js";
 import * as Js_types from "rescript/lib/es6/js_types.js";
 import * as Belt_List from "rescript/lib/es6/belt_List.js";
 import * as HashUtils from "./HashUtils.bs.js";
+import * as Js_option from "rescript/lib/es6/js_option.js";
 
 var symbol = (Symbol.for('ELEM_NODE'));
 
@@ -20,12 +21,17 @@ function createPrimitive(kind, props, children) {
         };
 }
 
-function createComposite(kind, props, children) {
+function createComposite(fn, props, children) {
   return {
           symbol: symbol,
           kind: {
             NAME: "Composite",
-            VAL: kind
+            VAL: [
+              {
+                contents: undefined
+              },
+              fn
+            ]
           },
           props: props,
           children: Belt_List.fromArray(children)
@@ -150,22 +156,27 @@ function visit(delegate, visitSet, compositeMap, _ns) {
     var childrenVisited = Belt_List.every(n.children, visited);
     if (childrenVisited) {
       var childHashes = Belt_List.map(n.children, (function (child) {
-              var match = child.kind;
-              if (match.NAME === "Composite") {
-                return getHashUnchecked(compositeMap.get(child));
-              } else {
-                return getHashUnchecked(child);
-              }
+              return Js_option.getExn(child.hash);
             }));
       var match = n.kind;
       if (match.NAME === "Composite") {
-        var mfn = getOrCreateMemo(delegate.getMemoMap(), match.VAL);
+        var match$1 = match.VAL;
+        var res = match$1[0];
         var context = delegate.getRenderContext();
-        var lookupKey = HashUtils.hashMemoInputs(n.props, childHashes);
-        var resolved = Curry._4(mfn, lookupKey, context, n.props, n.children);
-        compositeMap.set(n, resolved);
-        visitSet.add(n);
-        _ns = Belt_List.add(rest, resolved);
+        var n$1 = res.contents;
+        var resolved = n$1 !== undefined ? n$1 : Curry._1(match$1[1], {
+                context: context,
+                props: n.props,
+                children: Belt_List.toArray(n.children)
+              });
+        res.contents = resolved;
+        if (visitSet.has(resolved)) {
+          n.hash = Js_option.getExn(resolved.hash);
+          visitSet.add(n);
+          _ns = rest;
+          continue ;
+        }
+        _ns = Belt_List.add(Belt_List.add(rest, n), resolved);
         continue ;
       }
       var k = match.VAL;

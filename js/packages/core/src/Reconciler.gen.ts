@@ -35,11 +35,13 @@ export type NodeRepr_t = {
   readonly kind: 
     {
     NAME: "Composite"; 
-    VAL: (_1:{
+    VAL: [{
+    contents: (null | undefined | NodeRepr_t)
+  }, (_1:{
     readonly props: NodeRepr_props; 
     readonly context: NodeRepr_renderContext; 
     readonly children: NodeRepr_t[]
-  }) => NodeRepr_t
+  }) => NodeRepr_t]
   }
   | {
     NAME: "Primitive"; 
@@ -70,7 +72,7 @@ export const NodeRepr_createPrimitive: <T1>(kind:string, props:T1, children:Node
   return result
 };
 
-export const NodeRepr_createComposite: <T1>(kind:((_1:{
+export const NodeRepr_createComposite: <T1>(fn:((_1:{
   readonly children: NodeRepr_t[]; 
   readonly context: NodeRepr_renderContext; 
   readonly props: NodeRepr_props

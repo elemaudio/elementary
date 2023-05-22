@@ -26,7 +26,7 @@ module NodeRepr = {
     mutable hash?: int,
     kind: [
       | #Primitive(string)
-      | #Composite(({"context": renderContext, "props": props, "children": array<t>}) => t)
+      | #Composite(ref<option<t>>, ({"context": renderContext, "props": props, "children": array<t>}) => t)
     ],
     props: props,
     children: list<t>,
@@ -50,8 +50,8 @@ module NodeRepr = {
   }
 
   @genType
-  let createComposite = (kind, props, children: array<t>): t => {
-    {symbol: symbol, kind: #Composite(kind), props: asPropsType(props), children: Belt.List.fromArray(children)}
+  let createComposite = (fn, props, children: array<t>): t => {
+    {symbol: symbol, kind: #Composite(ref(None), fn), props: asPropsType(props), children: Belt.List.fromArray(children)}
   }
 
   @genType
@@ -212,38 +212,34 @@ let rec visit = (
       if !childrenVisited {
         visit(delegate, visitSet, compositeMap, Belt.List.concat(n.children, ns))
       } else {
-        let childHashes = Belt.List.map(n.children, child => {
-          switch child.kind {
-            | #Primitive(_) => NodeRepr.getHashUnchecked(child)
-            | #Composite(_) => NodeRepr.getHashUnchecked(Map.get(compositeMap, child))
-          }
-        })
+        let childHashes = Belt.List.map(n.children, child => Js.Option.getExn(child.hash))
 
         switch n.kind {
-          | #Composite(fn) => {
-            // Here, if we're dealing with a composite node, we unroll it and visit.
-            // Due to the internal memoization of composite nodes, any subsequent visit
-            // to this composite node `n` will hit the memo lookup and then hit the visited check
-            let mfn = getOrCreateMemo(RenderDelegate.getMemoMap(delegate), fn)
+          | #Composite(res, fn) => {
+            // Here we're visiting a composite node. If we've already seen the node its function
+            // should be resolved, which we find in `res`. Else, we have to unroll it now
             let context = RenderDelegate.getRenderContext(delegate)
-            let lookupKey = HashUtils.hashMemoInputs(. NodeRepr.asObjectType(n.props), childHashes)
-            let resolved = mfn(lookupKey, context, n.props, n.children)
+            let resolved = switch res.contents {
+              | Some(n) => n
+              | None => fn({
+                "context": context,
+                "props": n.props,
+                "children": Belt.List.toArray(n.children),
+              })
+            }
 
-            // AH! HERE: We could do the same as the above !childrenVisited case: if the resolved node
-            // is not visited, then visit it AND THEN come back and revisit this composite. Else, if the
-            // resolved node is visited, then set the composite node's hash == the resolved node's hash, mark
-            // the composite node visited, and move on. That way the composite node's hash correctly reflects
-            // the subtree that it resolved to
+            res := Some(resolved)
 
-            // Eventually, the parent of this composite node is going to need a hash. When it does,
-            // we need a way to identify what the composite node resolved to. We're not going to rewrite
-            // the parent's children array because that would make this tail recursion more complicated.
-            // Instead, we hold a map from composite node to its resolved node
-            Map.set(compositeMap, n, resolved)
-
-            // Then mark visited, and visit the rest along with the newly resolved node
-            Set.add(visitSet, n)
-            visit(delegate, visitSet, compositeMap, Belt.List.add(rest, resolved))
+            // If we've already visited the resolved sub-tree, we can mark the composite node itself
+            // with the resolved hash and mark visited. Otherwise, we push both the resolved sub-tree
+            // and the composite node itself back onto the visit list
+            if (visited(resolved)) {
+              n.hash = Some(Js.Option.getExn(resolved.hash))
+              Set.add(visitSet, n)
+              visit(delegate, visitSet, compositeMap, rest)
+            } else {
+              visit(delegate, visitSet, compositeMap, Belt.List.add(Belt.List.add(rest, n), resolved))
+            }
           }
           | #Primitive(k) => {
             // Else we've got a primitive node that needs to be hashed and mounted before
