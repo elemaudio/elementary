@@ -29,8 +29,11 @@ const auto* kConsoleShimScript = R"script(
 )script";
 
 template <typename FloatType>
-void runBenchmark(std::string const& name, std::string const& inputFile) {
+void runBenchmark(std::string const& name, std::string const& inputFileName, std::function<void(elem::Runtime<FloatType>&)>&& initCallback) {
     elem::Runtime<FloatType> runtime(44100.0, 512);
+
+    // Allow additional user initialization
+    initCallback(runtime);
 
     auto ctx = choc::javascript::createQuickJSContext();
 
@@ -51,6 +54,7 @@ void runBenchmark(std::string const& name, std::string const& inputFile) {
     (void) ctx.evaluate(kConsoleShimScript);
 
     // Execute the input file
+    auto inputFile = choc::file::loadFileAsString(inputFileName);
     auto rv = ctx.evaluate(inputFile);
 
     // Now we benchmark the realtime processing step
@@ -107,18 +111,5 @@ void runBenchmark(std::string const& name, std::string const& inputFile) {
     std::cout << "Done" << std::endl << std::endl;
 }
 
-
-int main(int argc, char** argv) {
-    // Read the input file from disk
-    if (argc < 2) {
-        std::cout << "Missing argument: what file do you want to run?" << std::endl;
-        return 1;
-    }
-
-    auto inputFile = choc::file::loadFileAsString(argv[1]);
-
-    runBenchmark<float>("Float", inputFile);
-    runBenchmark<double>("Double", inputFile);
-
-    return 0;
-}
+template void runBenchmark<float>(std::string const& name, std::string const& inputFileName, std::function<void(elem::Runtime<float>&)>&& initCallback);
+template void runBenchmark<double>(std::string const& name, std::string const& inputFileName, std::function<void(elem::Runtime<double>&)>&& initCallback);

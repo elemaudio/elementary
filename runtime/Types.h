@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <sstream>
 #include <unordered_map>
 
@@ -12,7 +13,7 @@ namespace elem
     using NodeId = int32_t;
 
     // A simple helper for pretty printing NodeId types
-    std::string nodeIdToHex (NodeId i) {
+    inline std::string nodeIdToHex (NodeId i) {
         std::stringstream ss;
         ss << std::hex << i;
 

@@ -7,6 +7,8 @@
 
 #include <Runtime.h>
 
+#include "Realtime.h"
+
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"
 
@@ -80,7 +82,7 @@ void audioCallback(ma_device* pDevice, void* pOutput, const void* /* pInput */, 
     proxy->process(static_cast<float*>(pOutput), numChannels, numFrames);
 }
 
-int main(int argc, char** argv) {
+int RealtimeMain(int argc, char** argv, std::function<void(elem::Runtime<float>&)> initCallback) {
     // First, initialize our audio device
     ma_result result;
 
@@ -123,6 +125,8 @@ int main(int argc, char** argv) {
 
         return choc::value::Value();
     });
+
+    initCallback(proxy->runtime);
 
     // Shim the js environment for console logging
     (void) ctx.evaluate(kConsoleShimScript);
