@@ -7,6 +7,8 @@
 
 #include <Runtime.h>
 
+#include "Realtime.h"
+
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"
 
