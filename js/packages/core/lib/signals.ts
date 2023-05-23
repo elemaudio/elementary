@@ -24,7 +24,6 @@ const el = {
  * Equivalent to (x / 1000) * sampleRate, where x is the input time in milliseconds.
  */
 export function ms2samps(t: NodeRepr_t | number): NodeRepr_t | number {
-  // TODO: Wrap in composite so that we can grab the sampleRate?
   return el.mul(el.sr(), el.div(t, 1000.0));
 }
 
