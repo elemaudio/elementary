@@ -308,116 +308,22 @@ test('switch and switch back', function() {
   expect(tr.getBatch()).toMatchSnapshot();
 });
 
-test('simple memo', function() {
+test('composite with keyed children', function() {
   const tr = new TestRenderer();
-
-  // If you look in the git history at the memo test implementation I had written prior to this,
-  // you'll see that I was relying on having an actual memoization table which held multiple prior
-  // computation results. That was how the original memo implementation was written too. But here I'm
-  // now intentionally clear about that memoization only performs a comparison between what is currently
-  // rendered and what is next up. The reason for this is that even if the memo table holds results from
-  // several renders ago, any graph topology changes that are now strictly unused will be cleaned up in the
-  // realtime rendering engine and eventually propagated back to javascript for removal. Attempting to shortcut
-  // a render by pulling a memoized result from far back in time might yield a subtree which doesn't exist anymore.
-  //
-  // So, here we have a proper test for memoization with a comparison between what currently exists and
-  // what we want to render next.
-  const voices = [
-    {key: 'fq1', freq: 440},
-    {key: 'fq2', freq: 440},
-    {key: 'fq3', freq: 440},
-    {key: 'fq4', freq: 440},
-  ];
-
-  let memoCalls = 0;
-
-  const synth = ({props}) => {
-    memoCalls++;
-
-    return (
-      createNode("add", {}, props.voices.map(function(voice) {
-        return (
-          createNode("sin", {}, [
-            createNode("mul", {}, [
-              createNode("const", {value: 2 * Math.PI}, []),
-              createNode("phasor", {}, [
-                createNode("const", {key: voice.key, value: voice.freq}, [])
-              ])
-            ])
-          ])
-        );
-      }))
-    );
+  const composite = ({context, props, children}) => {
+    return createNode("add", {}, children);
   };
 
-  tr.render(createNode(synth, {voices}, []));
-
-  // So the first time, we expect that the memoized render function has
-  // been called
-  expect(memoCalls).toBe(1);
-  tr.clearBatch();
-
-  // Now when we render again, but mutate the structure above the memoized
-  // subtrees, we should expect that the memoizer does not even invoke this
-  // function again because none of the voice data changed. Thus we only ever
-  // compute part of the tree as needed.
-  tr.render(
-    createNode("tanh", {}, [
-      createNode(synth, {voices}, [])
-    ])
-  );
-
-  expect(memoCalls).toBe(1);
-
-  // And of course we expect that the tanh and the new root were the only
-  // new things made here
-  expect(tr.getBatch()).toMatchSnapshot();
-});
-
-test('nested memo', function() {
-  const tr = new TestRenderer({
-      logCreateNode: true,
-      logDeleteNode: false,
-      logAppendChild: false,
-      logSetProperty: false,
-      logCommitUpdates: false,
-  });
-
-  const generator = ({props}) => {
-    return (
-      createNode("le", {}, [
-        createNode("phasor", {}, [props.rate]),
-        0.5,
-      ])
-    );
-  };
-
-  const smoother = ({props, children: [x]}) => {
-    return (
-      createNode("pole", {}, [
-        createNode("mul", {}, [
-          0.11,
-          x
-        ])
-      ])
-    );
-  }
-
-  const composite = (props) => {
-    return (
-      createNode(smoother, {}, [
-        createNode(generator, {...props}, [])
-      ])
-    );
-  }
-
-  tr.render(composite({rate: 12}));
+  tr.render(createNode(composite, {}, [
+    createNode("const", {key: 'g', value: 0}, [])
+  ]));
 
   expect(tr.getBatch()).toMatchSnapshot();
-
-
   tr.clearBatch();
-  tr.render(composite({rate: 14}));
+
+  tr.render(createNode(composite, {}, [
+    createNode("const", {key: 'g', value: 1}, [])
+  ]));
 
   expect(tr.getBatch()).toMatchSnapshot();
 });
@@ -437,85 +343,32 @@ test('shared reference to composite node', function() {
     );
   };
 
-  {
-    // The first time through, we expect `train` to be called once, and for
-    // the latter two instances in our stereo graph to be resolved via the visit
-    // flag shortcut.
-    let t = createNode(train, {}, [5]);
+  // We expect `train` to be called once in resolving the composite node, and for
+  // the latter two instances in our stereo graph to be resolved via the cache
+  let t = createNode(train, {}, [5]);
 
-    tr.render(
-      createNode("seq", {seq: [1, 2, 3]}, [t, t]),
-      createNode("seq", {seq: [1, 2, 3]}, [t]),
-    );
+  tr.render(
+    createNode("seq", {seq: [1, 2, 3]}, [t, t]),
+    createNode("seq", {seq: [1, 2, 3]}, [t]),
+  );
 
-    expect(calls).toBe(1);
-  }
-
-  tr.clearBatch();
-
-  {
-    // The second time through, we've dropped our previous reference to `t`, so
-    // we have a new, unresolved composite node. We need to evaluate it again, but
-    // due to the new implicit memoization, we expect train will not actually be called
-    // again and the tree resolved here will be identical to the prior.
-    let t = createNode(train, {}, [5]);
-
-    tr.render(
-      createNode("seq", {seq: [1, 2, 3]}, [t, t]),
-      createNode("seq", {seq: [1, 2, 3]}, [t]),
-    );
-
-    expect(calls).toBe(1);
-  }
-
-  expect(tr.getBatch()).toMatchSnapshot();
-});
-
-test('memo and keyed props', function() {
-  let tr = new TestRenderer();
-  let calls = 0;
-
-  let CycleComposite = ({props}) => {
-    calls++;
-
-    return (
-      createNode("sin", {}, [
-        createNode("mul", {}, [
-          createNode("const", {value: 2 * Math.PI}, []),
-          createNode("phasor", {}, [
-            createNode("const", {key: props.key, value: props.value}, [])
-          ])
-        ])
-      ])
-    );
-  };
-
-  // Here we render an instance of the composite node with a given set of properties
-  // and children. We expect the composite function to be invoked and for the subtree
-  // to be mounted.
-  tr.clearBatch();
-  tr.render(createNode(CycleComposite, {key: 'hi', value: 440}, []));
   expect(calls).toBe(1);
-  expect(tr.getBatch()).toMatchSnapshot();
 
-  // Some time later, we render another instance of the node. We'll find here that the
-  // input to the composite function does not hit the memo cache, so we invoke the function
-  // again and carry out the diff. Here we expect only to see a setProperty call to update
-  // the underlying keyed const node to a value of 880
-  tr.clearBatch();
-  tr.render(createNode(CycleComposite, {key: 'hi', value: 880}, []));
-  expect(calls).toBe(2);
-  expect(tr.getBatch()).toMatchSnapshot();
+  // Now if we make multiple composite node instances each referencing the same composite
+  // function, we have to unroll each of them with their associated inputs. Due to the v2.0.1
+  // change which disables memoization we no longer attempt to prevent that second call by memoization
+  calls = 0;
 
-  // Finally, we render again, this time hitting the memo cache because we identical inputs
-  // to our first render. We expect to see that calls has not incremented, because we have a cached
-  // structure that we can pull out of the memo table, but we need the recursive props update
-  // to ensure that the existing node props get updated accordingly.
-  tr.clearBatch();
-  tr.render(createNode(CycleComposite, {key: 'hi', value: 440}, []));
+  let u = createNode(train, {}, [5]);
+  let v = createNode(train, {}, [5]);
+
+  tr.render(
+    createNode("seq", {seq: [1, 2, 3]}, [u, v]),
+    createNode("seq", {seq: [1, 2, 3]}, [v]),
+  );
+
   expect(calls).toBe(2);
-  expect(tr.getBatch()).toMatchSnapshot();
-})
+});
 
 test('garbage collection', function() {
   let tr = new TestRenderer();

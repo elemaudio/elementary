@@ -40,7 +40,7 @@ imports into a single bundle before trying to run it. To do that, we have a simp
 `esbuild` workflow inside the `examples/` directory.
 
 ```bash
-cd examples/
+cd cli/examples/
 npm install
 npm run build
 ```
@@ -49,5 +49,7 @@ After these few steps, you'll see bundled files in `examples/dist/`. These files
 then be run with the command line to hear them:
 
 ```bash
-./elemcli examples/dist/00_HelloSine.js
+# Your path to the elemcli binary might be different depending on your build
+# directory structure
+./build/cli/Debug/elemcli examples/dist/00_HelloSine.js
 ```

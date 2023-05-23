@@ -218,33 +218,6 @@ export function allpass(a, b, c, d?) {
   return el.svf(Object.assign({}, a, {mode: 'allpass'}), b, c, d);
 }
 
-// Helper for the below el.peak
-function PeakComposite({context, children}) {
-  const [fc, q, gainDecibels, x] = children;
-  const A = el.pow(10, el.div(gainDecibels, 40));
-  const w0 = el.div(el.mul(2 * Math.PI, fc), context.sampleRate);
-  const cosw0 = el.cos(w0);
-  const alpha = el.div(el.sin(w0), el.mul(2, q));
-
-  const b0 = el.add(1, el.mul(alpha, A));
-  const b1 = el.mul(-2, cosw0);
-  const b2 = el.sub(1, el.mul(alpha, A));
-  const a0 = el.add(1, el.div(alpha, A));
-  const a1 = el.mul(-2, cosw0);
-  const a2 = el.sub(1, el.div(alpha, A));
-
-  const a0inv = el.div(1, a0);
-
-  return el.biquad(
-    el.mul(b0, a0inv),
-    el.mul(b1, a0inv),
-    el.mul(b2, a0inv),
-    el.mul(a1, a0inv),
-    el.mul(a2, a0inv),
-    x
-  );
-}
-
 /**
  * A second order peak (bell) filter
  *
