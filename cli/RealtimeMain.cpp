@@ -1,7 +1,7 @@
+#include "Realtime.h"
 
-#include "CLIEngine.h"
 
 int main(int argc, char **argv)
 {
-    return ElementaryCLIMain(argc, argv, [](auto &){});
+    return RealtimeMain(argc, argv, [](auto&) {});
 }

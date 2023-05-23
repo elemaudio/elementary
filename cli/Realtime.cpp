@@ -7,8 +7,6 @@
 
 #include <Runtime.h>
 
-#include "CLIEngine.h"
-
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"
 
@@ -82,7 +80,7 @@ void audioCallback(ma_device* pDevice, void* pOutput, const void* /* pInput */, 
     proxy->process(static_cast<float*>(pOutput), numChannels, numFrames);
 }
 
-int ElementaryCLIMain(int argc, char** argv, std::function<void(elem::Runtime <float>&)> registerCB) {
+int RealtimeMain(int argc, char** argv, std::function<void(elem::Runtime<float>&)> initCallback) {
     // First, initialize our audio device
     ma_result result;
 
@@ -126,7 +124,7 @@ int ElementaryCLIMain(int argc, char** argv, std::function<void(elem::Runtime <f
         return choc::value::Value();
     });
 
-    registerCB(proxy->runtime);
+    initCallback(proxy->runtime);
 
     // Shim the js environment for console logging
     (void) ctx.evaluate(kConsoleShimScript);
