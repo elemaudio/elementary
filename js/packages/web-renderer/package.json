@@ -1,6 +1,6 @@
 {
   "name": "@elemaudio/web-renderer",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "type": "module",
   "description": "Official package for rendering Elementary Audio applications to Web Audio",
   "keywords": [
@@ -38,7 +38,7 @@
     "terser": "^5.12.0"
   },
   "dependencies": {
-    "@elemaudio/core": "^2.0.0",
+    "@elemaudio/core": "^2.0.1",
     "@types/events": "^3.0.0",
     "events": "^3.3.0"
   }
