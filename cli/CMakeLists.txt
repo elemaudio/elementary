@@ -25,3 +25,11 @@ add_executable(elembench BenchmarkMain.cpp)
 
 target_link_libraries(elemcli PRIVATE elemcli_core)
 target_link_libraries(elembench PRIVATE elemcli_core)
+
+if(UNIX AND NOT APPLE)
+  find_package(Threads REQUIRED)
+  target_link_libraries(elemcli PRIVATE
+    Threads::Threads
+    ${CMAKE_DL_LIBS})
+endif()
+

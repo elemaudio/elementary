@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include "builtins/Analyzers.h"
 #include "builtins/Core.h"
 #include "builtins/Delays.h"
