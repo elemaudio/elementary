@@ -30,6 +30,10 @@ export default class WebAudioRenderer extends events.EventEmitter {
       const blob = new Blob([WasmModule, WorkletProcessor], {type: 'text/javascript'});
       const blobUrl = URL.createObjectURL(blob);
 
+      if (!audioContext.audioWorklet) {
+        throw new Error("BaseAudioContext.audioWorklet is missing; are you running in a secure context (https)?");
+      }
+
       // This neat trick with the Blob URL allows me to inject the module without
       // needing to serve it from somewhere on the file system. The files loaded
       // from the raw/* directory are loaded as raw, minified strings.
