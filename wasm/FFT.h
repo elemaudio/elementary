@@ -20,6 +20,9 @@ namespace elem
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
             , ringBuffer(1)
         {
+            // Default size enforced here, this makes sure we have a chance to initialize the fft
+            // member object and scratch buffers
+            setProperty("size", (js::Number) 1024);
         }
 
         bool isPowerOfTwo (int x) {
