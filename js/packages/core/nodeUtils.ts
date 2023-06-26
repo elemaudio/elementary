@@ -17,7 +17,7 @@ export function resolve(n : NodeRepr_t | number): NodeRepr_t {
   return n;
 }
 
-export function isNode(n: any): boolean {
+export function isNode(n: any): n is NodeRepr_t {
   return NodeRepr_isNode(n);
 }
 
