@@ -58,7 +58,7 @@ export default class WebAudioRenderer extends events.EventEmitter {
         const [type, evt] = e.data;
 
         if (type === 'load') {
-          this._renderer = new Renderer(e.sampleRate, (batch) => {
+          this._renderer = new Renderer(evt.sampleRate, (batch) => {
             this._worklet.port.postMessage({
               type: 'renderInstructions',
               batch,
