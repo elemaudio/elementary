@@ -157,7 +157,7 @@ class Renderer {
     this._delegate.edgesAdded = 0;
     this._delegate.propsWritten = 0;
 
-    renderWithDelegate(this._delegate as any, args);
+    renderWithDelegate(this._delegate as any, args.map(resolve));
 
     const t1 = now();
 
