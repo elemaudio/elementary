@@ -20,10 +20,11 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
     this._module = Module();
     this._native = new this._module.ElementaryAudioProcessor(numInputChannels, numOutputChannels);
 
-    // Apparently the `sampleRate` variable is just a globally defined
-    // variable in the AudioWorklet scope. Randomly choosing a block size
-    // larger than 128, which I think is what the browser usually uses
-    this._native.prepare(sampleRate, 512);
+    // The `sampleRate` variable is a globally defined constant in the AudioWorkletGlobalScope.
+    // We also manually set a block size of 128 samples here, per the Web Audio API spec.
+    //
+    // See: https://webaudio.github.io/web-audio-api/#rendering-loop
+    this._native.prepare(sampleRate, 128);
 
     const hasProcOpts = options.hasOwnProperty('processorOptions') &&
       typeof options.processorOptions === 'object' &&
