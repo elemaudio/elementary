@@ -144,6 +144,8 @@ namespace elem
     template <typename FloatType>
     void Runtime<FloatType>::applyInstructions(elem::js::Array const& batch)
     {
+        bool shouldRebuild = false;
+
         // TODO: For correct transaction semantics here, we should createNode into a separate
         // map that only gets merged into the actual nodeMap on commitUpdaes
         for (auto& next : batch) {
@@ -173,9 +175,12 @@ namespace elem
                     break;
                 case InstructionType::ACTIVATE_ROOTS:
                     activateRoots(ar[1].getArray());
+                    shouldRebuild = true;
                     break;
                 case InstructionType::COMMIT_UPDATES:
-                    rseqQueue.push(buildRenderSequence());
+                    if (shouldRebuild) {
+                        rseqQueue.push(buildRenderSequence());
+                    }
                     break;
                 default:
                     break;
