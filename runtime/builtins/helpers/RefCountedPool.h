@@ -58,6 +58,31 @@ namespace elem
             return next;
         }
 
+        std::shared_ptr<ElementType> allocateAvailableWithDefault(std::shared_ptr<ElementType>&& dv)
+        {
+            for (size_t i = 0; i < internal.size(); ++i)
+            {
+                // If we found a pointer that has only one reference, that ref
+                // is our pool, so we konw that there are no other users of this
+                // element and can hand it out.
+                if (internal[i].use_count() == 1)
+                {
+                    return internal[i];
+                }
+            }
+
+            // Else, we return the provided default value without dynamically allocating anything
+            return std::move(dv);
+        }
+
+        void forEach (std::function<void(std::shared_ptr<ElementType>&)>&& fn)
+        {
+            for (size_t i = 0; i < internal.size(); ++i)
+            {
+                fn(internal[i]);
+            }
+        }
+
     private:
         std::vector<std::shared_ptr<ElementType>> internal;
     };

@@ -464,3 +464,19 @@ export function fft(a, b?) {
 
   return createNode("fft", a, [resolve(b)]);
 }
+
+// Capture node
+type CaptureNodeProps = {
+  key?: string,
+  size?: number,
+};
+
+export function capture(g: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function capture(props: CaptureNodeProps, g: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function capture(a, b, c?) {
+  if (typeof a === "number" || isNode(a)) {
+    return createNode("capture", {}, [resolve(a), resolve(b)]);
+  }
+
+  return createNode("capture", a, [resolve(b), resolve(c)]);
+}
