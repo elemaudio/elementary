@@ -17,12 +17,7 @@ export function resolve(n : NodeRepr_t | number): NodeRepr_t {
   return n;
 }
 
-export function isNode(n: unknown): n is NodeRepr_t {
-  // We cannot pass `unknown` type to the underlying method generated from ReScript,
-  // but we'd like to keep the signature of this method's API to be more semantically correct (use `unknown` instead of `any`).
-  // That's why we're using "@ts-expect-error" here.
-  // Once this resolved, the TS error pops up and we can remove it.
-  // @ts-expect-error
+export function isNode(n: any): boolean {
   return NodeRepr_isNode(n);
 }
 
