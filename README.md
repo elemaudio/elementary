@@ -44,6 +44,20 @@ You can find the Elementary documentation [on the website](https://elementary.au
 
 If you need help, join the community on the [Elementary Audio Discord](https://discord.gg/xSu9JjHwYc) and ask any questions you have!
 
+## Releases
+
+Releases are made both here in GitHub and deployed to [npm](https://www.npmjs.com) following npm's semver conventions. Because your project may need to coordinate both
+the native C++ library and the corresponding JavaScript dependencies, it may be helpful to understand our release conventions.
+
+* Canary releases are always made first on the `develop` branch using git tags
+    * Corresponding JavaScript packages are deployed to npm tagged `next` to indicate their status
+* After a brief validation period, canary releases are promoted to `main` via git merge
+    * The corresponding JavaScript packages are then tagged `latest`, making them the default install candidates on npm
+    * At this time a new GitHub Release is written to mark the update and document the changelog
+
+As a general rule of thumb, we recommend integrating Elementary via the `main` branch of this repo and the corresponding `latest` packages on npm. If you
+want to target the more bleeding edge, you can integrate via the git tags on the `develop` branch and the corresponding `next` packages on npm.
+
 ## Contributing
 
 We'd love to get you involved! Right now, the primary focus is to promote and grow the Elementary community. So if you want to help, consider:
