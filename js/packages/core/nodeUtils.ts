@@ -31,8 +31,6 @@ export function createNode(
   props,
   children: Array<NodeRepr_t | number>
 ): NodeRepr_t {
-  invariant(children.length <= 8, `Nodes can only have at most 8 children.`);
-
   if (typeof kind === 'string') {
     return NodeRepr_createPrimitive(kind, props, children.map(resolve));
   }

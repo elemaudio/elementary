@@ -101,15 +101,12 @@ namespace elem
         {
             bufferMap.emplace(node->getId(), ba.next());
 
-            renderOps.push_back([=, bufferMap = this->bufferMap](HostContext<FloatType>& ctx) {
+            // Allocate room for the child pointers here, gets moved into the lambda capture group below
+            std::vector<FloatType*> ptrs(children.size());
+
+            renderOps.push_back([=, bufferMap = this->bufferMap, ptrs = std::move(ptrs)](HostContext<FloatType>& ctx) mutable {
                 auto* outputData = bufferMap.at(node->getId());
                 auto const numChildren = children.size();
-
-                // This might actually be a great time for choc's SmallVector. We can allocate it outside the
-                // lambda but capture it by copy (move). Initialize it with `numChildren` so that if `numChildren` exceeds
-                // the stack-allocated space of choc's SmallVector then it performs its heap allocation before being
-                // copied (moved) into the lambda capture group.
-                std::array<FloatType*, 128> ptrs;
 
                 for (size_t j = 0; j < numChildren; ++j) {
                     ptrs[j] = bufferMap.at(children[j]);

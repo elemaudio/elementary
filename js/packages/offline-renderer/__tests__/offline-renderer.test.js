@@ -1,5 +1,5 @@
 import OfflineRenderer from '../index';
-import { el } from '@elemaudio/core';
+import { createNode, el } from '@elemaudio/core';
 
 
 test('the basics', async function() {
@@ -72,5 +72,24 @@ test('switch and switch back', async function() {
   core.render(el.mul(2, 3));
   core.process(inps, outs);
 
+  expect(outs[0].slice(512 * 8, 512 * 8 + 32)).toMatchSnapshot();
+});
+
+test('child limit', async function() {
+  let core = new OfflineRenderer();
+
+  await core.initialize({
+    numInputChannels: 0,
+    numOutputChannels: 1,
+  });
+
+  // Ten blocks of data
+  let inps = [];
+  let outs = [new Float32Array(512 * 10)];
+
+  core.render(createNode("add", {}, Array.from({length: 100}).fill(1)));
+  core.process(inps, outs);
+
+  // Once this settles, we should see 100s everywhere
   expect(outs[0].slice(512 * 8, 512 * 8 + 32)).toMatchSnapshot();
 });
