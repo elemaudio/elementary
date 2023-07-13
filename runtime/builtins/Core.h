@@ -15,7 +15,15 @@ namespace elem
     struct RootNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        int getChannelNumber() { return channelIndex.load(); }
+        int getChannelNumber()
+        {
+            return channelIndex.load();
+        }
+
+        FloatType getTargetGain()
+        {
+            return targetGain.load();
+        }
 
         bool stillRunning()
         {

@@ -48,3 +48,52 @@ test('feedback taps', async function() {
   core.process(inps, outs);
   expect(outs[0]).toMatchSnapshot();
 });
+
+test('idle feedback taps', async function() {
+  let core = new OfflineRenderer();
+
+  await core.initialize({
+    numInputChannels: 0,
+    numOutputChannels: 1,
+    blockSize: 32,
+  });
+
+  // Event handling
+  let callback = jest.fn();
+  core.on('meter', callback);
+
+  // Graph
+  core.render(
+    el.tapOut({name: 'test'}, el.add(
+      el.meter(el.tapIn({name: 'test'})),
+      1,
+    )),
+  );
+
+  // Render four blocks
+  let inps = [];
+  let outs = [new Float32Array(32 * 4)];
+
+  core.process(inps, outs);
+  expect(callback.mock.calls).toMatchSnapshot();
+  callback.mockClear();
+
+
+  // Render a new graph and we should see the feedback
+  // path begin winding down. This demonstrates that only
+  // the updated graph is feeding into the `test` feedback
+  // path, not the nodes from the deactivated roots that
+  // will become idle after the root node fade
+  core.render(
+    el.tapOut({name: 'test'}, el.add(
+      el.meter(el.tapIn({name: 'test'})),
+      -1,
+    )),
+  );
+
+  // Render four blocks
+  core.process(inps, outs);
+
+  // Check
+  expect(callback.mock.calls).toMatchSnapshot();
+});
