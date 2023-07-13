@@ -38,14 +38,11 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
         Object.keys(virtualFileSystem).length > 0;
 
       if (validVFS) {
-        this._native.postMessageBatch([
-          [EventTypes.UPDATE_RESOURCE_MAP, virtualFileSystem],
-          [EventTypes.COMMIT_UPDATES],
-        ], (type, message) => {
-          // This callback will only be called in the event of an error, we just relay
-          // it to the renderer frontend.
-          this.port.postMessage([type, msg]);
-        });
+        for (let [key, val] of Object.entries(virtualFileSystem)) {
+          this._native.updateSharedResourceMap(key, val, (message) => {
+            this.port.postMessage(['error', message]);
+          });
+        }
       }
     }
 
