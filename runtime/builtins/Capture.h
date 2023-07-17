@@ -14,7 +14,7 @@ namespace elem
     struct CaptureNode : public GraphNode<FloatType> {
         CaptureNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize),
-              ringBuffer(1, 4 * blockSize)
+              ringBuffer(1, 8 * blockSize)
         {
         }
 
@@ -33,33 +33,28 @@ namespace elem
             std::copy_n(inputData[1], numSamples, outputData);
 
             // Capture
-            size_t writeStart = 0;
-            size_t writeEnd = 0;
-
             for (size_t i = 0; i < numSamples; ++i) {
                 auto const g = static_cast<bool>(inputData[0][i]);
                 auto const dg = change(inputData[0][i]);
+                auto const fallingEdge = (dg < FloatType(-0.5));
 
-                // If we're at the rising edge of the gate signal, mark the write start
-                if (dg > FloatType(0.5))
-                    writeStart = i;
+                // If we're at the falling edge of the gate signal or need space in our scratch
+                // we propagate the data into the ring
+                if (fallingEdge || scratchSize >= scratchBuffer.size()) {
+                    auto const* writeData = scratchBuffer.data();
+                    ringBuffer.write(&writeData, 1, scratchSize);
+                    scratchSize = 0;
 
-                // If we're recording, update the write end
-                if (g && std::abs(dg) < FloatType(0.1))
-                    writeEnd = i;
-
-                // If we're at the falling edge of the gate signal, commit the recording
-                if (dg < FloatType(-0.5)) {
-                    ringBuffer.write(inputData, 1, writeEnd - writeStart);
-                    relayReady.store(true);
-
-                    writeStart = 0;
-                    writeEnd = 0;
+                    // And if it's the falling edge we alert the event processor
+                    if (fallingEdge) {
+                        relayReady.store(true);
+                    }
                 }
-            }
 
-            if (writeEnd - writeStart > 0) {
-                ringBuffer.write(inputData, 1, writeEnd - writeStart);
+                // Otherwise, if the record signal is on, write to our scratch
+                if (g) {
+                    scratchBuffer[scratchSize++] = inputData[1][i];
+                }
             }
         }
 
@@ -101,6 +96,9 @@ namespace elem
 
         Change<FloatType> change;
         MultiChannelRingBuffer<FloatType> ringBuffer;
+        std::array<FloatType, 128> scratchBuffer;
+        size_t scratchSize = 0;
+
         std::vector<FloatType> relayBuffer;
         std::atomic<bool> relayReady = false;
     };
