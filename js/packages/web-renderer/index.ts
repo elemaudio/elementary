@@ -72,6 +72,12 @@ export default class WebAudioRenderer extends events.EventEmitter {
           return this.emit(type, new Error(evt));
         }
 
+        if (type === 'eventBatch') {
+          return evt.forEach(({type, event}) => {
+            this.emit(type, event);
+          });
+        }
+
         this.emit(type, evt);
       };
 

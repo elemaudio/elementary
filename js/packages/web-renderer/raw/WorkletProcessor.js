@@ -10,6 +10,28 @@ const EventTypes = {
 };
 
 
+// A recursive function looking for transferable objects per the Web Worker API
+// @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects
+//
+// Right now we're only looking for the ArrayBuffers behind Float32Array instances as that's
+// the only type of transferable object that the native engine delivers, but this could be
+// extended to other types easily.
+function findTransferables(val) {
+  if (val instanceof Float32Array) {
+    return [val.buffer];
+  }
+
+  if (typeof val === 'object') {
+    if (Array.isArray(val)) {
+      return Array.prototype.concat.apply([], val.map(findTransferables));
+    }
+
+    return Array.prototype.concat.apply([], Object.keys(val).map(key => findTransferables(val[key])));
+  }
+
+  return [];
+}
+
 class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
   constructor(options) {
     super(options);
@@ -58,9 +80,10 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
           break;
         case 'processQueuedEvents':
           this._native.processQueuedEvents((evtBatch) => {
-            evtBatch.forEach((e) => {
-              this.port.postMessage(e);
-            });
+            if (evtBatch.length > 0) {
+              let transferables = findTransferables(evtBatch);
+              this.port.postMessage(['eventBatch', evtBatch], transferables);
+            }
           });
 
           break;

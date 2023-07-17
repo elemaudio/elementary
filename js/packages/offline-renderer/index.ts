@@ -105,8 +105,8 @@ export default class OfflineRenderer extends events.EventEmitter {
       this._native.process(this._blockSize);
 
       this._native.processQueuedEvents((evtBatch) => {
-        evtBatch.forEach(([type, e]) => {
-          this.emit(type, e);
+        evtBatch.forEach(({type, event}) => {
+          this.emit(type, event);
         });
       });
 

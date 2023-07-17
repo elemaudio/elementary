@@ -150,7 +150,10 @@ public:
         elem::js::Array batch;
 
         runtime->processQueuedEvents([this, &batch](std::string const& type, elem::js::Value evt) {
-            batch.push_back(elem::js::Array({type, evt}));
+            batch.push_back(elem::js::Object({
+                {"type", type},
+                {"event", evt}
+            }));
         });
 
         callback(valueToEmVal(batch));
