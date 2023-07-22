@@ -10,8 +10,12 @@ import WorkletProcessor from './raw/WorkletProcessor';
 import WasmModule from './raw/elementary-wasm';
 
 type ElemEvents = {
+  "error": Error,
+  "fft": { source?: string, data: { real: Float32Array, imag: Float32Array } };
   "load": void;
-  "scope": { data: Float32Array, source: string };
+  "meter": { source?: string; min: number; max: number; };
+  "scope": { source?: string, data: Float32Array[] };
+  "snapshot": { source?: string, data: number };
 }
 
 export default class WebAudioRenderer extends Emittery<ElemEvents> {
