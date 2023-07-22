@@ -1,4 +1,4 @@
-import events from 'events';
+import Emittery from 'emittery';
 import invariant from 'invariant';
 
 import {
@@ -9,20 +9,12 @@ import {
 import WorkletProcessor from './raw/WorkletProcessor';
 import WasmModule from './raw/elementary-wasm';
 
-type EventListener<E> = (event: E) => void
-
-declare interface EventEmitter<Events extends ElemEvents> {
-  on<K extends keyof ElemEvents>(eventName: K, listener: EventListener<ElemEvents[K]>);
-}
-
-class EventEmitter<Events extends ElemEvents> extends events.EventEmitter {}
-
 type ElemEvents = {
   "load": void;
   "scope": { data: Float32Array, source: string };
 }
 
-export default class WebAudioRenderer extends EventEmitter<ElemEvents> {
+export default class WebAudioRenderer extends Emittery<ElemEvents> {
   private _worklet: any;
   private _renderer: Renderer;
   private _timer: any;
