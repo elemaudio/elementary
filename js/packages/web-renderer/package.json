@@ -39,8 +39,6 @@
   },
   "dependencies": {
     "@elemaudio/core": "^2.0.2",
-    "@types/events": "^3.0.0",
-    "emittery": "^1.0.1",
-    "events": "^3.3.0"
+    "emittery": "^1.0.1"
   }
 }
