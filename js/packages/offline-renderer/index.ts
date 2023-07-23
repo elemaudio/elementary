@@ -1,4 +1,4 @@
-import events from 'events';
+import Emittery from 'emittery';
 import invariant from 'invariant';
 
 import {
@@ -8,8 +8,16 @@ import {
 // NEEDS WASM_ASYNC COMPILATION FLAG IN THE WASM BUILD SCRIPT
 import Module from './elementary-wasm';
 
+type ElemEvents = {
+  "error": Error,
+  "fft": { source?: string, data: { real: Float32Array, imag: Float32Array } };
+  "load": void;
+  "meter": { source?: string; min: number; max: number; };
+  "scope": { source?: string, data: Float32Array[] };
+  "snapshot": { source?: string, data: number };
+}
 
-export default class OfflineRenderer extends events.EventEmitter {
+export default class OfflineRenderer extends Emittery<ElemEvents> {
   private _module: any;
   private _native: any;
   private _renderer: Renderer;
