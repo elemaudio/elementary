@@ -1,7 +1,7 @@
-import events from 'events';
 import invariant from 'invariant';
 
 import {
+  EventEmitter,
   Renderer,
 } from '@elemaudio/core';
 
@@ -9,8 +9,7 @@ import {
 import WorkletProcessor from './raw/WorkletProcessor';
 import WasmModule from './raw/elementary-wasm';
 
-
-export default class WebAudioRenderer extends events.EventEmitter {
+export default class WebAudioRenderer extends EventEmitter {
   private _worklet: any;
   private _renderer: Renderer;
   private _timer: any;

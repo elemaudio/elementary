@@ -9,6 +9,9 @@ import {
   resolve,
 } from './nodeUtils';
 
+import {EventEmitter} from './src/Events';
+export {EventEmitter};
+
 import * as co from './lib/core';
 import * as dy from './lib/dynamics';
 import * as en from './lib/envelopes';

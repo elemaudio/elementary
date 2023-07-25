@@ -38,8 +38,6 @@
     "terser": "^5.12.0"
   },
   "dependencies": {
-    "@elemaudio/core": "^2.0.2",
-    "@types/events": "^3.0.0",
-    "events": "^3.3.0"
+    "@elemaudio/core": "^2.0.2"
   }
 }
