@@ -42,10 +42,6 @@ test('events', async function() {
   core.render(el.meter(el.mul(2, 3)));
   core.process(inps, outs);
 
-  // Block until next event loop iteration
-  // to wait for meter events
-  await new Promise(process.nextTick);
-
   expect(events).toMatchSnapshot();
 });
 

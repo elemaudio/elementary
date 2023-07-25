@@ -1,7 +1,7 @@
-import Emittery from 'emittery';
 import invariant from 'invariant';
 
 import {
+  EventEmitter,
   Renderer,
 } from '@elemaudio/core';
 
@@ -9,16 +9,7 @@ import {
 import WorkletProcessor from './raw/WorkletProcessor';
 import WasmModule from './raw/elementary-wasm';
 
-type ElemEvents = {
-  "error": Error,
-  "fft": { source?: string, data: { real: Float32Array, imag: Float32Array } };
-  "load": void;
-  "meter": { source?: string; min: number; max: number; };
-  "scope": { source?: string, data: Float32Array[] };
-  "snapshot": { source?: string, data: number };
-}
-
-export default class WebAudioRenderer extends Emittery<ElemEvents> {
+export default class WebAudioRenderer extends EventEmitter {
   private _worklet: any;
   private _renderer: Renderer;
   private _timer: any;

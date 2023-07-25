@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "@elemaudio/core": "^2.0.2",
-    "emittery": "^1.0.1",
     "invariant": "^2.2.4"
   }
 }
