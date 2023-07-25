@@ -216,7 +216,7 @@ export function bleptriangle(a, b?) {
 
   // Gain normalization after integrating the square below
   let gain = el.div(el.mul(4, rate), el.sr());
-  return el.mul(gain, el.pole(0.999, blepsquare(props, rate)));
+  return el.mul(gain, el.pole(0.995, blepsquare(props, rate)));
 }
 
 // Noise
