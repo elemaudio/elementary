@@ -141,6 +141,14 @@ export default class OfflineRenderer extends EventEmitter {
     }
   }
 
+  pruneVirtualFileSystem() {
+    this._native.pruneSharedResourceMap();
+  }
+
+  listVirtualFileSystem() {
+    return this._native.listSharedResourceMap();
+  }
+
   reset() {
     this._native.reset();
   }

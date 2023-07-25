@@ -75,7 +75,18 @@ namespace elem
         //
         // This method populates an internal map from which any GraphNode can request a
         // shared pointer to the data.
-        void updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size);
+        bool updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size);
+
+        // Removes unused resources from the map
+        //
+        // This method will retain any resource with references held by an active
+        // audio graph.
+        void pruneSharedResourceMap();
+
+        // Returns an iterator through the names of the entries in the shared resouce map.
+        //
+        // Intentionally, this does not provide access to the values in the map.
+        typename SharedResourceMap<FloatType>::KeyViewType getSharedResourceMapKeys();
 
         // For registering custom GraphNode factory functions.
         //
@@ -336,12 +347,30 @@ namespace elem
 
     //==============================================================================
     template <typename FloatType>
-    void Runtime<FloatType>::updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size)
+    bool Runtime<FloatType>::updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size)
     {
-        sharedResourceMap.insert(
+        auto result = sharedResourceMap.insert(
             name,
             std::make_shared<typename SharedResourceBuffer<FloatType>::element_type>(data, data + size)
         );
+
+        if (!result) {
+            ELEM_DBG("WARNING: Overwriting an existing shared resource is deprecated. This behavior will change in the next major version.");
+        }
+
+        return result;
+    }
+
+    template <typename FloatType>
+    void Runtime<FloatType>::pruneSharedResourceMap()
+    {
+        sharedResourceMap.prune();
+    }
+
+    template <typename FloatType>
+    typename SharedResourceMap<FloatType>::KeyViewType Runtime<FloatType>::getSharedResourceMapKeys()
+    {
+        return sharedResourceMap.keys();
     }
 
     template <typename FloatType>

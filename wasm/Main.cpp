@@ -107,23 +107,46 @@ public:
         runtime->reset();
     }
 
-    void updateSharedResourceMap(val path, val buffer, val errorCallback)
+    bool updateSharedResourceMap(val path, val buffer, val errorCallback)
     {
         auto p = emValToValue(path);
         auto b = emValToValue(buffer);
 
-        if (!p.isString())
-            return (void) errorCallback(val("Path must be a string type"));
+        if (!p.isString()) {
+            errorCallback(val("Path must be a string type"));
+            return false;
+        }
 
-        if (!b.isArray() && !b.isFloat32Array())
-            return (void) errorCallback(val("Buffer argument must be an Array or Float32Array type"));
+        if (!b.isArray() && !b.isFloat32Array()) {
+            errorCallback(val("Buffer argument must be an Array or Float32Array type"));
+            return false;
+        }
 
         try {
             auto buf = b.isArray() ? arrayToFloatVector(b.getArray()) : b.getFloat32Array();
-            runtime->updateSharedResourceMap((elem::js::String) p, buf.data(), buf.size());
+            return runtime->updateSharedResourceMap((elem::js::String) p, buf.data(), buf.size());
         } catch (elem::InvariantViolation const& e) {
             errorCallback(val("Invalid buffer for updating resource map"));
         }
+
+        return false;
+    }
+
+    void pruneSharedResourceMap()
+    {
+        runtime->pruneSharedResourceMap();
+    }
+
+    val listSharedResourceMap()
+    {
+        auto ret = val::array();
+        size_t i = 0;
+
+        for (auto& k : runtime->getSharedResourceMapKeys()) {
+            ret.set(i++, val(k));
+        }
+
+        return ret;
     }
 
     /** Audio block processing. */
@@ -312,6 +335,8 @@ EMSCRIPTEN_BINDINGS(Elementary) {
         .function("postMessageBatch", &ElementaryAudioProcessor::postMessageBatch)
         .function("reset", &ElementaryAudioProcessor::reset)
         .function("updateSharedResourceMap", &ElementaryAudioProcessor::updateSharedResourceMap)
+        .function("pruneSharedResourceMap", &ElementaryAudioProcessor::pruneSharedResourceMap)
+        .function("listSharedResourceMap", &ElementaryAudioProcessor::listSharedResourceMap)
         .function("process", &ElementaryAudioProcessor::process)
         .function("processQueuedEvents", &ElementaryAudioProcessor::processQueuedEvents);
 };

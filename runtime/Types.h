@@ -40,6 +40,39 @@ namespace elem
     };
 
     //==============================================================================
+    // A couple of quick helpers to provide an API similar to std::views::keys of C++20.
+    //
+    // This allows the Runtime to expose the keys of the shared resource map to the end
+    // user without exposing the values.
+    template<class MapType>
+    class KeyIterator : public MapType::iterator
+    {
+    public:
+        typedef typename MapType::iterator map_iterator;
+        typedef typename map_iterator::value_type::first_type key_type;
+
+        KeyIterator(const map_iterator& other) : MapType::iterator(other) {} ;
+
+        key_type& operator *()
+        {
+            return MapType::iterator::operator*().first;
+        }
+    };
+
+    template<class MapType>
+    struct MapKeyView {
+        public:
+            MapKeyView(MapType& m)
+                : other(m) {}
+
+            auto begin()    { return KeyIterator<MapType>(other.begin()); }
+            auto end()      { return KeyIterator<MapType>(other.end()); }
+
+        private:
+            MapType& other;
+    };
+
+    //==============================================================================
     template <typename FloatType>
     using SharedResourceBuffer = std::shared_ptr<std::vector<FloatType> const>;
 
@@ -50,13 +83,19 @@ namespace elem
     class SharedResourceMap {
     public:
         //==============================================================================
+        using KeyViewType = MapKeyView<std::unordered_map<std::string, SharedResourceBuffer<FloatType>>>;
+
+        //==============================================================================
         SharedResourceMap() = default;
 
         //==============================================================================
         // Accessor methods for immutable resources
-        void insert(std::string const& p, SharedResourceBuffer<FloatType>&& srb);
+        bool insert(std::string const& p, SharedResourceBuffer<FloatType>&& srb);
         bool has(std::string const& p);
         SharedResourceBuffer<FloatType> const& get(std::string const& p);
+
+        void prune();
+        KeyViewType keys();
 
         //==============================================================================
         // Accessor methods for mutable resources
@@ -70,7 +109,7 @@ namespace elem
     //==============================================================================
     // Details...
     template <typename FloatType>
-    void SharedResourceMap<FloatType>::insert (std::string const& p, SharedResourceBuffer<FloatType>&& srb) {
+    bool SharedResourceMap<FloatType>::insert (std::string const& p, SharedResourceBuffer<FloatType>&& srb) {
         // TODO: This is risky. In the case that a key is already present and we assign to it, it could be
         // that there's a realtime node somewhere who is also holding a shared_ptr to the existing resource.
         // If the resource map then drops its reference, it may leave the realtime node holding the last one,
@@ -78,7 +117,10 @@ namespace elem
         //
         // Is there any reason not to enforce that this map is itself immutable? I.e. you can only ever add to it, you can't
         // change existing entries? That would give the guarantees we need here.
-        imms.insert_or_assign(p, std::move(srb));
+        //
+        // Update: we're now returning the result to indicate the existing behavior is deprecated and will
+        // change in the next major version.
+        return imms.insert_or_assign(p, std::move(srb)).second;
     }
 
     template <typename FloatType>
@@ -89,6 +131,22 @@ namespace elem
     template <typename FloatType>
     SharedResourceBuffer<FloatType> const& SharedResourceMap<FloatType>::get (std::string const& p) {
         return imms.at(p);
+    }
+
+    template <typename FloatType>
+    void SharedResourceMap<FloatType>::prune() {
+        for (auto it = imms.cbegin(); it != imms.cend(); /* no increment */) {
+            if (it->second.use_count() == 1) {
+                imms.erase(it++);
+            } else {
+                it++;
+            }
+        }
+    }
+
+    template <typename FloatType>
+    typename SharedResourceMap<FloatType>::KeyViewType SharedResourceMap<FloatType>::keys() {
+        return MapKeyView<decltype(imms)>(imms);
     }
 
     template <typename FloatType>

@@ -98,6 +98,15 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
         case 'reset':
           this._native.reset();
           break;
+        case 'pruneVirtualFileSystem':
+          this._native.pruneSharedResourceMap();
+          break;
+        case 'listVirtualFileSystem':
+          let result = this._native.listSharedResourceMap();
+          let promiseKey = e.data.promiseKey;
+
+          this.port.postMessage(['resolvePromise', {promiseKey, result}]);
+          break;
         default:
           break;
       }

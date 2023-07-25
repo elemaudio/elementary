@@ -11,6 +11,8 @@ import WasmModule from './raw/elementary-wasm';
 
 export default class WebAudioRenderer extends EventEmitter {
   private _worklet: any;
+  private _promiseMap: any;
+  private _nextPromiseKey: number;
   private _renderer: Renderer;
   private _timer: any;
 
@@ -42,6 +44,9 @@ export default class WebAudioRenderer extends EventEmitter {
       audioContext.__elemRegistered = true;
     }
 
+    this._promiseMap = new Map();
+    this._nextPromiseKey = 0;
+
     this._worklet = new AudioWorkletNode(audioContext, 'ElementaryAudioWorkletProcessor', Object.assign({
       numberOfInputs: 0,
       numberOfOutputs: 1,
@@ -65,6 +70,13 @@ export default class WebAudioRenderer extends EventEmitter {
           });
 
           resolve(this._worklet);
+        }
+
+        if (type === 'resolvePromise') {
+          const {promiseKey, result} = evt;
+          this._promiseMap.get(promiseKey).resolve(result);
+          this._promiseMap.delete(promiseKey);
+          return;
         }
 
         if (type === 'error') {
@@ -108,6 +120,25 @@ export default class WebAudioRenderer extends EventEmitter {
     this._worklet.port.postMessage({
       type: 'updateSharedResourceMap',
       resources: vfs,
+    });
+  }
+
+  pruneVirtualFileSystem() {
+    this._worklet.port.postMessage({
+      type: 'pruneVirtualFileSystem',
+    });
+  }
+
+  listVirtualFileSystem() {
+    const promiseKey = this._nextPromiseKey++;
+
+    this._worklet.port.postMessage({
+      type: 'listVirtualFileSystem',
+      promiseKey,
+    });
+
+    return new Promise((resolve, reject) => {
+      this._promiseMap.set(promiseKey, { resolve, reject });
     });
   }
 
