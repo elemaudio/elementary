@@ -33,12 +33,11 @@ let hashString = (. seed: int, s: string): int => {
 }
 
 @genType
-let hashNode = (. kind: string, props: 'a, children: list<int>): int => {
+let hashNode = (. kind: string, props: Js.Dict.t<'a>, children: list<int>): int => {
   let r = hashString(. 0x811c9dc5, kind)
-  let r2 = if Js.Types.test(props["key"], String) {
-    hashString(. r, props["key"])
-  } else {
-    hashString(. r, Js.Option.getExn(Js.Json.stringifyAny(props)))
+  let r2 = switch Js.Dict.get(props, "key") {
+    | Some(k) if Js.Types.test(k, String) => hashString(. r, k)
+    | _ => hashString(. r, Js.Option.getExn(Js.Json.stringifyAny(props)))
   }
 
   finalize(Belt.List.reduceU(children, r2, mixNumber))

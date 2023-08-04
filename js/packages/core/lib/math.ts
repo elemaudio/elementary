@@ -4,7 +4,7 @@ import {
   resolve,
 } from '../nodeUtils';
 
-import type {NodeRepr_t} from '../src/Reconciler.gen';
+import type {t as NodeRepr_t} from '../src/NodeRepr.gen';
 
 
 type OptionalKeyProps = {

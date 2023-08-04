@@ -1,17 +1,12 @@
-import {
-  NodeRepr_createPrimitive,
-  NodeRepr_createComposite,
-  NodeRepr_isNode,
-} from './src/Reconciler.gen';
+import { create, isNode as NodeRepr_isNode } from './src/NodeRepr.gen';
+import type { t as NodeRepr_t } from './src/NodeRepr.gen';
 
 import invariant from 'invariant';
-
-import type {NodeRepr_t} from './src/Reconciler.gen';
 
 
 export function resolve(n : NodeRepr_t | number): NodeRepr_t {
   if (typeof n === 'number')
-    return NodeRepr_createPrimitive("const", {value: n}, []);
+    return create("const", {value: n}, []);
 
   invariant(isNode(n), `Whoops, expecting a Node type here! Got: ${typeof n}`);
   return n;
@@ -27,14 +22,9 @@ export function isNode(n: unknown): n is NodeRepr_t {
 }
 
 export function createNode(
-  kind: Parameters<typeof NodeRepr_createPrimitive>[0] | Parameters<typeof NodeRepr_createComposite>[0],
+  kind: string,
   props,
   children: Array<NodeRepr_t | number>
 ): NodeRepr_t {
-  if (typeof kind === 'string') {
-    return NodeRepr_createPrimitive(kind, props, children.map(resolve));
-  }
-
-  console.warn('WARNING: Support for composite nodes are deprecated as of v2.1.0, and will be removed in v3');
-  return NodeRepr_createComposite(kind, props, children.map(resolve));
+  return create(kind, props, children.map(resolve));
 }

@@ -23,6 +23,7 @@ export function updateNodeProps(renderer, hash, prevProps, nextProps) {
         }
 
         renderer.setProperty(hash, key, value);
+        prevProps[key] = value;
       }
     }
   }

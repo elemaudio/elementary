@@ -20,7 +20,7 @@ import * as fi from './lib/filters';
 import * as os from './lib/oscillators';
 import * as si from './lib/signals';
 
-import type {NodeRepr_t} from './src/Reconciler.gen';
+import type {t as NodeRepr_t} from './src/NodeRepr.gen';
 export type {NodeRepr_t};
 
 const stdlib = {

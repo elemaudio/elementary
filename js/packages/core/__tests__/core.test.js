@@ -253,67 +253,6 @@ test('switch and switch back', function() {
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
-test('composite with keyed children', function() {
-  const tr = new TestRenderer();
-  const composite = ({context, props, children}) => {
-    return createNode("add", {}, children);
-  };
-
-  tr.render(createNode(composite, {}, [
-    createNode("const", {key: 'g', value: 0}, [])
-  ]));
-
-  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
-
-  tr.render(createNode(composite, {}, [
-    createNode("const", {key: 'g', value: 1}, [])
-  ]));
-
-  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
-});
-
-test('shared reference to composite node', function() {
-  let tr = new TestRenderer();
-  let calls = 0;
-
-  let train = ({props, children: [rate]}) => {
-    calls++;
-
-    return (
-      createNode("le", {}, [
-        createNode("phasor", {}, [rate]),
-        0.5,
-      ])
-    );
-  };
-
-  // We expect `train` to be called once in resolving the composite node, and for
-  // the latter two instances in our stereo graph to be resolved via the cache
-  let t = createNode(train, {}, [5]);
-
-  tr.render(
-    createNode("seq", {seq: [1, 2, 3]}, [t, t]),
-    createNode("seq", {seq: [1, 2, 3]}, [t]),
-  );
-
-  expect(calls).toBe(1);
-
-  // Now if we make multiple composite node instances each referencing the same composite
-  // function, we have to unroll each of them with their associated inputs. Due to the v2.0.1
-  // change which disables memoization we no longer attempt to prevent that second call by memoization
-  calls = 0;
-
-  let u = createNode(train, {}, [5]);
-  let v = createNode(train, {}, [5]);
-
-  tr.render(
-    createNode("seq", {seq: [1, 2, 3]}, [u, v]),
-    createNode("seq", {seq: [1, 2, 3]}, [v]),
-  );
-
-  expect(calls).toBe(2);
-});
-
 test('garbage collection', function() {
   let tr = new TestRenderer();
 
