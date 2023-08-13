@@ -24,21 +24,6 @@ const el = {
   ...si,
 };
 
-function AdsrComposite({children}) {
-  let [a, d, s, r, g] = children;
-  let atkSamps = el.mul(a, el.sr());
-  let atkGate = el.le(el.counter(g), atkSamps);
-
-  let target = el.select(g, el.select(atkGate, 1.0, s), 0);
-  let t60 = el.select(g, el.select(atkGate, a, d), r);
-
-  // Accelerate the phase time when calculating the pole position to ensure
-  // we reach closer to the target value before moving to the next phase.
-  let p = el.tau2pole(el.div(t60, 6.91));
-
-  return el.smooth(p, target);
-}
-
 /**
  * An exponential ADSR envelope generator, triggered by the gate signal, g.
  *
@@ -70,10 +55,21 @@ export function adsr(
   gate: NodeRepr_t | number,
 ): NodeRepr_t;
 
-export function adsr(a, b, c, d, e, f?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode(AdsrComposite, {}, [a, b, c, d, e]);
-  }
+export function adsr(a_, b_, c_, d_, e_, f_?) {
+  let children = (typeof a_ === "number" || isNode(a_))
+    ? [a_, b_, c_, d_, e_]
+    : [b_, c_, d_, e_, f_];
 
-  return createNode(AdsrComposite, a, [b, c, d, e, f]);
+  let [a, d, s, r, g] = children;
+  let atkSamps = el.mul(a, el.sr());
+  let atkGate = el.le(el.counter(g), atkSamps);
+
+  let target = el.select(g, el.select(atkGate, 1.0, s), 0);
+  let t60 = el.select(g, el.select(atkGate, a, d), r);
+
+  // Accelerate the phase time when calculating the pole position to ensure
+  // we reach closer to the target value before moving to the next phase.
+  let p = el.tau2pole(el.div(t60, 6.91));
+
+  return el.smooth(p, target);
 }

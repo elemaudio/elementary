@@ -1,7 +1,6 @@
 import {
   createNode,
   isNode,
-  resolve,
 } from '../nodeUtils';
 
 import type {NodeRepr_t} from '../src/Reconciler.gen';
@@ -22,7 +21,44 @@ const el = {
   ...si,
 };
 
-function CompressComposite({children}) {
+/* A simple hard-knee compressor with parameterized attack and release times,
+ * threshold, and compression ratio.
+ *
+ * Users may drive the compressor with an optional sidechain signal, or send the
+ * same input both as the input to be compressed and as the sidechain signal itself
+ * for standard compressor behavior.
+ *
+ * @param {Node | number} atkMs – attack time in milliseconds
+ * @param {Node | number} relMs – release time in millseconds
+ * @param {Node | number} threshold – decibel value above which the comp kicks in
+ * @param {Node | number} ratio – ratio by which we squash signal above the threshold
+ * @param {Node} sidechain – sidechain signal to drive the compressor
+ * @param {Node} xn – input signal to filter
+ */
+export function compress(
+  attackMs: NodeRepr_t | number,
+  releaseMs: NodeRepr_t | number,
+  threshold: NodeRepr_t | number,
+  ratio: NodeRepr_t | number,
+  sidechain: NodeRepr_t | number,
+  xn: NodeRepr_t | number,
+): NodeRepr_t;
+
+export function compress(
+  props: OptionalKeyProps,
+  attackMs: NodeRepr_t | number,
+  releaseMs: NodeRepr_t | number,
+  threshold: NodeRepr_t | number,
+  ratio: NodeRepr_t | number,
+  sidechain: NodeRepr_t | number,
+  xn: NodeRepr_t | number,
+): NodeRepr_t;
+
+export function compress(a_, b_, c_, d_, e_, f_, g_?) {
+  let children = (typeof a_ === "number" || isNode(a_))
+    ? [a_, b_, c_, d_, e_, f_]
+    : [b_, c_, d_, e_, f_, g_];
+
   const [atkMs, relMs, threshold, ratio, sidechain, xn] = children;
   const env = el.env(
     el.tau2pole(el.mul(0.001, atkMs)),
@@ -58,46 +94,5 @@ function CompressComposite({children}) {
     1,
   );
 
-  return resolve(el.mul(xn, gain));
-}
-
-/* A simple hard-knee compressor with parameterized attack and release times,
- * threshold, and compression ratio.
- *
- * Users may drive the compressor with an optional sidechain signal, or send the
- * same input both as the input to be compressed and as the sidechain signal itself
- * for standard compressor behavior.
- *
- * @param {Node | number} atkMs – attack time in milliseconds
- * @param {Node | number} relMs – release time in millseconds
- * @param {Node | number} threshold – decibel value above which the comp kicks in
- * @param {Node | number} ratio – ratio by which we squash signal above the threshold
- * @param {Node} sidechain – sidechain signal to drive the compressor
- * @param {Node} xn – input signal to filter
- */
-export function compress(
-  attackMs: NodeRepr_t | number,
-  releaseMs: NodeRepr_t | number,
-  threshold: NodeRepr_t | number,
-  ratio: NodeRepr_t | number,
-  sidechain: NodeRepr_t | number,
-  xn: NodeRepr_t | number,
-): NodeRepr_t;
-
-export function compress(
-  props: OptionalKeyProps,
-  attackMs: NodeRepr_t | number,
-  releaseMs: NodeRepr_t | number,
-  threshold: NodeRepr_t | number,
-  ratio: NodeRepr_t | number,
-  sidechain: NodeRepr_t | number,
-  xn: NodeRepr_t | number,
-): NodeRepr_t;
-
-export function compress(a, b, c, d, e, f, g?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode(CompressComposite, {}, [a, b, c, d, e, f]);
-  }
-
-  return createNode(CompressComposite, a, [b, c, d, e, f, g]);
+  return el.mul(xn, gain);
 }

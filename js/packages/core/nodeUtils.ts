@@ -35,5 +35,6 @@ export function createNode(
     return NodeRepr_createPrimitive(kind, props, children.map(resolve));
   }
 
+  console.warn('WARNING: Support for composite nodes are deprecated as of v2.1.0, and will be removed in v3');
   return NodeRepr_createComposite(kind, props, children.map(resolve));
 }
