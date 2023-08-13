@@ -1,6 +1,6 @@
 {
   "name": "@elemaudio/web-renderer",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "type": "module",
   "description": "Official package for rendering Elementary Audio applications to Web Audio",
   "keywords": [
@@ -40,6 +40,6 @@
     "vite": "^4.4.9"
   },
   "dependencies": {
-    "@elemaudio/core": "^2.0.2"
+    "@elemaudio/core": "^2.1.0"
   }
 }
