@@ -35,7 +35,8 @@
     "invariant": "^2.2.4",
     "rollup": "^2.70.0",
     "rollup-pluginutils": "^2.8.2",
-    "terser": "^5.12.0"
+    "terser": "^5.12.0",
+    "vite": "^4.4.9"
   },
   "dependencies": {
     "@elemaudio/core": "^2.0.2"
