@@ -17,7 +17,12 @@ export function resolve(n : NodeRepr_t | number): NodeRepr_t {
   return n;
 }
 
-export function isNode(n: any): boolean {
+export function isNode(n: unknown): n is NodeRepr_t {
+  // We cannot pass `unknown` type to the underlying method generated from ReScript,
+  // but we'd like to keep the signature of this method's API to be more semantically correct (use `unknown` instead of `any`).
+  // That's why we're using "@ts-expect-error" here.
+  // Once this resolved, the TS error pops up and we can remove it.
+  // @ts-expect-error
   return NodeRepr_isNode(n);
 }
 
@@ -26,11 +31,10 @@ export function createNode(
   props,
   children: Array<NodeRepr_t | number>
 ): NodeRepr_t {
-  invariant(children.length <= 8, `Nodes can only have at most 8 children.`);
-
   if (typeof kind === 'string') {
     return NodeRepr_createPrimitive(kind, props, children.map(resolve));
   }
 
+  console.warn('WARNING: Support for composite nodes are deprecated as of v2.1.0, and will be removed in v3');
   return NodeRepr_createComposite(kind, props, children.map(resolve));
 }

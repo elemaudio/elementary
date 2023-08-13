@@ -1,15 +1,14 @@
-import events from 'events';
 import invariant from 'invariant';
 
 import {
+  EventEmitter,
   Renderer,
 } from '@elemaudio/core';
 
 // NEEDS WASM_ASYNC COMPILATION FLAG IN THE WASM BUILD SCRIPT
 import Module from './elementary-wasm';
 
-
-export default class OfflineRenderer extends events.EventEmitter {
+export default class OfflineRenderer extends EventEmitter {
   private _module: any;
   private _native: any;
   private _renderer: Renderer;
@@ -105,8 +104,8 @@ export default class OfflineRenderer extends events.EventEmitter {
       this._native.process(this._blockSize);
 
       this._native.processQueuedEvents((evtBatch) => {
-        evtBatch.forEach(([type, e]) => {
-          this.emit(type, e);
+        evtBatch.forEach(({type, event}) => {
+          this.emit(type, event);
         });
       });
 
@@ -140,6 +139,14 @@ export default class OfflineRenderer extends events.EventEmitter {
         this.emit('error', new Error(message));
       });
     }
+  }
+
+  pruneVirtualFileSystem() {
+    this._native.pruneSharedResourceMap();
+  }
+
+  listVirtualFileSystem() {
+    return this._native.listSharedResourceMap();
   }
 
   reset() {

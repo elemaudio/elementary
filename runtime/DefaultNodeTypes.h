@@ -9,6 +9,7 @@
 #include "builtins/Filters.h"
 #include "builtins/filters/SVF.h"
 #include "builtins/filters/SVFShelf.h"
+#include "builtins/Capture.h"
 #include "builtins/Math.h"
 #include "builtins/Noise.h"
 #include "builtins/Sample.h"
@@ -114,6 +115,7 @@ namespace elem
             callback("meter",     GenericNodeFactory<MeterNode<FloatType>>());
             callback("scope",     GenericNodeFactory<ScopeNode<FloatType>>());
             callback("snapshot",  GenericNodeFactory<SnapshotNode<FloatType>>());
+            callback("capture",   GenericNodeFactory<CaptureNode<FloatType>>());
         }
     };
 

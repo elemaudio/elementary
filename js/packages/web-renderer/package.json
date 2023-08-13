@@ -1,6 +1,6 @@
 {
   "name": "@elemaudio/web-renderer",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "type": "module",
   "description": "Official package for rendering Elementary Audio applications to Web Audio",
   "keywords": [
@@ -25,7 +25,8 @@
   ],
   "scripts": {
     "wasm": "./scripts/prebuild.sh",
-    "build": "rollup -c rollup.config.js"
+    "build": "rollup -c rollup.config.js",
+    "serve": "vite -c test/vite.config.js test"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.2",
@@ -35,11 +36,10 @@
     "invariant": "^2.2.4",
     "rollup": "^2.70.0",
     "rollup-pluginutils": "^2.8.2",
-    "terser": "^5.12.0"
+    "terser": "^5.12.0",
+    "vite": "^4.4.9"
   },
   "dependencies": {
-    "@elemaudio/core": "^2.0.1",
-    "@types/events": "^3.0.0",
-    "events": "^3.3.0"
+    "@elemaudio/core": "^2.1.0"
   }
 }

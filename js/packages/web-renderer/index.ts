@@ -1,7 +1,7 @@
-import events from 'events';
 import invariant from 'invariant';
 
 import {
+  EventEmitter,
   Renderer,
 } from '@elemaudio/core';
 
@@ -9,9 +9,10 @@ import {
 import WorkletProcessor from './raw/WorkletProcessor';
 import WasmModule from './raw/elementary-wasm';
 
-
-export default class WebAudioRenderer extends events.EventEmitter {
+export default class WebAudioRenderer extends EventEmitter {
   private _worklet: any;
+  private _promiseMap: any;
+  private _nextPromiseKey: number;
   private _renderer: Renderer;
   private _timer: any;
 
@@ -30,6 +31,10 @@ export default class WebAudioRenderer extends events.EventEmitter {
       const blob = new Blob([WasmModule, WorkletProcessor], {type: 'text/javascript'});
       const blobUrl = URL.createObjectURL(blob);
 
+      if (!audioContext.audioWorklet) {
+        throw new Error("BaseAudioContext.audioWorklet is missing; are you running in a secure context (https)?");
+      }
+
       // This neat trick with the Blob URL allows me to inject the module without
       // needing to serve it from somewhere on the file system. The files loaded
       // from the raw/* directory are loaded as raw, minified strings.
@@ -38,6 +43,9 @@ export default class WebAudioRenderer extends events.EventEmitter {
       // @ts-ignore
       audioContext.__elemRegistered = true;
     }
+
+    this._promiseMap = new Map();
+    this._nextPromiseKey = 0;
 
     this._worklet = new AudioWorkletNode(audioContext, 'ElementaryAudioWorkletProcessor', Object.assign({
       numberOfInputs: 0,
@@ -54,7 +62,7 @@ export default class WebAudioRenderer extends events.EventEmitter {
         const [type, evt] = e.data;
 
         if (type === 'load') {
-          this._renderer = new Renderer(e.sampleRate, (batch) => {
+          this._renderer = new Renderer(evt.sampleRate, (batch) => {
             this._worklet.port.postMessage({
               type: 'renderInstructions',
               batch,
@@ -64,8 +72,21 @@ export default class WebAudioRenderer extends events.EventEmitter {
           resolve(this._worklet);
         }
 
+        if (type === 'resolvePromise') {
+          const {promiseKey, result} = evt;
+          this._promiseMap.get(promiseKey).resolve(result);
+          this._promiseMap.delete(promiseKey);
+          return;
+        }
+
         if (type === 'error') {
           return this.emit(type, new Error(evt));
+        }
+
+        if (type === 'eventBatch') {
+          return evt.forEach(({type, event}) => {
+            this.emit(type, event);
+          });
         }
 
         this.emit(type, evt);
@@ -99,6 +120,25 @@ export default class WebAudioRenderer extends events.EventEmitter {
     this._worklet.port.postMessage({
       type: 'updateSharedResourceMap',
       resources: vfs,
+    });
+  }
+
+  pruneVirtualFileSystem() {
+    this._worklet.port.postMessage({
+      type: 'pruneVirtualFileSystem',
+    });
+  }
+
+  listVirtualFileSystem() {
+    const promiseKey = this._nextPromiseKey++;
+
+    this._worklet.port.postMessage({
+      type: 'listVirtualFileSystem',
+      promiseKey,
+    });
+
+    return new Promise((resolve, reject) => {
+      this._promiseMap.set(promiseKey, { resolve, reject });
     });
   }
 

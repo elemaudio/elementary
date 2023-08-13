@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <set>
 #include <unordered_map>
 
@@ -61,7 +62,7 @@ namespace elem
         //
         // This raises events from the processing graph such as new data from analysis nodes
         // or errors encountered while processing.
-        void processQueuedEvents(std::function<void(std::string const&, js::Value)> evtCallback);
+        void processQueuedEvents(std::function<void(std::string const&, js::Value)>&& evtCallback);
 
         // Reset the internal graph nodes
         //
@@ -74,7 +75,18 @@ namespace elem
         //
         // This method populates an internal map from which any GraphNode can request a
         // shared pointer to the data.
-        void updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size);
+        bool updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size);
+
+        // Removes unused resources from the map
+        //
+        // This method will retain any resource with references held by an active
+        // audio graph.
+        void pruneSharedResourceMap();
+
+        // Returns an iterator through the names of the entries in the shared resouce map.
+        //
+        // Intentionally, this does not provide access to the values in the map.
+        typename SharedResourceMap<FloatType>::KeyViewType getSharedResourceMapKeys();
 
         // For registering custom GraphNode factory functions.
         //
@@ -144,6 +156,8 @@ namespace elem
     template <typename FloatType>
     void Runtime<FloatType>::applyInstructions(elem::js::Array const& batch)
     {
+        bool shouldRebuild = false;
+
         // TODO: For correct transaction semantics here, we should createNode into a separate
         // map that only gets merged into the actual nodeMap on commitUpdaes
         for (auto& next : batch) {
@@ -173,9 +187,12 @@ namespace elem
                     break;
                 case InstructionType::ACTIVATE_ROOTS:
                     activateRoots(ar[1].getArray());
+                    shouldRebuild = true;
                     break;
                 case InstructionType::COMMIT_UPDATES:
-                    rseqQueue.push(buildRenderSequence());
+                    if (shouldRebuild) {
+                        rseqQueue.push(buildRenderSequence());
+                    }
                     break;
                 default:
                     break;
@@ -198,8 +215,14 @@ namespace elem
     template <typename FloatType>
     void Runtime<FloatType>::process(const FloatType** inputChannelData, size_t numInputChannels, FloatType** outputChannelData, size_t numOutputChannels, size_t numSamples, void* userData)
     {
-        while (rseqQueue.size() > 0) {
-            rseqQueue.pop(rtRenderSeq);
+        if (rseqQueue.size() > 0) {
+            std::shared_ptr<GraphRenderSequence<FloatType>> rseq;
+
+            while (rseqQueue.size() > 0) {
+                rseqQueue.pop(rseq);
+            }
+
+            rtRenderSeq = rseq;
         }
 
         if (rtRenderSeq) {
@@ -300,17 +323,13 @@ namespace elem
 
     //==============================================================================
     template <typename FloatType>
-    void Runtime<FloatType>::processQueuedEvents(std::function<void(std::string const&, js::Value)> evtCallback)
+    void Runtime<FloatType>::processQueuedEvents(std::function<void(std::string const&, js::Value)>&& evtCallback)
     {
-        // TODO: Before the runtime refactor, we would use this opportunity to check to see if the graphRenderer
-        // had raised any process flags to signal a realtime rendering issue. That was originally implemented
-        // before the rendering procedure became iterative. Now that it's iterative, let's refactor that side
-        // to return a boolean from its process call, then we can handle flag raising and error dispatching
-        // here easily.
-
-        // Visit all nodes to service any events they may want to relay
-        for (auto it = nodeTable.begin(); it != nodeTable.end(); ++it) {
-            it->second->processEvents(evtCallback);
+        // This looks a little shady, but because of the atomic ref count in std::shared_ptr this assignment
+        // is indeed thread-safe
+        if (auto ptr = rtRenderSeq)
+        {
+            ptr->processQueuedEvents(std::move(evtCallback));
         }
     }
 
@@ -328,12 +347,30 @@ namespace elem
 
     //==============================================================================
     template <typename FloatType>
-    void Runtime<FloatType>::updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size)
+    bool Runtime<FloatType>::updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size)
     {
-        sharedResourceMap.insert(
+        auto result = sharedResourceMap.insert(
             name,
             std::make_shared<typename SharedResourceBuffer<FloatType>::element_type>(data, data + size)
         );
+
+        if (!result) {
+            ELEM_DBG("WARNING: Overwriting an existing shared resource is deprecated. This behavior will change in the next major version.");
+        }
+
+        return result;
+    }
+
+    template <typename FloatType>
+    void Runtime<FloatType>::pruneSharedResourceMap()
+    {
+        sharedResourceMap.prune();
+    }
+
+    template <typename FloatType>
+    typename SharedResourceMap<FloatType>::KeyViewType Runtime<FloatType>::getSharedResourceMapKeys()
+    {
+        return sharedResourceMap.keys();
     }
 
     template <typename FloatType>
@@ -372,13 +409,6 @@ namespace elem
 
         // Reset our buffer allocator
         bufferAllocator.reset();
-
-        // Capture tap nodes for the pre-processing step
-        for (auto const& [nid, node] : nodeTable) {
-            if (auto ptr = std::dynamic_pointer_cast<TapOutNode<FloatType>>(node)) {
-                rseq->pushTap(ptr);
-            }
-        }
 
         // Here we iterate all current roots and visit the graph from each
         // root, pushing onto the render sequence.

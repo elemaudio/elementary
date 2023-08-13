@@ -9,6 +9,9 @@ import {
   resolve,
 } from './nodeUtils';
 
+import {EventEmitter} from './src/Events';
+export {EventEmitter};
+
 import * as co from './lib/core';
 import * as dy from './lib/dynamics';
 import * as en from './lib/envelopes';
@@ -52,6 +55,7 @@ class Delegate {
   public propsWritten: number;
 
   private nodeMap: Map<number, any>;
+  private currentActiveRoots: Set<number>;
 
   private renderContext: any;
   private batch: Array<any>;
@@ -63,6 +67,7 @@ class Delegate {
     this.edgesAdded = 0;
     this.propsWritten = 0;
     this.nodeMap = new Map();
+    this.currentActiveRoots = new Set();
 
     this.renderContext = {
       sampleRate,
@@ -100,7 +105,18 @@ class Delegate {
   }
 
   activateRoots(roots) {
-    this.batch.push([InstructionTypes.ACTIVATE_ROOTS, roots]);
+    // If we're asked to activate exactly the roots that are already active,
+    // no need to push the instruction. We need the length/size check though
+    // because it may be that we're asked to activate a subset of the current
+    // active roots, in which case we need the instruction to prompt the engine
+    // to deactivate the now excluded roots.
+    let alreadyActive = roots.length === this.currentActiveRoots.size &&
+      roots.every((root) => this.currentActiveRoots.has(root));
+
+    if (!alreadyActive) {
+      this.batch.push([InstructionTypes.ACTIVATE_ROOTS, roots]);
+      this.currentActiveRoots = new Set(roots);
+    }
   }
 
   commitUpdates() {
@@ -144,7 +160,7 @@ class Renderer {
     this._delegate.edgesAdded = 0;
     this._delegate.propsWritten = 0;
 
-    renderWithDelegate(this._delegate as any, args);
+    renderWithDelegate(this._delegate as any, args.map(resolve));
 
     const t1 = now();
 

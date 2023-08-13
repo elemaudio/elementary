@@ -70,3 +70,15 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           lerna publish from-package --yes --dist-tag next
+
+      - name: Tag Latest
+        shell: bash
+        working-directory: ./js
+        if: ${{ github.ref_type == 'branch' && github.ref_name == 'main' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          for PKG in $(npx lerna ls --json | jq -r '.[] | .name + "@" + .version');
+          do
+            npm dist-tag add $PKG latest
+          done

@@ -82,6 +82,15 @@ namespace elem
 
         void push(BufferAllocator<FloatType>& ba, std::shared_ptr<GraphNode<FloatType>>& node)
         {
+            // First we update our node and tap registry to make sure we can easily visit them
+            // for tap promotion and event propagation
+            nodeList.push_back(node);
+
+            if (auto tap = std::dynamic_pointer_cast<TapOutNode<FloatType>>(node)) {
+                tapList.push_back(tap);
+            }
+
+            // Next we prepare the render operation
             bufferMap.emplace(node->getId(), ba.next());
 
             renderOps.push_back([=, bufferMap = this->bufferMap](HostContext<FloatType>& ctx) {
@@ -99,17 +108,23 @@ namespace elem
 
         void push(BufferAllocator<FloatType>& ba, std::shared_ptr<GraphNode<FloatType>>& node, std::vector<NodeId> const& children)
         {
+            // First we update our node and tap registry to make sure we can easily visit them
+            // for tap promotion and event propagation
+            nodeList.push_back(node);
+
+            if (auto tap = std::dynamic_pointer_cast<TapOutNode<FloatType>>(node)) {
+                tapList.push_back(tap);
+            }
+
+            // Next we prepare the render operation
             bufferMap.emplace(node->getId(), ba.next());
 
-            renderOps.push_back([=, bufferMap = this->bufferMap](HostContext<FloatType>& ctx) {
+            // Allocate room for the child pointers here, gets moved into the lambda capture group below
+            std::vector<FloatType*> ptrs(children.size());
+
+            renderOps.push_back([=, bufferMap = this->bufferMap, ptrs = std::move(ptrs)](HostContext<FloatType>& ctx) mutable {
                 auto* outputData = bufferMap.at(node->getId());
                 auto const numChildren = children.size();
-
-                // This might actually be a great time for choc's SmallVector. We can allocate it outside the
-                // lambda but capture it by copy (move). Initialize it with `numChildren` so that if `numChildren` exceeds
-                // the stack-allocated space of choc's SmallVector then it performs its heap allocation before being
-                // copied (moved) into the lambda capture group.
-                std::array<FloatType*, 128> ptrs;
 
                 for (size_t j = 0; j < numChildren; ++j) {
                     ptrs[j] = bufferMap.at(children[j]);
@@ -123,6 +138,29 @@ namespace elem
                     ctx.userData,
                 });
             });
+        }
+
+        void processQueuedEvents(std::function<void(std::string const&, js::Value)>& evtCallback)
+        {
+            // We don't process events if our root is inactive
+            if (rootPtr->getPropertyWithDefault("active", false))
+            {
+                for (auto& n : nodeList) {
+                    n->processEvents(evtCallback);
+                }
+            }
+        }
+
+        void promoteTapBuffers(size_t numSamples)
+        {
+            // Don't promote if our RootRenderSequence represents a RootNode that has become
+            // inactive, even if it's still fading out
+            if (rootPtr->getTargetGain() < FloatType(0.5))
+                return;
+
+            for (auto& n : tapList) {
+                n->promoteTapBuffers(numSamples);
+            }
         }
 
         void process(HostContext<FloatType>& ctx)
@@ -149,6 +187,8 @@ namespace elem
 
     private:
         std::shared_ptr<RootNode<FloatType>> rootPtr;
+        std::vector<std::shared_ptr<GraphNode<FloatType>>> nodeList;
+        std::vector<std::shared_ptr<TapOutNode<FloatType>>> tapList;
         std::unordered_map<NodeId, FloatType*>& bufferMap;
 
         using RenderOperation = std::function<void(HostContext<FloatType>& context)>;
@@ -167,13 +207,16 @@ namespace elem
             bufferMap.clear();
         }
 
-        void pushTap(std::shared_ptr<TapOutNode<FloatType>> t) {
-            taps.push_back(t);
-        }
-
         void push(RootRenderSequence<FloatType>&& sq)
         {
             subseqs.push_back(std::move(sq));
+        }
+
+        void processQueuedEvents(std::function<void(std::string const&, js::Value)>&& evtCallback)
+        {
+            std::for_each(subseqs.begin(), subseqs.end(), [&](RootRenderSequence<FloatType>& sq) {
+                sq.processQueuedEvents(evtCallback);
+            });
         }
 
         void process(
@@ -200,21 +243,28 @@ namespace elem
                 }
             }
 
-            // Promote feedback tap buffers
-            for (auto& ptr : taps) {
-                ptr->promoteTapBuffers(numSamples);
+            // Process subsequences
+            for (auto& sq : subseqs) {
+                sq.process(ctx);
             }
 
-            // Process subsequences
-            std::for_each(subseqs.begin(), subseqs.end(), [&](RootRenderSequence<FloatType>& sq) {
-                sq.process(ctx);
-            });
+            // Promote tap buffers.
+            //
+            // This step follows the processing step because we want read-then-write behavior
+            // through the tap table for any feedback cycles. That means that, if we have a running
+            // graph, and transition to a new graph, the tapIn node gets to read from the tap table,
+            // which likely propagates to a corresponding tapOut node which can fill its internal delay
+            // line. This then gets promoted in the subsequent step. If we went write-then-read, then
+            // the new tapOut node would clobber whatever's in the tap table because it promotes before
+            // it gets a chance to see what its corresponding tapIn is providing.
+            for (auto& sq : subseqs) {
+                sq.promoteTapBuffers(numSamples);
+            }
         }
 
         std::unordered_map<NodeId, FloatType*> bufferMap;
 
     private:
-        std::vector<std::shared_ptr<TapOutNode<FloatType>>> taps;
         std::vector<RootRenderSequence<FloatType>> subseqs;
     };
 

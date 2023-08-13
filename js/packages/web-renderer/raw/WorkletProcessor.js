@@ -10,6 +10,28 @@ const EventTypes = {
 };
 
 
+// A recursive function looking for transferable objects per the Web Worker API
+// @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects
+//
+// Right now we're only looking for the ArrayBuffers behind Float32Array instances as that's
+// the only type of transferable object that the native engine delivers, but this could be
+// extended to other types easily.
+function findTransferables(val) {
+  if (val instanceof Float32Array) {
+    return [val.buffer];
+  }
+
+  if (typeof val === 'object') {
+    if (Array.isArray(val)) {
+      return Array.prototype.concat.apply([], val.map(findTransferables));
+    }
+
+    return Array.prototype.concat.apply([], Object.keys(val).map(key => findTransferables(val[key])));
+  }
+
+  return [];
+}
+
 class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
   constructor(options) {
     super(options);
@@ -20,10 +42,11 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
     this._module = Module();
     this._native = new this._module.ElementaryAudioProcessor(numInputChannels, numOutputChannels);
 
-    // Apparently the `sampleRate` variable is just a globally defined
-    // variable in the AudioWorklet scope. Randomly choosing a block size
-    // larger than 128, which I think is what the browser usually uses
-    this._native.prepare(sampleRate, 512);
+    // The `sampleRate` variable is a globally defined constant in the AudioWorkletGlobalScope.
+    // We also manually set a block size of 128 samples here, per the Web Audio API spec.
+    //
+    // See: https://webaudio.github.io/web-audio-api/#rendering-loop
+    this._native.prepare(sampleRate, 128);
 
     const hasProcOpts = options.hasOwnProperty('processorOptions') &&
       typeof options.processorOptions === 'object' &&
@@ -37,14 +60,11 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
         Object.keys(virtualFileSystem).length > 0;
 
       if (validVFS) {
-        this._native.postMessageBatch([
-          [EventTypes.UPDATE_RESOURCE_MAP, virtualFileSystem],
-          [EventTypes.COMMIT_UPDATES],
-        ], (type, message) => {
-          // This callback will only be called in the event of an error, we just relay
-          // it to the renderer frontend.
-          this.port.postMessage([type, msg]);
-        });
+        for (let [key, val] of Object.entries(virtualFileSystem)) {
+          this._native.updateSharedResourceMap(key, val, (message) => {
+            this.port.postMessage(['error', message]);
+          });
+        }
       }
     }
 
@@ -60,9 +80,10 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
           break;
         case 'processQueuedEvents':
           this._native.processQueuedEvents((evtBatch) => {
-            evtBatch.forEach((e) => {
-              this.port.postMessage(e);
-            });
+            if (evtBatch.length > 0) {
+              let transferables = findTransferables(evtBatch);
+              this.port.postMessage(['eventBatch', evtBatch], transferables);
+            }
           });
 
           break;
@@ -76,6 +97,15 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
           break;
         case 'reset':
           this._native.reset();
+          break;
+        case 'pruneVirtualFileSystem':
+          this._native.pruneSharedResourceMap();
+          break;
+        case 'listVirtualFileSystem':
+          let result = this._native.listSharedResourceMap();
+          let promiseKey = e.data.promiseKey;
+
+          this.port.postMessage(['resolvePromise', {promiseKey, result}]);
           break;
         default:
           break;

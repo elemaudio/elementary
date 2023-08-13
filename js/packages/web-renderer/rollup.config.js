@@ -41,7 +41,7 @@ export default {
   output: {
     dir: './dist/',
   },
-  external: ['@elemaudio/core', 'events'],
+  external: ['@elemaudio/core'],
   plugins: [
     // Must come first, otherwise rollup will inject some resolvey thingies that
     // I don't actually want in my raw strings
