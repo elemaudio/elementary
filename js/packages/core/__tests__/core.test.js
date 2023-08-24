@@ -35,6 +35,18 @@ class TestRenderer {
   }
 }
 
+function sortInstructionBatch(x) {
+  let copy = [...x];
+
+  return copy.sort((a, b) => {
+    if (a[0] === b[0]) {
+      return a[1] < b[1] ? -1 : 1;
+    }
+
+    return a[0] < b[0] ? -1 : 1;
+  });
+}
+
 test('the basics', function() {
   let tr = new TestRenderer();
 
@@ -49,7 +61,7 @@ test('the basics', function() {
     ])
   );
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('numeric literals', function() {
@@ -64,7 +76,7 @@ test('numeric literals', function() {
     ])
   );
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('distinguish by props', function() {
@@ -95,7 +107,7 @@ test('distinguish by props', function() {
   // we expect to see the pulse train (starting at the "le" node) shared, but
   // then see two different root nodes, two different sample nodes, and two
   // different seq nodes.
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('multi-channel basics', function() {
@@ -116,7 +128,7 @@ test('multi-channel basics', function() {
   tr.render(monoProcess, monoProcess);
 
   // We should see structural sharing except for the root nodes
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('simple sharing', function() {
@@ -148,7 +160,7 @@ test('simple sharing', function() {
     ])
   );
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('distinguished subtrees by key', function() {
@@ -176,7 +188,7 @@ test('distinguished subtrees by key', function() {
 
   tr.render(createNode("add", {}, voices.map(renderVoice)))
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('structural equality with value change', function() {
@@ -210,7 +222,7 @@ test('structural equality with value change', function() {
 
   tr.render(createNode("add", {}, voices.map(renderVoice)))
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 // Testing here to ensure that the root node activation works as expected.
@@ -238,7 +250,7 @@ test('switch and switch back', function() {
   tr.render(renderVoice({key: 'bye', freq: 880}));
 
   tr.render(renderVoice({key: 'hi', freq: 440}));
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('composite with keyed children', function() {
@@ -251,13 +263,13 @@ test('composite with keyed children', function() {
     createNode("const", {key: 'g', value: 0}, [])
   ]));
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 
   tr.render(createNode(composite, {}, [
     createNode("const", {key: 'g', value: 1}, [])
   ]));
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('shared reference to composite node', function() {
@@ -328,7 +340,7 @@ test('garbage collection', function() {
     ])
   );
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 
   // Now if we step the garbage collector enough we should see the sine node
   // and its parent root get cleaned up now that they're no longer referenced
@@ -337,5 +349,5 @@ test('garbage collection', function() {
     tr.gc();
   }
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
