@@ -175,6 +175,7 @@ class Renderer {
 }
 
 export {
+  Delegate,
   Renderer,
   createNode,
   isNode,

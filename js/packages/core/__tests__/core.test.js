@@ -2,95 +2,36 @@ import {
   createNode,
   renderWithDelegate,
   stepGarbageCollector,
+  resolve,
+  Delegate,
 } from '..';
 
 
 class TestRenderer {
-  constructor(config) {
-    this.nodeMap = new Map();
-    this.memoMap = new Map();
-    this.batch = [];
-    this.roots = [];
-    this.config = Object.assign({
-      logCreateNode: true,
-      logDeleteNode: true,
-      logAppendChild: true,
-      logSetProperty: true,
-      logActivateRoots: true,
-      logCommitUpdates: true,
-    }, config);
-  }
-
-  getNodeMap() {
-    return this.nodeMap;
-  }
-
-  getMemoMap() {
-    return this.memoMap;
-  }
-
-  getRenderContext() {
-    return {};
-  }
-
-  getActiveRoots() {
-    return this.roots;
-  }
-
-  getTerminalGeneration() {
-    return 4;
-  }
-
-  getBatch() {
-    return this.batch;
-  }
-
-  clearBatch() {
-    this.batch = [];
-  }
-
-  createNode(...args) {
-    if (this.config.logCreateNode) {
-      this.batch.push(["createNode", ...args]);
-    }
-  }
-
-  deleteNode(...args) {
-    if (this.config.logDeleteNode) {
-      this.batch.push(["deleteNode", ...args]);
-    }
-  }
-
-  appendChild(...args) {
-    if (this.config.logAppendChild) {
-      this.batch.push(["appendChild", ...args]);
-    }
-  }
-
-  setProperty(...args) {
-    if (this.config.logSetProperty) {
-      this.batch.push(["setProperty", ...args]);
-    }
-  }
-
-  activateRoots(...args) {
-    if (this.config.logActivateRoots) {
-      this.batch.push(["activateRoots", ...args]);
-    }
-  }
-
-  commitUpdates(...args) {
-    if (this.config.logCommitUpdates) {
-      this.batch.push(["commitUpdates", ...args]);
-    }
+  constructor() {
+    this._lastBatch = null;
+    this._delegate = new Delegate(44100, (batch) => {
+      this._lastBatch = batch;
+    });
   }
 
   render(...args) {
-    this.roots = renderWithDelegate(this, args);
+    renderWithDelegate(this._delegate, args.map(resolve));
+
+    // Dummy stats
+    return {};
+  }
+
+  getBatch() {
+    return this._lastBatch;
+  }
+
+  getTerminalGeneration() {
+    return this._delegate.getTerminalGeneration();
   }
 
   gc() {
-    stepGarbageCollector(this);
+    stepGarbageCollector(this._delegate);
   }
 }
 
@@ -192,9 +133,6 @@ test('simple sharing', function() {
     ])
   );
 
-  // Clear the call stack
-  tr.clearBatch();
-
   // Second render inserts a tanh at the top, we should find this and
   // share all of the child nodes during this render pass
   tr.render(
@@ -266,9 +204,6 @@ test('structural equality with value change', function() {
 
   tr.render(createNode("add", {}, voices.map(renderVoice)))
 
-  // Clear the call stack
-  tr.clearBatch();
-
   // Change one of the keyed values, should see structural equality
   // with no new nodes created
   voices[0].freq = 441;
@@ -302,8 +237,6 @@ test('switch and switch back', function() {
   tr.render(renderVoice({key: 'hi', freq: 440}));
   tr.render(renderVoice({key: 'bye', freq: 880}));
 
-  tr.clearBatch();
-
   tr.render(renderVoice({key: 'hi', freq: 440}));
   expect(tr.getBatch()).toMatchSnapshot();
 });
@@ -319,7 +252,6 @@ test('composite with keyed children', function() {
   ]));
 
   expect(tr.getBatch()).toMatchSnapshot();
-  tr.clearBatch();
 
   tr.render(createNode(composite, {}, [
     createNode("const", {key: 'g', value: 1}, [])
@@ -385,7 +317,6 @@ test('garbage collection', function() {
 
   // Next we're going to render a sine tone using cosine. We'll expect to
   // see most of the prior structure preserved.
-  tr.clearBatch();
   tr.gc();
 
   tr.render(
@@ -403,7 +334,6 @@ test('garbage collection', function() {
   // and its parent root get cleaned up now that they're no longer referenced
   // in the active tree
   for (let i = 0; i < tr.getTerminalGeneration() - 1; ++i) {
-    tr.clearBatch();
     tr.gc();
   }
 
