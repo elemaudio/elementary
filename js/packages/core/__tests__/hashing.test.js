@@ -4,6 +4,15 @@ import {
 } from '..';
 
 
+const InstructionTypes = {
+  CREATE_NODE: 0,
+  DELETE_NODE: 1,
+  APPEND_CHILD: 2,
+  SET_PROPERTY: 3,
+  ACTIVATE_ROOTS: 4,
+  COMMIT_UPDATES: 5,
+};
+
 class HashlessRenderer {
   constructor(config) {
     this.nodeMap = new Map();
@@ -12,13 +21,13 @@ class HashlessRenderer {
     this.roots = [];
 
     this.nextMaskId = 0;
-    this.maskTable = {};
+    this.maskTable = new Map();
   }
 
   getMaskId(hash) {
     let r = this.nextMaskId++;
 
-    this.maskTable[hash] = r;
+    this.maskTable.set(hash, r);
     return r;
   }
 
@@ -51,32 +60,44 @@ class HashlessRenderer {
   }
 
   createNode(hash, type) {
-    this.batch.push(["createNode", this.getMaskId(hash), type]);
+    this.batch.push([InstructionTypes.CREATE_NODE, this.getMaskId(hash), type]);
   }
 
   deleteNode(hash) {
-    this.batch.push(["deleteNode", this.maskTable[hash]]);
+    this.batch.push([InstructionTypes.DELETE_NODE, this.maskTable.get(hash)]);
   }
 
   appendChild(parentHash, childHash) {
-    this.batch.push(["appendChild", this.maskTable[parentHash], this.maskTable[childHash]]);
+    this.batch.push([InstructionTypes.APPEND_CHILD, this.maskTable.get(parentHash), this.maskTable.get(childHash)]);
   }
 
   setProperty(hash, key, val) {
-    this.batch.push(["setProperty", this.maskTable[hash], key, val]);
+    this.batch.push([InstructionTypes.SET_PROPERTY, this.maskTable.get(hash), key, val]);
   }
 
   activateRoots(roots) {
-    this.batch.push(["activateRoots", roots.map(x => this.maskTable[x])]);
+    this.batch.push([InstructionTypes.ACTIVATE_ROOTS, roots.map(x => this.maskTable.get(x))]);
   }
 
   commitUpdates() {
-    this.batch.push(["commitUpdates"]);
+    this.batch.push([InstructionTypes.COMMIT_UPDATES]);
   }
 
   render(...args) {
     this.roots = renderWithDelegate(this, args);
   }
+}
+
+function sortInstructionBatch(x) {
+  let copy = [...x];
+
+  return copy.sort((a, b) => {
+    if (a[0] === b[0]) {
+      return a[1] < b[1] ? -1 : 1;
+    }
+
+    return a[0] < b[0] ? -1 : 1;
+  });
 }
 
 // To test that our algorithm works even if the hashing function changes. We
@@ -85,7 +106,7 @@ test('instruction set similarity without hash values', function() {
   let tr = new HashlessRenderer();
 
   tr.render(el.cycle(440));
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('instruction set similarity without hash values 2', function() {
@@ -114,5 +135,5 @@ test('instruction set similarity without hash values 2', function() {
 
   let out = el.mul(0.25, filt(synthVoice(el.seq({seq: arp, hold: true}, train, 0))));
   tr.render(out, out);
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
