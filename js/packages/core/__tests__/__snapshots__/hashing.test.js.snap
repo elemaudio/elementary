@@ -1,770 +1,770 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`instruction set similarity without hash values 1`] = `
-Array [
-  Array [
+[
+  [
     "createNode",
     0,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     0,
     "value",
     6.283185307179586,
   ],
-  Array [
+  [
     "createNode",
     1,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     1,
     "value",
     440,
   ],
-  Array [
+  [
     "createNode",
     2,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     2,
     "value",
     0,
   ],
-  Array [
+  [
     "createNode",
     3,
     "phasor",
   ],
-  Array [
+  [
     "appendChild",
     3,
     1,
   ],
-  Array [
+  [
     "appendChild",
     3,
     2,
   ],
-  Array [
+  [
     "createNode",
     4,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     4,
     0,
   ],
-  Array [
+  [
     "appendChild",
     4,
     3,
   ],
-  Array [
+  [
     "createNode",
     5,
     "sin",
   ],
-  Array [
+  [
     "appendChild",
     5,
     4,
   ],
-  Array [
+  [
     "createNode",
     6,
     "root",
   ],
-  Array [
+  [
     "setProperty",
     6,
     "channel",
     0,
   ],
-  Array [
+  [
     "appendChild",
     6,
     5,
   ],
-  Array [
+  [
     "activateRoots",
-    Array [
+    [
       6,
     ],
   ],
-  Array [
+  [
     "commitUpdates",
   ],
 ]
 `;
 
 exports[`instruction set similarity without hash values 2 1`] = `
-Array [
-  Array [
+[
+  [
     "createNode",
     0,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     0,
     "value",
     0.25,
   ],
-  Array [
+  [
     "createNode",
     1,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     1,
     "value",
     40,
   ],
-  Array [
+  [
     "createNode",
     2,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     2,
     "value",
     1840,
   ],
-  Array [
+  [
     "createNode",
     3,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     3,
     "value",
     1800,
   ],
-  Array [
+  [
     "createNode",
     4,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     4,
     "value",
     6.283185307179586,
   ],
-  Array [
+  [
     "createNode",
     5,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     5,
     "value",
     0.05,
   ],
-  Array [
+  [
     "createNode",
     6,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     6,
     "value",
     0,
   ],
-  Array [
+  [
     "createNode",
     7,
     "phasor",
   ],
-  Array [
+  [
     "appendChild",
     7,
     5,
   ],
-  Array [
+  [
     "appendChild",
     7,
     6,
   ],
-  Array [
+  [
     "createNode",
     8,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     8,
     4,
   ],
-  Array [
+  [
     "appendChild",
     8,
     7,
   ],
-  Array [
+  [
     "createNode",
     9,
     "sin",
   ],
-  Array [
+  [
     "appendChild",
     9,
     8,
   ],
-  Array [
+  [
     "createNode",
     10,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     10,
     3,
   ],
-  Array [
+  [
     "appendChild",
     10,
     9,
   ],
-  Array [
+  [
     "createNode",
     11,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     11,
     2,
   ],
-  Array [
+  [
     "appendChild",
     11,
     10,
   ],
-  Array [
+  [
     "createNode",
     12,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     12,
     "value",
     -1,
   ],
-  Array [
+  [
     "createNode",
     13,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     13,
     "value",
     4.8,
   ],
-  Array [
+  [
     "createNode",
     14,
     "phasor",
   ],
-  Array [
+  [
     "appendChild",
     14,
     13,
   ],
-  Array [
+  [
     "appendChild",
     14,
     6,
   ],
-  Array [
+  [
     "createNode",
     15,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     15,
     "value",
     0.5,
   ],
-  Array [
+  [
     "createNode",
     16,
     "le",
   ],
-  Array [
+  [
     "appendChild",
     16,
     14,
   ],
-  Array [
+  [
     "appendChild",
     16,
     15,
   ],
-  Array [
+  [
     "createNode",
     17,
     "counter",
   ],
-  Array [
+  [
     "appendChild",
     17,
     16,
   ],
-  Array [
+  [
     "createNode",
     18,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     18,
     "value",
     0.01,
   ],
-  Array [
+  [
     "createNode",
     19,
     "sr",
   ],
-  Array [
+  [
     "createNode",
     20,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     20,
     18,
   ],
-  Array [
+  [
     "appendChild",
     20,
     19,
   ],
-  Array [
+  [
     "createNode",
     21,
     "le",
   ],
-  Array [
+  [
     "appendChild",
     21,
     17,
   ],
-  Array [
+  [
     "appendChild",
     21,
     20,
   ],
-  Array [
+  [
     "createNode",
     22,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     22,
     21,
   ],
-  Array [
+  [
     "appendChild",
     22,
     18,
   ],
-  Array [
+  [
     "createNode",
     23,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     23,
     "value",
     1,
   ],
-  Array [
+  [
     "createNode",
     24,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     24,
     23,
   ],
-  Array [
+  [
     "appendChild",
     24,
     21,
   ],
-  Array [
+  [
     "createNode",
     25,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     25,
     24,
   ],
-  Array [
+  [
     "appendChild",
     25,
     15,
   ],
-  Array [
+  [
     "createNode",
     26,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     26,
     22,
   ],
-  Array [
+  [
     "appendChild",
     26,
     25,
   ],
-  Array [
+  [
     "createNode",
     27,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     27,
     16,
   ],
-  Array [
+  [
     "appendChild",
     27,
     26,
   ],
-  Array [
+  [
     "createNode",
     28,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     28,
     23,
   ],
-  Array [
+  [
     "appendChild",
     28,
     16,
   ],
-  Array [
+  [
     "createNode",
     29,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     29,
     "value",
     0.4,
   ],
-  Array [
+  [
     "createNode",
     30,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     30,
     28,
   ],
-  Array [
+  [
     "appendChild",
     30,
     29,
   ],
-  Array [
+  [
     "createNode",
     31,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     31,
     27,
   ],
-  Array [
+  [
     "appendChild",
     31,
     30,
   ],
-  Array [
+  [
     "createNode",
     32,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     32,
     "value",
     6.91,
   ],
-  Array [
+  [
     "createNode",
     33,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     33,
     31,
   ],
-  Array [
+  [
     "appendChild",
     33,
     32,
   ],
-  Array [
+  [
     "createNode",
     34,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     34,
     33,
   ],
-  Array [
+  [
     "appendChild",
     34,
     19,
   ],
-  Array [
+  [
     "createNode",
     35,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     35,
     12,
   ],
-  Array [
+  [
     "appendChild",
     35,
     34,
   ],
-  Array [
+  [
     "createNode",
     36,
     "exp",
   ],
-  Array [
+  [
     "appendChild",
     36,
     35,
   ],
-  Array [
+  [
     "createNode",
     37,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     37,
     23,
   ],
-  Array [
+  [
     "appendChild",
     37,
     36,
   ],
-  Array [
+  [
     "createNode",
     38,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     38,
     21,
   ],
-  Array [
+  [
     "appendChild",
     38,
     23,
   ],
-  Array [
+  [
     "createNode",
     39,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     39,
     24,
   ],
-  Array [
+  [
     "appendChild",
     39,
     6,
   ],
-  Array [
+  [
     "createNode",
     40,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     40,
     38,
   ],
-  Array [
+  [
     "appendChild",
     40,
     39,
   ],
-  Array [
+  [
     "createNode",
     41,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     41,
     16,
   ],
-  Array [
+  [
     "appendChild",
     41,
     40,
   ],
-  Array [
+  [
     "createNode",
     42,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     42,
     28,
   ],
-  Array [
+  [
     "appendChild",
     42,
     6,
   ],
-  Array [
+  [
     "createNode",
     43,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     43,
     41,
   ],
-  Array [
+  [
     "appendChild",
     43,
     42,
   ],
-  Array [
+  [
     "createNode",
     44,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     44,
     37,
   ],
-  Array [
+  [
     "appendChild",
     44,
     43,
   ],
-  Array [
+  [
     "createNode",
     45,
     "pole",
   ],
-  Array [
+  [
     "appendChild",
     45,
     36,
   ],
-  Array [
+  [
     "appendChild",
     45,
     44,
   ],
-  Array [
+  [
     "createNode",
     46,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     46,
     11,
   ],
-  Array [
+  [
     "appendChild",
     46,
     45,
   ],
-  Array [
+  [
     "createNode",
     47,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     47,
     1,
   ],
-  Array [
+  [
     "appendChild",
     47,
     46,
   ],
-  Array [
+  [
     "createNode",
     48,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     48,
     "value",
     2,
   ],
-  Array [
+  [
     "createNode",
     49,
     "seq",
   ],
-  Array [
+  [
     "setProperty",
     49,
     "seq",
-    Array [
+    [
       130.815,
       164.81657214199782,
       196.0010402616231,
@@ -775,2047 +775,2047 @@ Array [
       164.81657214199782,
     ],
   ],
-  Array [
+  [
     "setProperty",
     49,
     "hold",
     true,
   ],
-  Array [
+  [
     "appendChild",
     49,
     16,
   ],
-  Array [
+  [
     "appendChild",
     49,
     6,
   ],
-  Array [
+  [
     "createNode",
     50,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     50,
     "value",
     1.001,
   ],
-  Array [
+  [
     "createNode",
     51,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     51,
     49,
   ],
-  Array [
+  [
     "appendChild",
     51,
     50,
   ],
-  Array [
+  [
     "createNode",
     52,
     "phasor",
   ],
-  Array [
+  [
     "appendChild",
     52,
     51,
   ],
-  Array [
+  [
     "appendChild",
     52,
     6,
   ],
-  Array [
+  [
     "createNode",
     53,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     53,
     48,
   ],
-  Array [
+  [
     "appendChild",
     53,
     52,
   ],
-  Array [
+  [
     "createNode",
     54,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     54,
     53,
   ],
-  Array [
+  [
     "appendChild",
     54,
     23,
   ],
-  Array [
+  [
     "createNode",
     55,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     55,
     51,
   ],
-  Array [
+  [
     "appendChild",
     55,
     19,
   ],
-  Array [
+  [
     "createNode",
     56,
     "le",
   ],
-  Array [
+  [
     "appendChild",
     56,
     52,
   ],
-  Array [
+  [
     "appendChild",
     56,
     55,
   ],
-  Array [
+  [
     "createNode",
     57,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     57,
     52,
   ],
-  Array [
+  [
     "appendChild",
     57,
     55,
   ],
-  Array [
+  [
     "createNode",
     58,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     58,
     48,
   ],
-  Array [
+  [
     "appendChild",
     58,
     57,
   ],
-  Array [
+  [
     "createNode",
     59,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     59,
     57,
   ],
-  Array [
+  [
     "appendChild",
     59,
     57,
   ],
-  Array [
+  [
     "createNode",
     60,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     60,
     58,
   ],
-  Array [
+  [
     "appendChild",
     60,
     59,
   ],
-  Array [
+  [
     "appendChild",
     60,
     23,
   ],
-  Array [
+  [
     "createNode",
     61,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     61,
     56,
   ],
-  Array [
+  [
     "appendChild",
     61,
     60,
   ],
-  Array [
+  [
     "createNode",
     62,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     62,
     23,
   ],
-  Array [
+  [
     "appendChild",
     62,
     55,
   ],
-  Array [
+  [
     "createNode",
     63,
     "ge",
   ],
-  Array [
+  [
     "appendChild",
     63,
     52,
   ],
-  Array [
+  [
     "appendChild",
     63,
     62,
   ],
-  Array [
+  [
     "createNode",
     64,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     64,
     52,
   ],
-  Array [
+  [
     "appendChild",
     64,
     23,
   ],
-  Array [
+  [
     "createNode",
     65,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     65,
     64,
   ],
-  Array [
+  [
     "appendChild",
     65,
     55,
   ],
-  Array [
+  [
     "createNode",
     66,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     66,
     48,
   ],
-  Array [
+  [
     "appendChild",
     66,
     65,
   ],
-  Array [
+  [
     "createNode",
     67,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     67,
     65,
   ],
-  Array [
+  [
     "appendChild",
     67,
     65,
   ],
-  Array [
+  [
     "createNode",
     68,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     68,
     66,
   ],
-  Array [
+  [
     "appendChild",
     68,
     67,
   ],
-  Array [
+  [
     "appendChild",
     68,
     23,
   ],
-  Array [
+  [
     "createNode",
     69,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     69,
     63,
   ],
-  Array [
+  [
     "appendChild",
     69,
     68,
   ],
-  Array [
+  [
     "createNode",
     70,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     70,
     61,
   ],
-  Array [
+  [
     "appendChild",
     70,
     69,
   ],
-  Array [
+  [
     "createNode",
     71,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     71,
     54,
   ],
-  Array [
+  [
     "appendChild",
     71,
     70,
   ],
-  Array [
+  [
     "createNode",
     72,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     72,
     "value",
     0.994,
   ],
-  Array [
+  [
     "createNode",
     73,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     73,
     49,
   ],
-  Array [
+  [
     "appendChild",
     73,
     72,
   ],
-  Array [
+  [
     "createNode",
     74,
     "phasor",
   ],
-  Array [
+  [
     "appendChild",
     74,
     73,
   ],
-  Array [
+  [
     "appendChild",
     74,
     6,
   ],
-  Array [
+  [
     "createNode",
     75,
     "le",
   ],
-  Array [
+  [
     "appendChild",
     75,
     74,
   ],
-  Array [
+  [
     "appendChild",
     75,
     15,
   ],
-  Array [
+  [
     "createNode",
     76,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     76,
     48,
   ],
-  Array [
+  [
     "appendChild",
     76,
     75,
   ],
-  Array [
+  [
     "createNode",
     77,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     77,
     76,
   ],
-  Array [
+  [
     "appendChild",
     77,
     23,
   ],
-  Array [
+  [
     "createNode",
     78,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     78,
     73,
   ],
-  Array [
+  [
     "appendChild",
     78,
     19,
   ],
-  Array [
+  [
     "createNode",
     79,
     "le",
   ],
-  Array [
+  [
     "appendChild",
     79,
     74,
   ],
-  Array [
+  [
     "appendChild",
     79,
     78,
   ],
-  Array [
+  [
     "createNode",
     80,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     80,
     74,
   ],
-  Array [
+  [
     "appendChild",
     80,
     78,
   ],
-  Array [
+  [
     "createNode",
     81,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     81,
     48,
   ],
-  Array [
+  [
     "appendChild",
     81,
     80,
   ],
-  Array [
+  [
     "createNode",
     82,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     82,
     80,
   ],
-  Array [
+  [
     "appendChild",
     82,
     80,
   ],
-  Array [
+  [
     "createNode",
     83,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     83,
     81,
   ],
-  Array [
+  [
     "appendChild",
     83,
     82,
   ],
-  Array [
+  [
     "appendChild",
     83,
     23,
   ],
-  Array [
+  [
     "createNode",
     84,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     84,
     79,
   ],
-  Array [
+  [
     "appendChild",
     84,
     83,
   ],
-  Array [
+  [
     "createNode",
     85,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     85,
     23,
   ],
-  Array [
+  [
     "appendChild",
     85,
     78,
   ],
-  Array [
+  [
     "createNode",
     86,
     "ge",
   ],
-  Array [
+  [
     "appendChild",
     86,
     74,
   ],
-  Array [
+  [
     "appendChild",
     86,
     85,
   ],
-  Array [
+  [
     "createNode",
     87,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     87,
     74,
   ],
-  Array [
+  [
     "appendChild",
     87,
     23,
   ],
-  Array [
+  [
     "createNode",
     88,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     88,
     87,
   ],
-  Array [
+  [
     "appendChild",
     88,
     78,
   ],
-  Array [
+  [
     "createNode",
     89,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     89,
     48,
   ],
-  Array [
+  [
     "appendChild",
     89,
     88,
   ],
-  Array [
+  [
     "createNode",
     90,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     90,
     88,
   ],
-  Array [
+  [
     "appendChild",
     90,
     88,
   ],
-  Array [
+  [
     "createNode",
     91,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     91,
     89,
   ],
-  Array [
+  [
     "appendChild",
     91,
     90,
   ],
-  Array [
+  [
     "appendChild",
     91,
     23,
   ],
-  Array [
+  [
     "createNode",
     92,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     92,
     86,
   ],
-  Array [
+  [
     "appendChild",
     92,
     91,
   ],
-  Array [
+  [
     "createNode",
     93,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     93,
     84,
   ],
-  Array [
+  [
     "appendChild",
     93,
     92,
   ],
-  Array [
+  [
     "createNode",
     94,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     94,
     77,
   ],
-  Array [
+  [
     "appendChild",
     94,
     93,
   ],
-  Array [
+  [
     "createNode",
     95,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     95,
     74,
   ],
-  Array [
+  [
     "appendChild",
     95,
     15,
   ],
-  Array [
+  [
     "createNode",
     96,
     "mod",
   ],
-  Array [
+  [
     "appendChild",
     96,
     95,
   ],
-  Array [
+  [
     "appendChild",
     96,
     23,
   ],
-  Array [
+  [
     "createNode",
     97,
     "le",
   ],
-  Array [
+  [
     "appendChild",
     97,
     96,
   ],
-  Array [
+  [
     "appendChild",
     97,
     78,
   ],
-  Array [
+  [
     "createNode",
     98,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     98,
     96,
   ],
-  Array [
+  [
     "appendChild",
     98,
     78,
   ],
-  Array [
+  [
     "createNode",
     99,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     99,
     48,
   ],
-  Array [
+  [
     "appendChild",
     99,
     98,
   ],
-  Array [
+  [
     "createNode",
     100,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     100,
     98,
   ],
-  Array [
+  [
     "appendChild",
     100,
     98,
   ],
-  Array [
+  [
     "createNode",
     101,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     101,
     99,
   ],
-  Array [
+  [
     "appendChild",
     101,
     100,
   ],
-  Array [
+  [
     "appendChild",
     101,
     23,
   ],
-  Array [
+  [
     "createNode",
     102,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     102,
     97,
   ],
-  Array [
+  [
     "appendChild",
     102,
     101,
   ],
-  Array [
+  [
     "createNode",
     103,
     "ge",
   ],
-  Array [
+  [
     "appendChild",
     103,
     96,
   ],
-  Array [
+  [
     "appendChild",
     103,
     85,
   ],
-  Array [
+  [
     "createNode",
     104,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     104,
     96,
   ],
-  Array [
+  [
     "appendChild",
     104,
     23,
   ],
-  Array [
+  [
     "createNode",
     105,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     105,
     104,
   ],
-  Array [
+  [
     "appendChild",
     105,
     78,
   ],
-  Array [
+  [
     "createNode",
     106,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     106,
     48,
   ],
-  Array [
+  [
     "appendChild",
     106,
     105,
   ],
-  Array [
+  [
     "createNode",
     107,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     107,
     105,
   ],
-  Array [
+  [
     "appendChild",
     107,
     105,
   ],
-  Array [
+  [
     "createNode",
     108,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     108,
     106,
   ],
-  Array [
+  [
     "appendChild",
     108,
     107,
   ],
-  Array [
+  [
     "appendChild",
     108,
     23,
   ],
-  Array [
+  [
     "createNode",
     109,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     109,
     103,
   ],
-  Array [
+  [
     "appendChild",
     109,
     108,
   ],
-  Array [
+  [
     "createNode",
     110,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     110,
     102,
   ],
-  Array [
+  [
     "appendChild",
     110,
     109,
   ],
-  Array [
+  [
     "createNode",
     111,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     111,
     94,
   ],
-  Array [
+  [
     "appendChild",
     111,
     110,
   ],
-  Array [
+  [
     "createNode",
     112,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     112,
     "value",
     0.501,
   ],
-  Array [
+  [
     "createNode",
     113,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     113,
     49,
   ],
-  Array [
+  [
     "appendChild",
     113,
     112,
   ],
-  Array [
+  [
     "createNode",
     114,
     "phasor",
   ],
-  Array [
+  [
     "appendChild",
     114,
     113,
   ],
-  Array [
+  [
     "appendChild",
     114,
     6,
   ],
-  Array [
+  [
     "createNode",
     115,
     "le",
   ],
-  Array [
+  [
     "appendChild",
     115,
     114,
   ],
-  Array [
+  [
     "appendChild",
     115,
     15,
   ],
-  Array [
+  [
     "createNode",
     116,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     116,
     48,
   ],
-  Array [
+  [
     "appendChild",
     116,
     115,
   ],
-  Array [
+  [
     "createNode",
     117,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     117,
     116,
   ],
-  Array [
+  [
     "appendChild",
     117,
     23,
   ],
-  Array [
+  [
     "createNode",
     118,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     118,
     113,
   ],
-  Array [
+  [
     "appendChild",
     118,
     19,
   ],
-  Array [
+  [
     "createNode",
     119,
     "le",
   ],
-  Array [
+  [
     "appendChild",
     119,
     114,
   ],
-  Array [
+  [
     "appendChild",
     119,
     118,
   ],
-  Array [
+  [
     "createNode",
     120,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     120,
     114,
   ],
-  Array [
+  [
     "appendChild",
     120,
     118,
   ],
-  Array [
+  [
     "createNode",
     121,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     121,
     48,
   ],
-  Array [
+  [
     "appendChild",
     121,
     120,
   ],
-  Array [
+  [
     "createNode",
     122,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     122,
     120,
   ],
-  Array [
+  [
     "appendChild",
     122,
     120,
   ],
-  Array [
+  [
     "createNode",
     123,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     123,
     121,
   ],
-  Array [
+  [
     "appendChild",
     123,
     122,
   ],
-  Array [
+  [
     "appendChild",
     123,
     23,
   ],
-  Array [
+  [
     "createNode",
     124,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     124,
     119,
   ],
-  Array [
+  [
     "appendChild",
     124,
     123,
   ],
-  Array [
+  [
     "createNode",
     125,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     125,
     23,
   ],
-  Array [
+  [
     "appendChild",
     125,
     118,
   ],
-  Array [
+  [
     "createNode",
     126,
     "ge",
   ],
-  Array [
+  [
     "appendChild",
     126,
     114,
   ],
-  Array [
+  [
     "appendChild",
     126,
     125,
   ],
-  Array [
+  [
     "createNode",
     127,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     127,
     114,
   ],
-  Array [
+  [
     "appendChild",
     127,
     23,
   ],
-  Array [
+  [
     "createNode",
     128,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     128,
     127,
   ],
-  Array [
+  [
     "appendChild",
     128,
     118,
   ],
-  Array [
+  [
     "createNode",
     129,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     129,
     48,
   ],
-  Array [
+  [
     "appendChild",
     129,
     128,
   ],
-  Array [
+  [
     "createNode",
     130,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     130,
     128,
   ],
-  Array [
+  [
     "appendChild",
     130,
     128,
   ],
-  Array [
+  [
     "createNode",
     131,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     131,
     129,
   ],
-  Array [
+  [
     "appendChild",
     131,
     130,
   ],
-  Array [
+  [
     "appendChild",
     131,
     23,
   ],
-  Array [
+  [
     "createNode",
     132,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     132,
     126,
   ],
-  Array [
+  [
     "appendChild",
     132,
     131,
   ],
-  Array [
+  [
     "createNode",
     133,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     133,
     124,
   ],
-  Array [
+  [
     "appendChild",
     133,
     132,
   ],
-  Array [
+  [
     "createNode",
     134,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     134,
     117,
   ],
-  Array [
+  [
     "appendChild",
     134,
     133,
   ],
-  Array [
+  [
     "createNode",
     135,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     135,
     114,
   ],
-  Array [
+  [
     "appendChild",
     135,
     15,
   ],
-  Array [
+  [
     "createNode",
     136,
     "mod",
   ],
-  Array [
+  [
     "appendChild",
     136,
     135,
   ],
-  Array [
+  [
     "appendChild",
     136,
     23,
   ],
-  Array [
+  [
     "createNode",
     137,
     "le",
   ],
-  Array [
+  [
     "appendChild",
     137,
     136,
   ],
-  Array [
+  [
     "appendChild",
     137,
     118,
   ],
-  Array [
+  [
     "createNode",
     138,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     138,
     136,
   ],
-  Array [
+  [
     "appendChild",
     138,
     118,
   ],
-  Array [
+  [
     "createNode",
     139,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     139,
     48,
   ],
-  Array [
+  [
     "appendChild",
     139,
     138,
   ],
-  Array [
+  [
     "createNode",
     140,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     140,
     138,
   ],
-  Array [
+  [
     "appendChild",
     140,
     138,
   ],
-  Array [
+  [
     "createNode",
     141,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     141,
     139,
   ],
-  Array [
+  [
     "appendChild",
     141,
     140,
   ],
-  Array [
+  [
     "appendChild",
     141,
     23,
   ],
-  Array [
+  [
     "createNode",
     142,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     142,
     137,
   ],
-  Array [
+  [
     "appendChild",
     142,
     141,
   ],
-  Array [
+  [
     "createNode",
     143,
     "ge",
   ],
-  Array [
+  [
     "appendChild",
     143,
     136,
   ],
-  Array [
+  [
     "appendChild",
     143,
     125,
   ],
-  Array [
+  [
     "createNode",
     144,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     144,
     136,
   ],
-  Array [
+  [
     "appendChild",
     144,
     23,
   ],
-  Array [
+  [
     "createNode",
     145,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     145,
     144,
   ],
-  Array [
+  [
     "appendChild",
     145,
     118,
   ],
-  Array [
+  [
     "createNode",
     146,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     146,
     48,
   ],
-  Array [
+  [
     "appendChild",
     146,
     145,
   ],
-  Array [
+  [
     "createNode",
     147,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     147,
     145,
   ],
-  Array [
+  [
     "appendChild",
     147,
     145,
   ],
-  Array [
+  [
     "createNode",
     148,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     148,
     146,
   ],
-  Array [
+  [
     "appendChild",
     148,
     147,
   ],
-  Array [
+  [
     "appendChild",
     148,
     23,
   ],
-  Array [
+  [
     "createNode",
     149,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     149,
     143,
   ],
-  Array [
+  [
     "appendChild",
     149,
     148,
   ],
-  Array [
+  [
     "createNode",
     150,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     150,
     142,
   ],
-  Array [
+  [
     "appendChild",
     150,
     149,
   ],
-  Array [
+  [
     "createNode",
     151,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     151,
     134,
   ],
-  Array [
+  [
     "appendChild",
     151,
     150,
   ],
-  Array [
+  [
     "createNode",
     152,
     "const",
   ],
-  Array [
+  [
     "setProperty",
     152,
     "value",
     0.496,
   ],
-  Array [
+  [
     "createNode",
     153,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     153,
     49,
   ],
-  Array [
+  [
     "appendChild",
     153,
     152,
   ],
-  Array [
+  [
     "createNode",
     154,
     "phasor",
   ],
-  Array [
+  [
     "appendChild",
     154,
     153,
   ],
-  Array [
+  [
     "appendChild",
     154,
     6,
   ],
-  Array [
+  [
     "createNode",
     155,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     155,
     48,
   ],
-  Array [
+  [
     "appendChild",
     155,
     154,
   ],
-  Array [
+  [
     "createNode",
     156,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     156,
     155,
   ],
-  Array [
+  [
     "appendChild",
     156,
     23,
   ],
-  Array [
+  [
     "createNode",
     157,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     157,
     153,
   ],
-  Array [
+  [
     "appendChild",
     157,
     19,
   ],
-  Array [
+  [
     "createNode",
     158,
     "le",
   ],
-  Array [
+  [
     "appendChild",
     158,
     154,
   ],
-  Array [
+  [
     "appendChild",
     158,
     157,
   ],
-  Array [
+  [
     "createNode",
     159,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     159,
     154,
   ],
-  Array [
+  [
     "appendChild",
     159,
     157,
   ],
-  Array [
+  [
     "createNode",
     160,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     160,
     48,
   ],
-  Array [
+  [
     "appendChild",
     160,
     159,
   ],
-  Array [
+  [
     "createNode",
     161,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     161,
     159,
   ],
-  Array [
+  [
     "appendChild",
     161,
     159,
   ],
-  Array [
+  [
     "createNode",
     162,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     162,
     160,
   ],
-  Array [
+  [
     "appendChild",
     162,
     161,
   ],
-  Array [
+  [
     "appendChild",
     162,
     23,
   ],
-  Array [
+  [
     "createNode",
     163,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     163,
     158,
   ],
-  Array [
+  [
     "appendChild",
     163,
     162,
   ],
-  Array [
+  [
     "createNode",
     164,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     164,
     23,
   ],
-  Array [
+  [
     "appendChild",
     164,
     157,
   ],
-  Array [
+  [
     "createNode",
     165,
     "ge",
   ],
-  Array [
+  [
     "appendChild",
     165,
     154,
   ],
-  Array [
+  [
     "appendChild",
     165,
     164,
   ],
-  Array [
+  [
     "createNode",
     166,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     166,
     154,
   ],
-  Array [
+  [
     "appendChild",
     166,
     23,
   ],
-  Array [
+  [
     "createNode",
     167,
     "div",
   ],
-  Array [
+  [
     "appendChild",
     167,
     166,
   ],
-  Array [
+  [
     "appendChild",
     167,
     157,
   ],
-  Array [
+  [
     "createNode",
     168,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     168,
     48,
   ],
-  Array [
+  [
     "appendChild",
     168,
     167,
   ],
-  Array [
+  [
     "createNode",
     169,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     169,
     167,
   ],
-  Array [
+  [
     "appendChild",
     169,
     167,
   ],
-  Array [
+  [
     "createNode",
     170,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     170,
     168,
   ],
-  Array [
+  [
     "appendChild",
     170,
     169,
   ],
-  Array [
+  [
     "appendChild",
     170,
     23,
   ],
-  Array [
+  [
     "createNode",
     171,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     171,
     165,
   ],
-  Array [
+  [
     "appendChild",
     171,
     170,
   ],
-  Array [
+  [
     "createNode",
     172,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     172,
     163,
   ],
-  Array [
+  [
     "appendChild",
     172,
     171,
   ],
-  Array [
+  [
     "createNode",
     173,
     "sub",
   ],
-  Array [
+  [
     "appendChild",
     173,
     156,
   ],
-  Array [
+  [
     "appendChild",
     173,
     172,
   ],
-  Array [
+  [
     "createNode",
     174,
     "add",
   ],
-  Array [
+  [
     "appendChild",
     174,
     71,
   ],
-  Array [
+  [
     "appendChild",
     174,
     111,
   ],
-  Array [
+  [
     "appendChild",
     174,
     151,
   ],
-  Array [
+  [
     "appendChild",
     174,
     173,
   ],
-  Array [
+  [
     "createNode",
     175,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     175,
     0,
   ],
-  Array [
+  [
     "appendChild",
     175,
     174,
   ],
-  Array [
+  [
     "createNode",
     176,
     "svf",
   ],
-  Array [
+  [
     "setProperty",
     176,
     "mode",
     "lowpass",
   ],
-  Array [
+  [
     "appendChild",
     176,
     47,
   ],
-  Array [
+  [
     "appendChild",
     176,
     23,
   ],
-  Array [
+  [
     "appendChild",
     176,
     175,
   ],
-  Array [
+  [
     "createNode",
     177,
     "mul",
   ],
-  Array [
+  [
     "appendChild",
     177,
     0,
   ],
-  Array [
+  [
     "appendChild",
     177,
     176,
   ],
-  Array [
+  [
     "createNode",
     178,
     "root",
   ],
-  Array [
+  [
     "setProperty",
     178,
     "channel",
     0,
   ],
-  Array [
+  [
     "appendChild",
     178,
     177,
   ],
-  Array [
+  [
     "createNode",
     179,
     "root",
   ],
-  Array [
+  [
     "setProperty",
     179,
     "channel",
     1,
   ],
-  Array [
+  [
     "appendChild",
     179,
     177,
   ],
-  Array [
+  [
     "activateRoots",
-    Array [
+    [
       178,
       179,
     ],
   ],
-  Array [
+  [
     "commitUpdates",
   ],
 ]
