@@ -25,10 +25,11 @@ class HashlessRenderer {
   }
 
   getMaskId(hash) {
-    let r = this.nextMaskId++;
+    if (!this.maskTable.has(hash)) {
+      this.maskTable.set(hash, this.nextMaskId++);
+    }
 
-    this.maskTable.set(hash, r);
-    return r;
+    return this.maskTable.get(hash);
   }
 
   getNodeMap() {
@@ -64,19 +65,19 @@ class HashlessRenderer {
   }
 
   deleteNode(hash) {
-    this.batch.push([InstructionTypes.DELETE_NODE, this.maskTable.get(hash)]);
+    this.batch.push([InstructionTypes.DELETE_NODE, this.getMaskId(hash)]);
   }
 
   appendChild(parentHash, childHash) {
-    this.batch.push([InstructionTypes.APPEND_CHILD, this.maskTable.get(parentHash), this.maskTable.get(childHash)]);
+    this.batch.push([InstructionTypes.APPEND_CHILD, this.getMaskId(parentHash), this.getMaskId(childHash)]);
   }
 
   setProperty(hash, key, val) {
-    this.batch.push([InstructionTypes.SET_PROPERTY, this.maskTable.get(hash), key, val]);
+    this.batch.push([InstructionTypes.SET_PROPERTY, this.getMaskId(hash), key, val]);
   }
 
   activateRoots(roots) {
-    this.batch.push([InstructionTypes.ACTIVATE_ROOTS, roots.map(x => this.maskTable.get(x))]);
+    this.batch.push([InstructionTypes.ACTIVATE_ROOTS, roots.map(x => this.getMaskId(x))]);
   }
 
   commitUpdates() {
