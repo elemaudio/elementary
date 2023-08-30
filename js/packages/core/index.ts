@@ -45,8 +45,7 @@ const InstructionTypes = {
   COMMIT_UPDATES: 5,
 };
 
-// A default render delegate which batches instruction sets and invokes the
-// provided batchHandler callback on transaction commit, while also recording
+// A default render delegate which batches instruction sets while recording
 // stats about the render pass.
 class Delegate {
   public nodesAdded: number;
@@ -57,51 +56,52 @@ class Delegate {
   private nodeMap: Map<number, any>;
   private currentActiveRoots: Set<number>;
 
-  private renderContext: any;
-  private batch: Array<any>;
-  private batchHandler: Function;
+  private batch: any;
 
-  constructor(sampleRate, batchHandler) {
+  constructor() {
+    this.nodeMap = new Map();
+    this.currentActiveRoots = new Set();
+
+    this.clear();
+  }
+
+  clear() {
     this.nodesAdded = 0;
     this.nodesRemoved = 0;
     this.edgesAdded = 0;
     this.propsWritten = 0;
-    this.nodeMap = new Map();
-    this.currentActiveRoots = new Set();
 
-    this.renderContext = {
-      sampleRate,
-      blockSize: 512,
-      numInputs: 1,
-      numOutputs: 1,
+    this.batch = {
+      createNode: [],
+      deleteNode: [],
+      appendChild: [],
+      setProperty: [],
+      activateRoots: [],
+      commitUpdates: [],
     };
-
-    this.batch = [];
-    this.batchHandler = batchHandler;
   }
 
   getNodeMap() { return this.nodeMap; }
   getTerminalGeneration() { return 4; }
-  getRenderContext() { return this.renderContext; }
 
   createNode(hash, type) {
     this.nodesAdded++;
-    this.batch.push([InstructionTypes.CREATE_NODE, hash, type]);
+    this.batch.createNode.push([InstructionTypes.CREATE_NODE, hash, type]);
   }
 
   deleteNode(hash) {
     this.nodesRemoved++;
-    this.batch.push([InstructionTypes.DELETE_NODE, hash]);
+    this.batch.deleteNode.push([InstructionTypes.DELETE_NODE, hash]);
   }
 
   appendChild(parentHash, childHash) {
     this.edgesAdded++;
-    this.batch.push([InstructionTypes.APPEND_CHILD, parentHash, childHash]);
+    this.batch.appendChild.push([InstructionTypes.APPEND_CHILD, parentHash, childHash]);
   }
 
   setProperty(hash, key, value) {
     this.propsWritten++;
-    this.batch.push([InstructionTypes.SET_PROPERTY, hash, key, value]);
+    this.batch.setProperty.push([InstructionTypes.SET_PROPERTY, hash, key, value]);
   }
 
   activateRoots(roots) {
@@ -114,15 +114,24 @@ class Delegate {
       roots.every((root) => this.currentActiveRoots.has(root));
 
     if (!alreadyActive) {
-      this.batch.push([InstructionTypes.ACTIVATE_ROOTS, roots]);
+      this.batch.activateRoots.push([InstructionTypes.ACTIVATE_ROOTS, roots]);
       this.currentActiveRoots = new Set(roots);
     }
   }
 
   commitUpdates() {
-    this.batch.push([InstructionTypes.COMMIT_UPDATES]);
-    this.batchHandler(this.batch);
-    this.batch = [];
+    this.batch.commitUpdates.push([InstructionTypes.COMMIT_UPDATES]);
+  }
+
+  getPackedInstructions() {
+    return [
+      ...this.batch.createNode,
+      ...this.batch.deleteNode,
+      ...this.batch.appendChild,
+      ...this.batch.setProperty,
+      ...this.batch.activateRoots,
+      ...this.batch.commitUpdates,
+    ];
   }
 }
 
@@ -145,24 +154,23 @@ function now() {
 // or their own Delegate.
 class Renderer {
   private _delegate: Delegate;
+  private _sendMessage: Function;
 
-  constructor(sampleRate, sendMessage) {
-    this._delegate = new Delegate(sampleRate, (batch) => {
-      sendMessage(batch);
-    });
+  constructor(sendMessage) {
+    this._delegate = new Delegate();
+    this._sendMessage = sendMessage;
   }
 
   render(...args) {
     const t0 = now();
 
-    this._delegate.nodesAdded = 0;
-    this._delegate.nodesRemoved = 0;
-    this._delegate.edgesAdded = 0;
-    this._delegate.propsWritten = 0;
-
+    this._delegate.clear();
     renderWithDelegate(this._delegate as any, args.map(resolve));
 
     const t1 = now();
+
+    // Invoke message passing
+    this._sendMessage(this._delegate.getPackedInstructions());
 
     // Return render stats
     return {

@@ -9,21 +9,24 @@ import {
 
 class TestRenderer {
   constructor() {
-    this._lastBatch = null;
-    this._delegate = new Delegate(44100, (batch) => {
-      this._lastBatch = batch;
-    });
+    this._delegate = new Delegate();
   }
 
   render(...args) {
+    this._delegate.clear();
+
     renderWithDelegate(this._delegate, args.map(resolve));
 
-    // Dummy stats
-    return {};
+    return {
+      nodesAdded: this._delegate.nodesAdded,
+      edgesAdded: this._delegate.edgesAdded,
+      propsWritten: this._delegate.propsWritten,
+      elapsedTimeMs: 0,
+    };
   }
 
   getBatch() {
-    return this._lastBatch;
+    return this._delegate.getPackedInstructions();
   }
 
   getTerminalGeneration() {
@@ -38,12 +41,19 @@ class TestRenderer {
 function sortInstructionBatch(x) {
   let copy = [...x];
 
+  // This is an odd sort step; in particular, we only sort here within each
+  // type of instruction. That is, createNodes all come before deleteNodes, all come before
+  // appendChilds, etc, in the snapshot files. The Renderer instance, via its getPackedInstructions
+  // method, provides that group-level sort during render. However, the snapshots then sort
+  // within those groups according to hash values so that our tests are not coupled to the traversal
+  // order of the reconciler. This whole thing is temporary anyway; once we finish the v3 refactor,
+  // we can remove this sorting and update the snapshots.
   return copy.sort((a, b) => {
     if (a[0] === b[0]) {
       return a[1] < b[1] ? -1 : 1;
     }
 
-    return a[0] < b[0] ? -1 : 1;
+    return 0;
   });
 }
 
@@ -280,6 +290,7 @@ test('garbage collection', function() {
   );
 
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
+  tr._delegate.clear();
 
   // Now if we step the garbage collector enough we should see the sine node
   // and its parent root get cleaned up now that they're no longer referenced
