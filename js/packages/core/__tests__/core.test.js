@@ -3,13 +3,13 @@ import {
   renderWithDelegate,
   stepGarbageCollector,
   resolve,
-  Delegate,
+  Renderer,
 } from '..';
 
 
-class TestRenderer {
+class TestRenderer extends Renderer {
   constructor() {
-    this._delegate = new Delegate();
+    super(() => {});
   }
 
   render(...args) {
@@ -300,4 +300,31 @@ test('garbage collection', function() {
   }
 
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
+});
+
+test('refs', function() {
+  let tr = new TestRenderer();
+
+  // Sine tone with a frequency set by ref
+  let [freq, setFreq] = tr.createRef("const", {value: 440}, []);
+
+  // Render the ref
+  tr.render(
+    createNode("sin", {}, [
+      createNode("mul", {}, [
+        2 * Math.PI,
+        createNode("phasor", {}, [freq])
+      ])
+    ])
+  );
+
+  // Using our ref setter
+  setFreq({value: 550});
+
+  // We expect here to see a single set property instruction
+  // followed by the commit instruction
+  expect(tr.getBatch()).toEqual([
+    [ 3, 1915043800, 'value', 550 ],
+    [ 5 ],
+  ]);
 });

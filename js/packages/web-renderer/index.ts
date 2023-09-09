@@ -62,7 +62,7 @@ export default class WebAudioRenderer extends EventEmitter {
         const [type, evt] = e.data;
 
         if (type === 'load') {
-          this._renderer = new Renderer(evt.sampleRate, (batch) => {
+          this._renderer = new Renderer((batch) => {
             this._worklet.port.postMessage({
               type: 'renderInstructions',
               batch,
@@ -99,6 +99,10 @@ export default class WebAudioRenderer extends EventEmitter {
         });
       }, eventInterval);
     });
+  }
+
+  createRef(kind, props, children) {
+    return this._renderer.createRef(kind, props, children);
   }
 
   render(...args) {

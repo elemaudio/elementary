@@ -63,7 +63,7 @@ export default class OfflineRenderer extends EventEmitter {
       }
     }
 
-    this._renderer = new Renderer(sampleRate, (batch) => {
+    this._renderer = new Renderer((batch) => {
       this._native.postMessageBatch(batch, (type, message) => {
         this.emit('error', new Error(`${type}: ${message}`));
       });
@@ -72,6 +72,10 @@ export default class OfflineRenderer extends EventEmitter {
 
   render(...args) {
     return this._renderer.render(...args);
+  }
+
+  createRef(kind, props, children) {
+    return this._renderer.createRef(kind, props, children);
   }
 
   process(inputs: Array<Float32Array>, outputs: Array<Float32Array>) {

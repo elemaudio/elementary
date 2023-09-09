@@ -3,6 +3,8 @@ import {
   stepGarbageCollector,
 } from './src/Reconciler.gen';
 
+import { updateNodeProps } from './src/Hash';
+
 import {
   createNode,
   isNode,
@@ -53,9 +55,9 @@ class Delegate {
   public edgesAdded: number;
   public propsWritten: number;
 
-  private nodeMap: Map<number, any>;
-  private currentActiveRoots: Set<number>;
+  public nodeMap: Map<number, any>;
 
+  private currentActiveRoots: Set<number>;
   private batch: any;
 
   constructor() {
@@ -155,10 +157,49 @@ function now() {
 class Renderer {
   private _delegate: Delegate;
   private _sendMessage: Function;
+  private _nextRefId: number;
 
   constructor(sendMessage) {
     this._delegate = new Delegate();
     this._sendMessage = sendMessage;
+    this._nextRefId = 0;
+  }
+
+  // A method for creating "refs," which looks the same as the function for creating
+  // nodes but captures the context of the Renderer instance to provide scoped property
+  // updates to the ref without incurring a full graph construction and reconciliation pass.
+  //
+  // Example:
+  //  let [cutoffFreq, setCutoffFreq] = createRef("const", {value: 440}, []);
+  //
+  //  // Render a ref just the same as you would any other node
+  //  core.render(el.lowpass(cutoffFreq, 1, el.in({channel: 0})));
+  //
+  //  // Subsequent property changes can be made through the property settter returned
+  //  // from the call to createRef
+  //  setCutoffFreq({ value: 440 });
+  //
+  // Note: refs should only be rendered by the Renderer instance from which they were created.
+  // In other words, don't share refs between different renderer instances.
+  createRef(kind, props, children) {
+    let key = `__refKey:${this._nextRefId++}`;
+    let node = createNode(kind, Object.assign({key}, props), children);
+
+    let setter = (newProps) => {
+      if (!this._delegate.nodeMap.has(node.hash)) {
+        throw new Error('Cannot update a ref that has not been mounted; make sure you render your node first')
+      }
+
+      const nodeMapCopy = this._delegate.nodeMap.get(node.hash);
+
+      this._delegate.clear();
+      updateNodeProps(this._delegate, node.hash, nodeMapCopy.props, newProps);
+      this._delegate.commitUpdates();
+
+      this._sendMessage(this._delegate.getPackedInstructions());
+    };
+
+    return [node, setter];
   }
 
   render(...args) {
