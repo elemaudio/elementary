@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../GraphNode.h"
-#include "../../Invariant.h"
 
 
 namespace elem
@@ -46,18 +45,20 @@ namespace elem
             All = 4,
         };
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
             if (key == "mode") {
-                invariant(val.isString(), "mode prop must be a string");
+                if (!val.isString())
+                    return ReturnCode::InvalidPropertyType();
+
                 auto const m = (js::String) val;
 
-                if (m == "lowpass")     return _mode.store(Mode::Low);
-                if (m == "highpass")    return _mode.store(Mode::High);
-                if (m == "allpass")     return _mode.store(Mode::All);
+                if (m == "lowpass")     { _mode.store(Mode::Low); }
+                if (m == "highpass")    { _mode.store(Mode::High); }
+                if (m == "allpass")     { _mode.store(Mode::All); }
             }
 
-            GraphNode<FloatType>::setProperty(key, val);
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {

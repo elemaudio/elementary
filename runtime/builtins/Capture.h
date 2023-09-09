@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../GraphNode.h"
-#include "../Invariant.h"
 #include "../MultiChannelRingBuffer.h"
 
 #include "helpers/Change.h"

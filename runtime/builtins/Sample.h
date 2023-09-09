@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../GraphNode.h"
-#include "../Invariant.h"
 #include "../SingleWriterSingleReaderQueue.h"
 #include "../Types.h"
 
@@ -23,20 +22,23 @@ namespace elem
     struct SampleNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "path") {
-                invariant(val.isString(), "path prop must be a string");
-                invariant(resources.has((js::String) val), "failed to find a resource at the given path");
+                if (!val.isString())
+                    return ReturnCode::InvalidPropertyType();
+
+                if (!resources.has((js::String) val))
+                    return ReturnCode::InvalidPropertyValue();
 
                 auto ref = resources.get((js::String) val);
                 bufferQueue.push(std::move(ref));
             }
 
             if (key == "mode") {
-                invariant(val.isString(), "mode prop for the sample node must be a string.");
+                if (!val.isString())
+                    return ReturnCode::InvalidPropertyType();
+
                 auto v = (js::String) val;
 
                 if (v == "trigger") { mode.store(Mode::Trigger); }
@@ -45,24 +47,32 @@ namespace elem
             }
 
             if (key == "startOffset") {
-                invariant(val.isNumber(), "startOffset prop for the sample node must be a number.");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
 
                 auto const v = (js::Number) val;
                 auto const vi = static_cast<int>(v);
 
-                invariant(vi >= 0, "startOffset prop for the sample node must be a positive number.");
+                if (vi < 0)
+                    return ReturnCode::InvalidPropertyValue();
+
                 startOffset.store(static_cast<size_t>(vi));
             }
 
             if (key == "stopOffset") {
-                invariant(val.isNumber(), "stopOffset prop for the sample node must be a number.");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
 
                 auto const v = (js::Number) val;
                 auto const vi = static_cast<int>(v);
 
-                invariant(vi >= 0, "stopOffset prop for the sample node must be a positive number.");
+                if (vi < 0)
+                    return ReturnCode::InvalidPropertyValue();
+
                 stopOffset.store(static_cast<size_t>(vi));
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void reset() override {

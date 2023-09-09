@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../GraphNode.h"
-#include "../../Invariant.h"
 
 
 namespace elem
@@ -27,20 +26,21 @@ namespace elem
             Bell = 2,
         };
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "mode") {
-                invariant(val.isString(), "mode prop must be a string");
+                if (!val.isString())
+                    return ReturnCode::InvalidPropertyType();
+
                 auto const m = (js::String) val;
 
-                if (m == "lowshelf")     return _mode.store(Mode::Lowshelf);
-                if (m == "highshelf")    return _mode.store(Mode::Highshelf);
+                if (m == "lowshelf")     { _mode.store(Mode::Lowshelf); }
+                if (m == "highshelf")    { _mode.store(Mode::Highshelf); }
 
-                if (m == "bell" || m == "peak")
-                    return _mode.store(Mode::Bell);
+                if (m == "bell" || m == "peak") { _mode.store(Mode::Bell); }
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         inline FloatType tick (Mode m, FloatType v0) {

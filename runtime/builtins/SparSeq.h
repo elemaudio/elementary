@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../GraphNode.h"
-#include "../Invariant.h"
 #include "../SingleWriterSingleReaderQueue.h"
 
 #include "helpers/Change.h"
@@ -38,13 +37,15 @@ namespace elem
         // Our ChangeEvent union type.
         using ChangeEvent = std::variant<EmptyEvent, NewSequenceEvent, NewLoopPointsEvent>;
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "offset") {
-                invariant(val.isNumber(), "offset prop for sparseq node must be a number type.");
-                invariant(((js::Number) val) >= ((js::Number) 0.0), "offset prop for sparseq node must be >= 0");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                if ((js::Number) val < 0.0)
+                    return ReturnCode::InvalidPropertyValue();
+
                 seqOffset.store(static_cast<size_t>((js::Number) val));
             }
 
@@ -52,7 +53,8 @@ namespace elem
                 if (val.isNull() || (val.isBool() && !val)) {
                     changeEventQueue.push(ChangeEvent { NewLoopPointsEvent { -1, -1 } });
                 } else {
-                    invariant(val.isArray(), "loop prop for sparseq node must be an array type, null, or false.");
+                    if (!val.isArray())
+                        return ReturnCode::InvalidPropertyType();
 
                     auto& points = val.getArray();
 
@@ -64,29 +66,38 @@ namespace elem
             }
 
             if (key == "follow") {
-                invariant(val.isBool(), "follow prop for sparseq node must be a boolean type.");
+                if (!val.isBool())
+                    return ReturnCode::InvalidPropertyType();
+
                 followAction.store((bool) val);
             }
 
             if (key == "interpolate") {
-                invariant(val.isNumber(), "interpolate prop for sparseq node must be a number type.");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
                 holdOrder.store(static_cast<int32_t>((js::Number) val));
             }
 
             // The estimated period of the incoming clock cycle in seconds. Used to improve the resolution
             // of the interpolation coefficient. Ignored if using zero order hold (no interpolation).
             if (key == "tickInterval") {
-                invariant(val.isNumber(), "tickInterval prop for sparseq node must be a number type.");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
 
                 auto const ti = (js::Number) val;
-                invariant(ti >= 0.0, "tickInterval prop for sparseq node must be >= 0");
+
+                if (ti < 0.0)
+                    return ReturnCode::InvalidPropertyValue();
 
                 auto const tickIntervalSamples = GraphNode<FloatType>::getSampleRate() *  ti;
                 tickInterval.store(tickIntervalSamples);
             }
 
             if (key == "seq") {
-                invariant(val.isArray(), "seq prop for sparseq node must be an array type.");
+                if (!val.isArray())
+                    return ReturnCode::InvalidPropertyType();
+
                 auto& seq = val.getArray();
                 auto data = sequencePool.allocate();
 
@@ -109,6 +120,8 @@ namespace elem
                 // queue for the realtime thread.
                 changeEventQueue.push(ChangeEvent { NewSequenceEvent { std::move(data) } });
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         typename SequenceData::iterator findTickValue(int32_t tickTime) {

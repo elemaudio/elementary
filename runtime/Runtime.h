@@ -8,7 +8,6 @@
 #include "DefaultNodeTypes.h"
 #include "GraphNode.h"
 #include "GraphRenderSequence.h"
-#include "Invariant.h"
 #include "Types.h"
 #include "Value.h"
 #include "JSON.h"
@@ -46,7 +45,7 @@ namespace elem
 
         //==============================================================================
         // Apply graph rendering instructions
-        void applyInstructions(js::Array const& batch);
+        int applyInstructions(js::Array const& batch);
 
         // Run the internal audio processing callback
         void process(
@@ -97,7 +96,7 @@ namespace elem
         // instructions for your new type, such as those produced by the frontend
         // from, e.g., `core.render(createNode("myNewNodeType", props, [children]))`
         using NodeFactoryFn = std::function<std::shared_ptr<GraphNode<FloatType>>(NodeId const id, double sampleRate, int const blockSize)>;
-        void registerNodeType (std::string const& type, NodeFactoryFn && fn);
+        int registerNodeType (std::string const& type, NodeFactoryFn && fn);
 
     private:
         //==============================================================================
@@ -111,11 +110,11 @@ namespace elem
           COMMIT_UPDATES = 5,
         };
 
-        void createNode(int32_t const& nodeId, std::string const& type);
-        void deleteNode(int32_t const& nodeId);
-        void setProperty(int32_t const& nodeId, std::string const& prop, js::Value const& v);
-        void appendChild(int32_t const& parentId, int32_t const& childId);
-        void activateRoots(js::Array const& v);
+        int createNode(js::Value const& nodeId, js::Value const& type);
+        int deleteNode(js::Value const& nodeId);
+        int setProperty(js::Value const& nodeId, js::Value const& prop, js::Value const& v);
+        int appendChild(js::Value const& parentId, js::Value const& childId);
+        int activateRoots(js::Array const& v);
 
         BufferAllocator<FloatType> bufferAllocator;
         std::shared_ptr<GraphRenderSequence<FloatType>> rtRenderSeq;
@@ -154,39 +153,39 @@ namespace elem
 
     //==============================================================================
     template <typename FloatType>
-    void Runtime<FloatType>::applyInstructions(elem::js::Array const& batch)
+    int Runtime<FloatType>::applyInstructions(elem::js::Array const& batch)
     {
         bool shouldRebuild = false;
 
         // TODO: For correct transaction semantics here, we should createNode into a separate
         // map that only gets merged into the actual nodeMap on commitUpdaes
         for (auto& next : batch) {
-            invariant(next.isArray(), "Expected a command array.");
+            if (!next.isArray())
+                return ReturnCode::InvalidInstructionFormat();
+
             auto const& ar = next.getArray();
 
-            invariant(ar[0].isNumber(), "Expected a number type command.");
-            auto const cmd = static_cast<InstructionType>(static_cast<int>((elem::js::Number) ar[0]));
+            if(!ar[0].isNumber())
+                return ReturnCode::InvalidInstructionFormat();
 
-            auto varToInt = [](elem::js::Value const& v) -> int32_t {
-                invariant(v.isNumber(), "Expected a number type node identifier. Make sure you are using @elemaudio/core@v2.0+");
-                return static_cast<int32_t>((elem::js::Number) v);
-            };
+            auto const cmd = static_cast<InstructionType>(static_cast<int>((elem::js::Number) ar[0]));
+            auto res = ReturnCode::Ok();
 
             switch (cmd) {
                 case InstructionType::CREATE_NODE:
-                    createNode(varToInt(ar[1]), (elem::js::String) ar[2]);
+                    res = createNode(ar[1], ar[2]);
                     break;
                 case InstructionType::DELETE_NODE:
-                    deleteNode(varToInt(ar[1]));
+                    res = deleteNode(ar[1]);
                     break;
                 case InstructionType::SET_PROPERTY:
-                    setProperty(varToInt(ar[1]), (elem::js::String) ar[2], ar[3]);
+                    res = setProperty(ar[1], ar[2], ar[3]);
                     break;
                 case InstructionType::APPEND_CHILD:
-                    appendChild(varToInt(ar[1]), varToInt(ar[2]));
+                    res = appendChild(ar[1], ar[2]);
                     break;
                 case InstructionType::ACTIVATE_ROOTS:
-                    activateRoots(ar[1].getArray());
+                    res = activateRoots(ar[1]);
                     shouldRebuild = true;
                     break;
                 case InstructionType::COMMIT_UPDATES:
@@ -196,6 +195,11 @@ namespace elem
                     break;
                 default:
                     break;
+            }
+
+            // TODO: And here we should abort the transaction and revert any applied properties
+            if (res != ReturnCode::Ok()) {
+                return res;
             }
         }
 
@@ -210,6 +214,8 @@ namespace elem
                 it++;
             }
         }
+
+        return ReturnCode::Ok();
     }
 
     template <typename FloatType>
@@ -232,69 +238,104 @@ namespace elem
 
     //==============================================================================
     template <typename FloatType>
-    void Runtime<FloatType>::createNode(int32_t const& nodeId, std::string const& type)
+    int Runtime<FloatType>::createNode(js::Value const& a1, js::Value const& a2)
     {
+        if (!a1.isNumber() || !a2.isString())
+            return ReturnCode::InvalidInstructionFormat();
+
+        auto const nodeId = static_cast<int32_t>((js::Number) a1);
+        auto const type = (js::String) a2;
+
         ELEM_DBG("[Native] createNode " << type << "#" << nodeIdToHex(nodeId));
 
-        invariant(nodeFactory.find(type) != nodeFactory.end(), "Unknown node type " + type);
-        invariant(nodeTable.find(nodeId) == nodeTable.end(), "Trying to create a node which already exists.");
-        invariant(edgeTable.find(nodeId) == edgeTable.end(), "Trying to create a node which already exists.");
+        if (nodeFactory.find(type) == nodeFactory.end())
+            return ReturnCode::UnknownNodeType();
+        if (nodeTable.find(nodeId) != nodeTable.end() || edgeTable.find(nodeId) != edgeTable.end())
+            return ReturnCode::NodeAlreadyExists();
 
         auto node = nodeFactory[type](nodeId, sampleRate, blockSize);
         nodeTable.insert({nodeId, node});
         edgeTable.insert({nodeId, {}});
+
+        return ReturnCode::Ok();
     }
 
     template <typename FloatType>
-    void Runtime<FloatType>::deleteNode(int32_t const& nodeId)
+    int Runtime<FloatType>::deleteNode(js::Value const& a1)
     {
+        if (!a1.isNumber())
+            return ReturnCode::InvalidInstructionFormat();
+
+        auto const nodeId = static_cast<int32_t>((js::Number) a1);
         ELEM_DBG("[Native] deleteNode " << nodeIdToHex(nodeId));
 
-        invariant(nodeTable.find(nodeId) != nodeTable.end(), "Trying to delete an unrecognized node.");
-        invariant(edgeTable.find(nodeId) != edgeTable.end(), "Trying to delete an unrecognized node.");
+        if (nodeTable.find(nodeId) == nodeTable.end() || edgeTable.find(nodeId) == edgeTable.end())
+            return ReturnCode::NodeNotFound();
 
         // Move the node out of the nodeTable. It will be pruned from the garbageTable
         // asynchronously after the renderer has dropped its references.
         garbageTable.insert(nodeTable.extract(nodeId));
         edgeTable.erase(nodeId);
+
+        return ReturnCode::Ok();
     }
 
     template <typename FloatType>
-    void Runtime<FloatType>::setProperty(int32_t const& nodeId, std::string const& prop, js::Value const& v)
+    int Runtime<FloatType>::setProperty(js::Value const& a1, js::Value const& a2, js::Value const& v)
     {
+        if (!a1.isNumber() || !a2.isString())
+            return ReturnCode::InvalidInstructionFormat();
+
+        auto const nodeId = static_cast<int32_t>((js::Number) a1);
+        auto const prop = (js::String) a2;
+
         ELEM_DBG("[Native] setProperty " << nodeIdToHex(nodeId) << " " << prop << " " << v.toString());
 
-        invariant(nodeTable.find(nodeId) != nodeTable.end(), "Trying to set a property for an unrecognized node.");
+        if (nodeTable.find(nodeId) == nodeTable.end())
+            return ReturnCode::NodeNotFound();
 
         // This is intentionally called on the non-realtime thread. It is the job
         // of the GraphNode to ensure thread safety between calls to setProperty
         // and calls to its own proces function
-        nodeTable.at(nodeId)->setProperty(prop, v, sharedResourceMap);
+        return nodeTable.at(nodeId)->setProperty(prop, v, sharedResourceMap);
     }
 
     template <typename FloatType>
-    void Runtime<FloatType>::appendChild(int32_t const& parentId, int32_t const& childId)
+    int Runtime<FloatType>::appendChild(js::Value const& a1, js::Value const& a2)
     {
+        if (!a1.isNumber() || !a2.isNumber())
+            return ReturnCode::InvalidInstructionFormat();
+
+        auto const parentId = static_cast<int32_t>((js::Number) a1);
+        auto const childId = static_cast<int32_t>((js::Number) a2);
+
         ELEM_DBG("[Native] appendChild " << nodeIdToHex(childId) << " to parent " << nodeIdToHex(parentId));
 
-        invariant(nodeTable.find(parentId) != nodeTable.end(), "Trying to append a child to an unknown parent.");
-        invariant(edgeTable.find(parentId) != edgeTable.end(), "Trying to append a child to an unknown parent.");
-        invariant(nodeTable.find(childId) != nodeTable.end(), "Trying to append an unknown child to a parent.");
+        if (nodeTable.find(parentId) == nodeTable.end() || edgeTable.find(parentId) == edgeTable.end())
+            return ReturnCode::NodeNotFound();
+        if (nodeTable.find(childId) == nodeTable.end())
+            return ReturnCode::NodeNotFound();
 
         edgeTable.at(parentId).push_back(childId);
+
+        return ReturnCode::Ok();
     }
 
     template <typename FloatType>
-    void Runtime<FloatType>::activateRoots(js::Array const& roots)
+    int Runtime<FloatType>::activateRoots(js::Array const& roots)
     {
         // Populate and activate from the incoming event
         std::set<NodeId> active;
 
         for (auto const& v : roots) {
+            if (!v.isNumber())
+                return ReturnCode::InvalidInstructionFormat();
+
             int32_t nodeId = static_cast<int32_t>((js::Number) v);
             ELEM_DBG("[Native] activateRoot " << nodeIdToHex(nodeId));
 
-            invariant(nodeTable.find(nodeId) != nodeTable.end(), "Trying to activate an unrecognized root node.");
+            if (nodeTable.find(nodeId) == nodeTable.end())
+                return ReturnCode::NodeNotFound();
 
             if (auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(nodeTable.at(nodeId))) {
                 ptr->setProperty("active", true);
@@ -319,6 +360,7 @@ namespace elem
 
         // Merge
         currentRoots = active;
+        return ReturnCode::Ok();
     }
 
     //==============================================================================
@@ -368,10 +410,13 @@ namespace elem
     }
 
     template <typename FloatType>
-    void Runtime<FloatType>::registerNodeType(std::string const& type, Runtime::NodeFactoryFn && fn)
+    int Runtime<FloatType>::registerNodeType(std::string const& type, Runtime::NodeFactoryFn && fn)
     {
-        invariant(nodeFactory.find(type) == nodeFactory.end(), "Trying to install a node type which already exists");
+        if (nodeFactory.find(type) != nodeFactory.end())
+            return ReturnCode::NodeTypeAlreadyExists();
+
         nodeFactory.emplace(type, std::move(fn));
+        return ReturnCode::Ok();
     }
 
     //==============================================================================

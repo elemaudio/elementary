@@ -90,15 +90,10 @@ public:
         }
 
         auto const& batch = v.getArray();
+        auto const rc = runtime->applyInstructions();
 
-        try {
-            runtime->applyInstructions(batch);
-        } catch (elem::InvariantViolation const& e) {
-            errorCallback(val("error"), val(e.what()));
-        } catch (std::bad_variant_access const& e) {
-            errorCallback(val("error"), val("Bad variant access"));
-        } catch (...) {
-            errorCallback(val("error"), val("Unhandled exception"));
+        if (rc != elem::ReturnCode::Ok()) {
+            errorCallback(val("error"), val(elem::ReturnCode::describe(rc)));
         }
     }
 

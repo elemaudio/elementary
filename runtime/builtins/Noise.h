@@ -10,11 +10,16 @@ namespace elem
     struct UniformRandomNoiseNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
             if (key == "seed") {
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
                 seed = static_cast<uint32_t>((js::Number) val);
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         // Neat random number generator found here: https://stackoverflow.com/a/3747462/2320243

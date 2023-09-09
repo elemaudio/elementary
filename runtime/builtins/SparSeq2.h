@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../GraphNode.h"
-#include "../Invariant.h"
 #include "../SingleWriterSingleReaderQueue.h"
 
 #include "helpers/Change.h"
@@ -18,13 +17,17 @@ namespace elem
     struct SparSeq2Node : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
             if (key == "seq") {
-                invariant(val.isArray(), "seq prop for sparseq2 node must be an array type.");
+                if (!val.isArray())
+                    return ReturnCode::InvalidPropertyType();
+
 
                 auto& seq = val.getArray();
-                invariant(seq.size() > 0, "seq array for sparseq2 node must have at least one entry");
+
+                if (seq.size() <= 0)
+                    return ReturnCode::InvalidPropertyValue();
 
                 auto data = seqPool.allocate();
 
@@ -47,11 +50,13 @@ namespace elem
             }
 
             if (key == "interpolate") {
-                invariant(val.isNumber(), "interpolate prop for sparseq2 node must be a number type.");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
                 interpOrder.store(static_cast<int32_t>((js::Number) val));
             }
 
-            GraphNode<FloatType>::setProperty(key, val);
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void updateEventBoundaries(double t) {

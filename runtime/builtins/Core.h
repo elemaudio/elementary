@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../GraphNode.h"
-#include "../Invariant.h"
 #include "../SingleWriterSingleReaderQueue.h"
 
 #include "helpers/Change.h"
@@ -33,18 +32,20 @@ namespace elem
             return (t >= 0.5 || (std::abs(c - t) >= std::numeric_limits<FloatType>::epsilon()));
         }
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "active") {
-                invariant(val.isBool(), "active prop for root node must be a boolean type");
+                if (!val.isBool())
+                    return ReturnCode::InvalidPropertyType();
+
                 targetGain.store(FloatType(val ? 1 : 0));
             }
 
             if (key == "channel") {
                 channelIndex.store(static_cast<int>((js::Number) val));
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
@@ -134,12 +135,16 @@ namespace elem
     struct ConstNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
             if (key == "value") {
-                invariant(val.isNumber(), "value prop for const node must be a number type");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
                 value.store(FloatType((js::Number) val));
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
@@ -280,15 +285,17 @@ namespace elem
     struct MaxHold : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "hold") {
-                invariant(val.isNumber(), "hold prop for maxhold node must be a number type.");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
                 auto h = GraphNode<FloatType>::getSampleRate() * 0.001 * (js::Number) val;
                 holdTimeSamples.store(static_cast<uint32_t>(h));
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
@@ -338,18 +345,20 @@ namespace elem
     struct OnceNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "arm") {
-                invariant(val.isBool(), "arm prop for once node must be a boolean type");
+                if (!val.isBool())
+                    return ReturnCode::InvalidPropertyType();
+
 
                 // We don't let the incoming prop actually disarm.
                 if (!armed.load()) {
                     armed.store((bool) val);
                 }
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
@@ -395,28 +404,36 @@ namespace elem
     struct SequenceNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "hold") {
-                invariant(val.isBool(), "hold prop for seq node must be a boolean type.");
+                if (!val.isBool())
+                    return ReturnCode::InvalidPropertyType();
+
                 wantsHold.store((js::Boolean) val);
             }
 
             if (key == "loop") {
-                invariant(val.isBool(), "loop prop for seq node must be a boolean type.");
+                if (!val.isBool())
+                    return ReturnCode::InvalidPropertyType();
+
                 wantsLoop.store((js::Boolean) val);
             }
 
             if (key == "offset") {
-                invariant(val.isNumber(), "offset prop for seq node must be a number type.");
-                invariant(((js::Number) val) >= ((js::Number) 0.0), "offset prop for seq node must be >= 0");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                if ((js::Number) val < 0.0)
+                    return ReturnCode::InvalidPropertyValue();
+
                 seqOffset.store(static_cast<size_t>((js::Number) val));
             }
 
             if (key == "seq") {
-                invariant(val.isArray(), "seq prop for seq node must be an array type.");
+                if (!val.isArray())
+                    return ReturnCode::InvalidPropertyType();
+
                 auto& seq = val.getArray();
                 auto data = sequencePool.allocate();
 
@@ -432,6 +449,8 @@ namespace elem
                 // queue for the realtime thread.
                 sequenceQueue.push(std::move(data));
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {

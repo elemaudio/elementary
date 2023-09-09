@@ -27,6 +27,46 @@ namespace elem
     }
 
     //==============================================================================
+    // A static helper for enumerating and describing return codes used throughout
+    // the codebase
+    struct ReturnCode {
+        static int Ok()                         { return 0; }
+        static int UnknownNodeType()            { return 1; }
+        static int NodeNotFound()               { return 2; }
+        static int NodeAlreadyExists()          { return 3; }
+        static int NodeTypeAlreadyExists()      { return 4; }
+        static int InvalidPropertyType()        { return 5; }
+        static int InvalidPropertyValue()       { return 6; }
+        static int InvariantViolation()         { return 7; }
+        static int InvalidInstructionFormat()   { return 8; }
+
+        static std::string describe (int c) {
+            switch (c) {
+                case 0:
+                    return "Ok";
+                case 1:
+                    return "Node type not recognized";
+                case 2:
+                    return "Node not found";
+                case 3:
+                    return "Attempting to create a node that already exists";
+                case 4:
+                    return "Attempting to create a node type that already exists";
+                case 5:
+                    return "Invalid value type for the given node property";
+                case 6:
+                    return "Invalid value for the given node property";
+                case 7:
+                    return "Invariant violation";
+                case 8:
+                    return "Invalid instruction format";
+                default:
+                    return "Return code not recognized";
+            }
+        }
+    };
+
+    //==============================================================================
     // A simple struct representing the inputs to a given GraphNode during the realtime
     // audio block processing step.
     template <typename FloatType>
