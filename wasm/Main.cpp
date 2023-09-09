@@ -95,7 +95,7 @@ public:
             runtime->applyInstructions(batch);
         } catch (elem::InvariantViolation const& e) {
             errorCallback(val("error"), val(e.what()));
-        } catch (mpark::bad_variant_access const& e) {
+        } catch (std::bad_variant_access const& e) {
             errorCallback(val("error"), val("Bad variant access"));
         } catch (...) {
             errorCallback(val("error"), val("Unhandled exception"));

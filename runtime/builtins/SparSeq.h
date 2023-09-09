@@ -3,12 +3,12 @@
 #include "../GraphNode.h"
 #include "../Invariant.h"
 #include "../SingleWriterSingleReaderQueue.h"
-#include "../deps/variant.hpp"
 
 #include "helpers/Change.h"
 #include "helpers/RefCountedPool.h"
 
 #include <optional>
+#include <variant>
 
 
 namespace elem
@@ -36,7 +36,7 @@ namespace elem
         };
 
         // Our ChangeEvent union type.
-        using ChangeEvent = mpark::variant<EmptyEvent, NewSequenceEvent, NewLoopPointsEvent>;
+        using ChangeEvent = std::variant<EmptyEvent, NewSequenceEvent, NewLoopPointsEvent>;
 
         void setProperty(std::string const& key, js::Value const& val) override
         {
@@ -205,7 +205,7 @@ namespace elem
                     ChangeEvent nextEvent;
                     changeEventQueue.pop(nextEvent);
 
-                    mpark::visit([this](auto && evt) {
+                    std::visit([this](auto && evt) {
                         using EventType = std::decay_t<decltype(evt)>;
 
                         if constexpr (std::is_same_v<EventType, NewSequenceEvent>) {
