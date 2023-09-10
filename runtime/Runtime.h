@@ -349,16 +349,10 @@ namespace elem
     template <typename FloatType>
     bool Runtime<FloatType>::updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size)
     {
-        auto result = sharedResourceMap.insert(
+        return sharedResourceMap.insert(
             name,
             std::make_shared<typename SharedResourceBuffer<FloatType>::element_type>(data, data + size)
         );
-
-        if (!result) {
-            ELEM_DBG("WARNING: Overwriting an existing shared resource is deprecated. This behavior will change in the next major version.");
-        }
-
-        return result;
     }
 
     template <typename FloatType>
