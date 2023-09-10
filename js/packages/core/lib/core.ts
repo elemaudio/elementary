@@ -212,6 +212,16 @@ export function sparseq(props: SparSeqNodeProps, trigger: NodeRepr_t | number, r
   return createNode("sparseq", props, [resolve(trigger), resolve(reset)]);
 }
 
+// SparSeq2 node
+type SparSeq2NodeProps = {
+  key?: string,
+  seq?: Array<{value: number, time: number}>,
+};
+
+export function sparseq2(props: SparSeq2NodeProps, time: NodeRepr_t | number): NodeRepr_t {
+  return createNode("sparseq2", props, [resolve(time)]);
+}
+
 // Pole node
 export function pole(p: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
 export function pole(props: OptionalKeyProps, p: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;

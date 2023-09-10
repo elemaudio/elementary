@@ -15,6 +15,7 @@
 #include "builtins/Sample.h"
 #include "builtins/Seq2.h"
 #include "builtins/SparSeq.h"
+#include "builtins/SparSeq2.h"
 #include "builtins/Table.h"
 
 
@@ -84,6 +85,7 @@ namespace elem
             callback("seq",       GenericNodeFactory<SequenceNode<FloatType>>());
             callback("seq2",      GenericNodeFactory<Seq2Node<FloatType>>());
             callback("sparseq",   GenericNodeFactory<SparSeqNode<FloatType>>());
+            callback("sparseq2",  GenericNodeFactory<SparSeq2Node<FloatType>>());
             callback("counter",   GenericNodeFactory<CounterNode<FloatType>>());
             callback("accum",     GenericNodeFactory<AccumNode<FloatType>>());
             callback("latch",     GenericNodeFactory<LatchNode<FloatType>>());
