@@ -280,6 +280,39 @@ export function sdelay(props: DelayNodeProps, x: NodeRepr_t | number): NodeRepr_
   return createNode("sdelay", props, [resolve(x)]);
 }
 
+// Multimode1p
+export function prewarp(fc: NodeRepr_t | number): NodeRepr_t {
+  return createNode("prewarp", {}, [fc]);
+}
+
+export function mm1p(
+  fc: NodeRepr_t | number,
+  x: NodeRepr_t | number,
+): NodeRepr_t;
+
+export function mm1p(
+  props: {
+    key?: string,
+    mode?: string,
+  },
+  fc: NodeRepr_t | number,
+  x: NodeRepr_t | number,
+): NodeRepr_t;
+
+export function mm1p(a, b, c?) {
+  if (typeof a === "number" || isNode(a)) {
+    return createNode("mm1p", {}, [
+      resolve(a),
+      resolve(b),
+    ]);
+  }
+
+  return createNode("mm1p", a, [
+    resolve(b),
+    resolve(c),
+  ]);
+}
+
 // SVF
 export function svf(
   fc: NodeRepr_t | number,
