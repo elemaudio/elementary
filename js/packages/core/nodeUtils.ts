@@ -4,7 +4,10 @@ import type { t as NodeRepr_t } from './src/NodeRepr.gen';
 import invariant from 'invariant';
 
 
-export function resolve(n : NodeRepr_t | number): NodeRepr_t {
+export type ElemNode = NodeRepr_t | number;
+export type { NodeRepr_t };
+
+export function resolve(n : ElemNode): NodeRepr_t {
   if (typeof n === 'number')
     return create("const", {value: n}, []);
 
@@ -24,7 +27,7 @@ export function isNode(n: unknown): n is NodeRepr_t {
 export function createNode(
   kind: string,
   props,
-  children: Array<NodeRepr_t | number>
+  children: Array<ElemNode>
 ): NodeRepr_t {
   return create(kind, props, children.map(resolve));
 }

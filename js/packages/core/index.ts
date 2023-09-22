@@ -22,8 +22,8 @@ import * as fi from './lib/filters';
 import * as os from './lib/oscillators';
 import * as si from './lib/signals';
 
-import type {t as NodeRepr_t} from './src/NodeRepr.gen';
-export type {NodeRepr_t};
+import type {ElemNode, NodeRepr_t} from './nodeUtils';
+export type {ElemNode, NodeRepr_t};
 
 const stdlib = {
   ...co,

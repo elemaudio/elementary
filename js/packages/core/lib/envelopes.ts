@@ -4,7 +4,7 @@ import {
   resolve,
 } from '../nodeUtils';
 
-import type {NodeRepr_t} from '../src/Reconciler.gen';
+import type {ElemNode, NodeRepr_t} from '../nodeUtils';
 
 import * as co from './core';
 import * as ma from './math';
@@ -39,20 +39,20 @@ const el = {
  * @returns {core.Node}
  */
 export function adsr(
-  attackSec: NodeRepr_t | number,
-  decaySec: NodeRepr_t | number,
-  sustain: NodeRepr_t | number,
-  releaseSec: NodeRepr_t | number,
-  gate: NodeRepr_t | number,
+  attackSec: ElemNode,
+  decaySec: ElemNode,
+  sustain: ElemNode,
+  releaseSec: ElemNode,
+  gate: ElemNode,
 ): NodeRepr_t;
 
 export function adsr(
   props: OptionalKeyProps,
-  attackSec: NodeRepr_t | number,
-  decaySec: NodeRepr_t | number,
-  sustain: NodeRepr_t | number,
-  releaseSec: NodeRepr_t | number,
-  gate: NodeRepr_t | number,
+  attackSec: ElemNode,
+  decaySec: ElemNode,
+  sustain: ElemNode,
+  releaseSec: ElemNode,
+  gate: ElemNode,
 ): NodeRepr_t;
 
 export function adsr(a_, b_, c_, d_, e_, f_?) {

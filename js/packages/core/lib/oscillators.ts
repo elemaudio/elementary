@@ -4,7 +4,7 @@ import {
   resolve,
 } from '../nodeUtils';
 
-import type {NodeRepr_t} from '../src/Reconciler.gen';
+import type {ElemNode, NodeRepr_t} from '../nodeUtils';
 
 import * as co from './core';
 import * as ma from './math';
@@ -31,8 +31,8 @@ const el = {
  * @param {core.Node|number} rate - Frequency
  * @returns {core.Node}
  */
-export function train(rate: NodeRepr_t | number): NodeRepr_t;
-export function train(props: OptionalKeyProps, rate: NodeRepr_t | number): NodeRepr_t;
+export function train(rate: ElemNode): NodeRepr_t;
+export function train(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function train(a, b?) {
   if (typeof a === "number" || isNode(a)) {
     return el.le(el.phasor(a, 0), 0.5);
@@ -50,8 +50,8 @@ export function train(a, b?) {
  * @param {core.Node|number} rate - Cycle frequency
  * @returns {core.Node}
  */
-export function cycle(rate: NodeRepr_t | number): NodeRepr_t;
-export function cycle(props: OptionalKeyProps, rate: NodeRepr_t | number): NodeRepr_t;
+export function cycle(rate: ElemNode): NodeRepr_t;
+export function cycle(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function cycle(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? el.sin(el.mul(2.0 * Math.PI, el.phasor(a, 0)))
@@ -70,8 +70,8 @@ export function cycle(a, b?) {
  * @param {core.Node|number} rate - Saw frequency
  * @returns {core.Node}
  */
-export function saw(rate: NodeRepr_t | number): NodeRepr_t;
-export function saw(props: OptionalKeyProps, rate: NodeRepr_t | number): NodeRepr_t;
+export function saw(rate: ElemNode): NodeRepr_t;
+export function saw(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function saw(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? el.sub(el.mul(2, el.phasor(a, 0)), 1)
@@ -90,8 +90,8 @@ export function saw(a, b?) {
  * @param {core.Node|number} rate - Square frequency
  * @returns {core.Node}
  */
-export function square(rate: NodeRepr_t | number): NodeRepr_t;
-export function square(props: OptionalKeyProps, rate: NodeRepr_t | number): NodeRepr_t;
+export function square(rate: ElemNode): NodeRepr_t;
+export function square(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function square(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? el.sub(el.mul(2, train(a)), 1)
@@ -110,8 +110,8 @@ export function square(a, b?) {
  * @param {core.Node|number} rate - Triangle frequency
  * @returns {core.Node}
  */
-export function triangle(rate: NodeRepr_t | number): NodeRepr_t;
-export function triangle(props: OptionalKeyProps, rate: NodeRepr_t | number): NodeRepr_t;
+export function triangle(rate: ElemNode): NodeRepr_t;
+export function triangle(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function triangle(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? el.mul(2, el.sub(0.5, el.abs(saw(a))))
@@ -147,8 +147,8 @@ function polyblep(step, phase) {
  * @param {core.Node|number} rate - Saw frequency
  * @returns {core.Node}
  */
-export function blepsaw(rate: NodeRepr_t | number): NodeRepr_t;
-export function blepsaw(props: OptionalKeyProps, rate: NodeRepr_t | number): NodeRepr_t;
+export function blepsaw(rate: ElemNode): NodeRepr_t;
+export function blepsaw(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function blepsaw(a, b?) {
   let hasProps = !(typeof a === "number" || isNode(a));
   let props = hasProps ? a : {};
@@ -170,8 +170,8 @@ export function blepsaw(a, b?) {
  * @param {core.Node|number} rate - Square frequency
  * @returns {core.Node}
  */
-export function blepsquare(rate: NodeRepr_t | number): NodeRepr_t;
-export function blepsquare(props: OptionalKeyProps, rate: NodeRepr_t | number): NodeRepr_t;
+export function blepsquare(rate: ElemNode): NodeRepr_t;
+export function blepsquare(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function blepsquare(a, b?) {
   let hasProps = !(typeof a === "number" || isNode(a));
   let props = hasProps ? a : {};
@@ -207,8 +207,8 @@ export function blepsquare(a, b?) {
  * @param {core.Node|number} rate - Triangle frequency
  * @returns {core.Node}
  */
-export function bleptriangle(rate: NodeRepr_t | number): NodeRepr_t;
-export function bleptriangle(props: OptionalKeyProps, rate: NodeRepr_t | number): NodeRepr_t;
+export function bleptriangle(rate: ElemNode): NodeRepr_t;
+export function bleptriangle(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function bleptriangle(a, b?) {
   let hasProps = !(typeof a === "number" || isNode(a));
   let props = hasProps ? a : {};

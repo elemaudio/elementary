@@ -4,7 +4,7 @@ import {
   resolve,
 } from '../nodeUtils';
 
-import type {NodeRepr_t} from '../src/Reconciler.gen';
+import type {ElemNode, NodeRepr_t} from '../nodeUtils';
 
 import * as co from './core';
 import * as ma from './math';
@@ -31,8 +31,8 @@ const el = {
  * @param {core.Node|number} x - Signal to be smoothed
  * @returns {core.Node}
  */
-export function smooth(p: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function smooth(props: OptionalKeyProps, p: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function smooth(p: ElemNode, x: ElemNode): NodeRepr_t;
+export function smooth(props: OptionalKeyProps, p: ElemNode, x: ElemNode): NodeRepr_t;
 export function smooth(a, b, c?) {
   if (typeof a === "number" || isNode(a)) {
     // The `pole` itself is just a leaky integrator, no gain correction, hence the multiply here.
@@ -51,8 +51,8 @@ export function smooth(a, b, c?) {
  * @param {core.Node|number} x - Signal to be smoothed
  * @returns {core.Node}
  */
-export function sm(x: NodeRepr_t | number): NodeRepr_t;
-export function sm(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t;
+export function sm(x: ElemNode): NodeRepr_t;
+export function sm(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function sm(a, b?) {
   if (typeof a === "number" || isNode(a)) {
     return smooth(el.tau2pole(0.02), a);
@@ -77,8 +77,8 @@ export function sm(a, b?) {
  * @param {core.Node|number} x
  * @returns {core.Node}
  */
-export function zero(b0: NodeRepr_t | number, b1: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function zero(props: OptionalKeyProps, b0: NodeRepr_t | number, b1: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function zero(b0: ElemNode, b1: ElemNode, x: ElemNode): NodeRepr_t;
+export function zero(props: OptionalKeyProps, b0: ElemNode, b1: ElemNode, x: ElemNode): NodeRepr_t;
 export function zero(a, b, c, d?) {
   let [b0, b1, x] = (typeof a === "number" || isNode(a))
     ? [a, b, c]
@@ -96,8 +96,8 @@ export function zero(a, b, c, d?) {
  * @param {core.Node|number} x
  * @returns {core.Node}
  */
-export function dcblock(x: NodeRepr_t | number): NodeRepr_t;
-export function dcblock(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t;
+export function dcblock(x: ElemNode): NodeRepr_t;
+export function dcblock(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function dcblock(a, b?) {
   let x = (typeof a === "number" || isNode(a)) ? a : b;
   return el.pole(0.995, zero(1, 1, x));
@@ -113,8 +113,8 @@ export function dcblock(a, b?) {
  * @param {core.Node|number} x - Signal to filter
  * @returns {core.Node}
  */
-export function df11(b0: NodeRepr_t | number, b1: NodeRepr_t | number, a1: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function df11(props: OptionalKeyProps, b0: NodeRepr_t | number, b1: NodeRepr_t | number, a1: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function df11(b0: ElemNode, b1: ElemNode, a1: ElemNode, x: ElemNode): NodeRepr_t;
+export function df11(props: OptionalKeyProps, b0: ElemNode, b1: ElemNode, a1: ElemNode, x: ElemNode): NodeRepr_t;
 export function df11(a, b, c, d, e?) {
   let [b0, b1, a1, x] = (typeof a === "number" || isNode(a))
     ? [a, b, c, d]
@@ -132,8 +132,8 @@ export function df11(a, b, c, d, e?) {
  * @param {core.Node|number} x - Signal to filter
  * @returns {core.Node}
  */
-export function lowpass(fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function lowpass(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function lowpass(fc: ElemNode, q: ElemNode, x: ElemNode): NodeRepr_t;
+export function lowpass(props: OptionalKeyProps, fc: ElemNode, q: ElemNode, x: ElemNode): NodeRepr_t;
 export function lowpass(a, b, c, d?) {
   if (typeof a === "number" || isNode(a)) {
     return el.svf({mode: 'lowpass'}, a, b, c);
@@ -151,8 +151,8 @@ export function lowpass(a, b, c, d?) {
  * @param {core.Node|number} x - Signal to filter
  * @returns {core.Node}
  */
-export function highpass(fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function highpass(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function highpass(fc: ElemNode, q: ElemNode, x: ElemNode): NodeRepr_t;
+export function highpass(props: OptionalKeyProps, fc: ElemNode, q: ElemNode, x: ElemNode): NodeRepr_t;
 export function highpass(a, b, c, d?) {
   if (typeof a === "number" || isNode(a)) {
     return el.svf({mode: 'highpass'}, a, b, c);
@@ -170,8 +170,8 @@ export function highpass(a, b, c, d?) {
  * @param {core.Node|number} x - Signal to filter
  * @returns {core.Node}
  */
-export function bandpass(fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function bandpass(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function bandpass(fc: ElemNode, q: ElemNode, x: ElemNode): NodeRepr_t;
+export function bandpass(props: OptionalKeyProps, fc: ElemNode, q: ElemNode, x: ElemNode): NodeRepr_t;
 export function bandpass(a, b, c, d?) {
   if (typeof a === "number" || isNode(a)) {
     return el.svf({mode: 'bandpass'}, a, b, c);
@@ -189,8 +189,8 @@ export function bandpass(a, b, c, d?) {
  * @param {core.Node|number} x - Signal to filter
  * @returns {core.Node}
  */
-export function notch(fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function notch(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function notch(fc: ElemNode, q: ElemNode, x: ElemNode): NodeRepr_t;
+export function notch(props: OptionalKeyProps, fc: ElemNode, q: ElemNode, x: ElemNode): NodeRepr_t;
 export function notch(a, b, c, d?) {
   if (typeof a === "number" || isNode(a)) {
     return el.svf({mode: 'notch'}, a, b, c);
@@ -208,8 +208,8 @@ export function notch(a, b, c, d?) {
  * @param {core.Node|number} x - Signal to filter
  * @returns {core.Node}
  */
-export function allpass(fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function allpass(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function allpass(fc: ElemNode, q: ElemNode, x: ElemNode): NodeRepr_t;
+export function allpass(props: OptionalKeyProps, fc: ElemNode, q: ElemNode, x: ElemNode): NodeRepr_t;
 export function allpass(a, b, c, d?) {
   if (typeof a === "number" || isNode(a)) {
     return el.svf({mode: 'allpass'}, a, b, c);
@@ -228,8 +228,8 @@ export function allpass(a, b, c, d?) {
  * @param {core.Node|number} x - Signal to filter
  * @returns {core.Node}
  */
-export function peak(fc: NodeRepr_t | number, q: NodeRepr_t | number, gainDecibels: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function peak(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, gainDecibels: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function peak(fc: ElemNode, q: ElemNode, gainDecibels: ElemNode, x: ElemNode): NodeRepr_t;
+export function peak(props: OptionalKeyProps, fc: ElemNode, q: ElemNode, gainDecibels: ElemNode, x: ElemNode): NodeRepr_t;
 export function peak(a, b, c, d, e?) {
   if (typeof a === "number" || isNode(a)) {
     return el.svfshelf({mode: 'peak'}, a, b, c, d);
@@ -248,8 +248,8 @@ export function peak(a, b, c, d, e?) {
  * @param {core.Node|number} x - Signal to filter
  * @returns {core.Node}
  */
-export function lowshelf(fc: NodeRepr_t | number, q: NodeRepr_t | number, gainDecibels: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function lowshelf(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, gainDecibels: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function lowshelf(fc: ElemNode, q: ElemNode, gainDecibels: ElemNode, x: ElemNode): NodeRepr_t;
+export function lowshelf(props: OptionalKeyProps, fc: ElemNode, q: ElemNode, gainDecibels: ElemNode, x: ElemNode): NodeRepr_t;
 export function lowshelf(a, b, c, d, e?) {
   if (typeof a === "number" || isNode(a)) {
     return el.svfshelf({mode: 'lowshelf'}, a, b, c, d);
@@ -268,8 +268,8 @@ export function lowshelf(a, b, c, d, e?) {
  * @param {core.Node|number} x - Signal to filter
  * @returns {core.Node}
  */
-export function highshelf(fc: NodeRepr_t | number, q: NodeRepr_t | number, gainDecibels: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function highshelf(props: OptionalKeyProps, fc: NodeRepr_t | number, q: NodeRepr_t | number, gainDecibels: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function highshelf(fc: ElemNode, q: ElemNode, gainDecibels: ElemNode, x: ElemNode): NodeRepr_t;
+export function highshelf(props: OptionalKeyProps, fc: ElemNode, q: ElemNode, gainDecibels: ElemNode, x: ElemNode): NodeRepr_t;
 export function highshelf(a, b, c, d, e?) {
   if (typeof a === "number" || isNode(a)) {
     return el.svfshelf({mode: 'highshelf'}, a, b, c, d);
@@ -297,8 +297,8 @@ export function highshelf(a, b, c, d, e?) {
  * @param {core.Node|number} x - Signal to filter
  * @returns {core.Node}
  */
-export function pink(x: NodeRepr_t | number): NodeRepr_t;
-export function pink(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t;
+export function pink(x: ElemNode): NodeRepr_t;
+export function pink(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function pink(a, b?) {
   let x = (typeof a === "number" || isNode(a)) ? a : b;
   let clip = (min, max, x) => el.min(max, el.max(min, x));

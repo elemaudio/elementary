@@ -4,7 +4,7 @@ import {
   resolve,
 } from '../nodeUtils';
 
-import type {t as NodeRepr_t} from '../src/NodeRepr.gen';
+import type {ElemNode, NodeRepr_t} from '../nodeUtils';
 
 
 type OptionalKeyProps = {
@@ -17,9 +17,9 @@ type IdentityNodeProps = {
   channel?: number,
 }
 
-export function identity(x: NodeRepr_t | number): NodeRepr_t;
+export function identity(x: ElemNode): NodeRepr_t;
 export function identity(props: IdentityNodeProps): NodeRepr_t;
-export function identity(props: IdentityNodeProps, x: NodeRepr_t | number): NodeRepr_t;
+export function identity(props: IdentityNodeProps, x: ElemNode): NodeRepr_t;
 export function identity(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("in", {}, [resolve(a)])
@@ -28,104 +28,104 @@ export function identity(a, b?) {
       : createNode("in", a, []);
 }
 
-export function sin(x: NodeRepr_t | number): NodeRepr_t | number;
-export function sin(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function sin(x: ElemNode): NodeRepr_t;
+export function sin(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function sin(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("sin", {}, [resolve(a)])
     : createNode("sin", a, [resolve(b)]);
 }
 
-export function cos(x: NodeRepr_t | number): NodeRepr_t | number;
-export function cos(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function cos(x: ElemNode): NodeRepr_t;
+export function cos(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function cos(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("cos", {}, [resolve(a)])
     : createNode("cos", a, [resolve(b)]);
 }
 
-export function tan(x: NodeRepr_t | number): NodeRepr_t | number;
-export function tan(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function tan(x: ElemNode): NodeRepr_t;
+export function tan(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function tan(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("tan", {}, [resolve(a)])
     : createNode("tan", a, [resolve(b)]);
 }
 
-export function tanh(x: NodeRepr_t | number): NodeRepr_t | number;
-export function tanh(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function tanh(x: ElemNode): NodeRepr_t;
+export function tanh(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function tanh(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("tanh", {}, [resolve(a)])
     : createNode("tanh", a, [resolve(b)]);
 }
 
-export function asinh(x: NodeRepr_t | number): NodeRepr_t | number;
-export function asinh(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function asinh(x: ElemNode): NodeRepr_t;
+export function asinh(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function asinh(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("asinh", {}, [resolve(a)])
     : createNode("asinh", a, [resolve(b)]);
 }
 
-export function ln(x: NodeRepr_t | number): NodeRepr_t | number;
-export function ln(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function ln(x: ElemNode): NodeRepr_t;
+export function ln(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function ln(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("ln", {}, [resolve(a)])
     : createNode("ln", a, [resolve(b)]);
 }
 
-export function log(x: NodeRepr_t | number): NodeRepr_t | number;
-export function log(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function log(x: ElemNode): NodeRepr_t;
+export function log(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function log(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("log", {}, [resolve(a)])
     : createNode("log", a, [resolve(b)]);
 }
 
-export function log2(x: NodeRepr_t | number): NodeRepr_t | number;
-export function log2(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function log2(x: ElemNode): NodeRepr_t;
+export function log2(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function log2(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("log2", {}, [resolve(a)])
     : createNode("log2", a, [resolve(b)]);
 }
 
-export function ceil(x: NodeRepr_t | number): NodeRepr_t | number;
-export function ceil(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function ceil(x: ElemNode): NodeRepr_t;
+export function ceil(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function ceil(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("ceil", {}, [resolve(a)])
     : createNode("ceil", a, [resolve(b)]);
 }
 
-export function floor(x: NodeRepr_t | number): NodeRepr_t | number;
-export function floor(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function floor(x: ElemNode): NodeRepr_t;
+export function floor(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function floor(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("floor", {}, [resolve(a)])
     : createNode("floor", a, [resolve(b)]);
 }
 
-export function sqrt(x: NodeRepr_t | number): NodeRepr_t | number;
-export function sqrt(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function sqrt(x: ElemNode): NodeRepr_t;
+export function sqrt(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function sqrt(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("sqrt", {}, [resolve(a)])
     : createNode("sqrt", a, [resolve(b)]);
 }
 
-export function exp(x: NodeRepr_t | number): NodeRepr_t | number;
-export function exp(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function exp(x: ElemNode): NodeRepr_t;
+export function exp(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function exp(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("exp", {}, [resolve(a)])
     : createNode("exp", a, [resolve(b)]);
 }
 
-export function abs(x: NodeRepr_t | number): NodeRepr_t | number;
-export function abs(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t | number;
+export function abs(x: ElemNode): NodeRepr_t;
+export function abs(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function abs(a, b?) {
   return (typeof a === "number" || isNode(a))
     ? createNode("abs", {}, [resolve(a)])
@@ -133,8 +133,8 @@ export function abs(a, b?) {
 }
 
 // Binary nodes
-export function le(a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
-export function le(props: OptionalKeyProps, a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
+export function le(a: ElemNode, b: ElemNode): NodeRepr_t;
+export function le(props: OptionalKeyProps, a: ElemNode, b: ElemNode): NodeRepr_t;
 export function le(a, b, c?) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -145,8 +145,8 @@ export function le(a, b, c?) {
   return createNode("le", a, [resolve(b), resolve(c)]);
 }
 
-export function leq(a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
-export function leq(props: OptionalKeyProps, a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
+export function leq(a: ElemNode, b: ElemNode): NodeRepr_t;
+export function leq(props: OptionalKeyProps, a: ElemNode, b: ElemNode): NodeRepr_t;
 export function leq(a, b, c?) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -157,8 +157,8 @@ export function leq(a, b, c?) {
   return createNode("leq", a, [resolve(b), resolve(c)]);
 }
 
-export function ge(a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
-export function ge(props: OptionalKeyProps, a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
+export function ge(a: ElemNode, b: ElemNode): NodeRepr_t;
+export function ge(props: OptionalKeyProps, a: ElemNode, b: ElemNode): NodeRepr_t;
 export function ge(a, b, c?) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -169,8 +169,8 @@ export function ge(a, b, c?) {
   return createNode("ge", a, [resolve(b), resolve(c)]);
 }
 
-export function geq(a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
-export function geq(props: OptionalKeyProps, a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
+export function geq(a: ElemNode, b: ElemNode): NodeRepr_t;
+export function geq(props: OptionalKeyProps, a: ElemNode, b: ElemNode): NodeRepr_t;
 export function geq(a, b, c?) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -181,8 +181,8 @@ export function geq(a, b, c?) {
   return createNode("geq", a, [resolve(b), resolve(c)]);
 }
 
-export function pow(a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
-export function pow(props: OptionalKeyProps, a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
+export function pow(a: ElemNode, b: ElemNode): NodeRepr_t;
+export function pow(props: OptionalKeyProps, a: ElemNode, b: ElemNode): NodeRepr_t;
 export function pow(a, b, c?) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -193,8 +193,8 @@ export function pow(a, b, c?) {
   return createNode("pow", a, [resolve(b), resolve(c)]);
 }
 
-export function eq(a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
-export function eq(props: OptionalKeyProps, a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
+export function eq(a: ElemNode, b: ElemNode): NodeRepr_t;
+export function eq(props: OptionalKeyProps, a: ElemNode, b: ElemNode): NodeRepr_t;
 export function eq(a, b, c?) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -205,8 +205,8 @@ export function eq(a, b, c?) {
   return createNode("eq", a, [resolve(b), resolve(c)]);
 }
 
-export function and(a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
-export function and(props: OptionalKeyProps, a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
+export function and(a: ElemNode, b: ElemNode): NodeRepr_t;
+export function and(props: OptionalKeyProps, a: ElemNode, b: ElemNode): NodeRepr_t;
 export function and(a, b, c?) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -217,8 +217,8 @@ export function and(a, b, c?) {
   return createNode("and", a, [resolve(b), resolve(c)]);
 }
 
-export function or(a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
-export function or(props: OptionalKeyProps, a: NodeRepr_t | number, b: NodeRepr_t | number): NodeRepr_t | number;
+export function or(a: ElemNode, b: ElemNode): NodeRepr_t;
+export function or(props: OptionalKeyProps, a: ElemNode, b: ElemNode): NodeRepr_t;
 export function or(a, b, c?) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -230,8 +230,8 @@ export function or(a, b, c?) {
 }
 
 // Binary reducing nodes
-export function add(...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
-export function add(props: OptionalKeyProps, ...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
+export function add(...args : Array<ElemNode>): NodeRepr_t;
+export function add(props: OptionalKeyProps, ...args : Array<ElemNode>): NodeRepr_t;
 export function add(a, ...bs) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -242,8 +242,8 @@ export function add(a, ...bs) {
   return createNode("add", a, bs.map(resolve));
 }
 
-export function sub(...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
-export function sub(props: OptionalKeyProps, ...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
+export function sub(...args : Array<ElemNode>): NodeRepr_t;
+export function sub(props: OptionalKeyProps, ...args : Array<ElemNode>): NodeRepr_t;
 export function sub(a, ...bs) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -254,8 +254,8 @@ export function sub(a, ...bs) {
   return createNode("sub", a, bs.map(resolve));
 }
 
-export function mul(...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
-export function mul(props: OptionalKeyProps, ...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
+export function mul(...args : Array<ElemNode>): NodeRepr_t;
+export function mul(props: OptionalKeyProps, ...args : Array<ElemNode>): NodeRepr_t;
 export function mul(a, ...bs) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -266,8 +266,8 @@ export function mul(a, ...bs) {
   return createNode("mul", a, bs.map(resolve));
 }
 
-export function div(...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
-export function div(props: OptionalKeyProps, ...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
+export function div(...args : Array<ElemNode>): NodeRepr_t;
+export function div(props: OptionalKeyProps, ...args : Array<ElemNode>): NodeRepr_t;
 export function div(a, ...bs) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -278,8 +278,8 @@ export function div(a, ...bs) {
   return createNode("div", a, bs.map(resolve));
 }
 
-export function mod(...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
-export function mod(props: OptionalKeyProps, ...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
+export function mod(...args : Array<ElemNode>): NodeRepr_t;
+export function mod(props: OptionalKeyProps, ...args : Array<ElemNode>): NodeRepr_t;
 export function mod(a, ...bs) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -290,8 +290,8 @@ export function mod(a, ...bs) {
   return createNode("mod", a, bs.map(resolve));
 }
 
-export function min(...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
-export function min(props: OptionalKeyProps, ...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
+export function min(...args : Array<ElemNode>): NodeRepr_t;
+export function min(props: OptionalKeyProps, ...args : Array<ElemNode>): NodeRepr_t;
 export function min(a, ...bs) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.
@@ -302,8 +302,8 @@ export function min(a, ...bs) {
   return createNode("min", a, bs.map(resolve));
 }
 
-export function max(...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
-export function max(props: OptionalKeyProps, ...args : Array<NodeRepr_t | number>): NodeRepr_t | number;
+export function max(...args : Array<ElemNode>): NodeRepr_t;
+export function max(props: OptionalKeyProps, ...args : Array<ElemNode>): NodeRepr_t;
 export function max(a, ...bs) {
   // In a future update we'll collapse literal constants here; need to sort
   // out how keys work in that case.

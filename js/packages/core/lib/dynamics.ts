@@ -3,7 +3,7 @@ import {
   isNode,
 } from '../nodeUtils';
 
-import type {NodeRepr_t} from '../src/Reconciler.gen';
+import type {ElemNode, NodeRepr_t} from '../nodeUtils';
 
 import * as co from './core';
 import * as ma from './math';
@@ -36,22 +36,22 @@ const el = {
  * @param {Node} xn – input signal to filter
  */
 export function compress(
-  attackMs: NodeRepr_t | number,
-  releaseMs: NodeRepr_t | number,
-  threshold: NodeRepr_t | number,
-  ratio: NodeRepr_t | number,
-  sidechain: NodeRepr_t | number,
-  xn: NodeRepr_t | number,
+  attackMs: ElemNode,
+  releaseMs: ElemNode,
+  threshold: ElemNode,
+  ratio: ElemNode,
+  sidechain: ElemNode,
+  xn: ElemNode,
 ): NodeRepr_t;
 
 export function compress(
   props: OptionalKeyProps,
-  attackMs: NodeRepr_t | number,
-  releaseMs: NodeRepr_t | number,
-  threshold: NodeRepr_t | number,
-  ratio: NodeRepr_t | number,
-  sidechain: NodeRepr_t | number,
-  xn: NodeRepr_t | number,
+  attackMs: ElemNode,
+  releaseMs: ElemNode,
+  threshold: ElemNode,
+  ratio: ElemNode,
+  sidechain: ElemNode,
+  xn: ElemNode,
 ): NodeRepr_t;
 
 export function compress(a_, b_, c_, d_, e_, f_, g_?) {
