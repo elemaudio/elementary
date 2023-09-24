@@ -3,7 +3,7 @@ import {Renderer, el} from '@elemaudio/core';
 
 // This example builds upon the HelloSine example to implement some very basic FM synthesis,
 // and builds in some simple pattern sequencing to create an interesting arp.
-let core = new Renderer(44100, (batch) => {
+let core = new Renderer((batch) => {
   __postNativeMessage__(JSON.stringify(batch));
 });
 
