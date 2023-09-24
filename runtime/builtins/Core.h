@@ -77,7 +77,7 @@ namespace elem
         std::atomic<int> channelIndex = -1;
     };
 
-    template <typename FloatType>
+    template <typename FloatType, bool WithReset = false>
     struct PhasorNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
@@ -97,27 +97,32 @@ namespace elem
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
-            // If we don't have the inputs we need, we bail here and zero the buffer
-            // hoping to prevent unexpected signals.
-            if (numChannels < 1)
-                return (void) std::fill_n(outputData, numSamples, FloatType(0));
+            if constexpr (WithReset) {
+                // If we don't have the inputs we need, we bail here and zero the buffer
+                // hoping to prevent unexpected signals.
+                if (numChannels < 2)
+                    return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
-            // Now if we have a second input channel, we treat that as the reset
-            // signal, hard syncing our phasor back to 0 when the reset signal goes high
-            if (numChannels >= 2) {
-              for (size_t i = 0; i < numSamples; ++i) {
-                  auto const xn = inputData[0][i];
+                // The seocnd input in this mode is for hard syncing our phasor back
+                // to 0 when the reset signal goes high
+                for (size_t i = 0; i < numSamples; ++i) {
+                    auto const xn = inputData[0][i];
 
-                  if (change(inputData[1][i]) > FloatType(0.5)) {
-                    phase = FloatType(0);
-                  }
+                    if (change(inputData[1][i]) > FloatType(0.5)) {
+                      phase = FloatType(0);
+                    }
 
-                  outputData[i] = tick(xn);
-              }
+                    outputData[i] = tick(xn);
+                }
             } else {
-              for (size_t i = 0; i < numSamples; ++i) {
-                  outputData[i] = tick(inputData[0][i]);
-              }
+                // If we don't have the inputs we need, we bail here and zero the buffer
+                // hoping to prevent unexpected signals.
+                if (numChannels < 1)
+                    return (void) std::fill_n(outputData, numSamples, FloatType(0));
+
+                for (size_t i = 0; i < numSamples; ++i) {
+                    outputData[i] = tick(inputData[0][i]);
+                }
             }
         }
 

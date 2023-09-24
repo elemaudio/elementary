@@ -53,14 +53,24 @@ export function accum(a, b, c?) {
 }
 
 // Phasor node
-export function phasor(rate: ElemNode, reset: ElemNode): NodeRepr_t;
-export function phasor(props: OptionalKeyProps, rate: ElemNode, reset: ElemNode): NodeRepr_t;
-export function phasor(a, b, c?) {
+export function phasor(rate: ElemNode): NodeRepr_t;
+export function phasor(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
+export function phasor(a, b?) {
   if (typeof a === "number" || isNode(a)) {
-    return createNode("phasor", {}, [resolve(a), resolve(b)]);
+    return createNode("phasor", {}, [resolve(a)]);
   }
 
-  return createNode("phasor", a, [resolve(b), resolve(c)]);
+  return createNode("phasor", a, [resolve(b)]);
+}
+
+export function syncphasor(rate: ElemNode, reset: ElemNode): NodeRepr_t;
+export function syncphasor(props: OptionalKeyProps, rate: ElemNode, reset: ElemNode): NodeRepr_t;
+export function syncphasor(a, b, c?) {
+  if (typeof a === "number" || isNode(a)) {
+    return createNode("sphasor", {}, [resolve(a), resolve(b)]);
+  }
+
+  return createNode("sphasor", a, [resolve(b), resolve(c)]);
 }
 
 // Latch node

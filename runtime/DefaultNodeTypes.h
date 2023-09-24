@@ -81,7 +81,8 @@ namespace elem
             // Core nodes
             callback("root",      GenericNodeFactory<RootNode<FloatType>>());
             callback("const",     GenericNodeFactory<ConstNode<FloatType>>());
-            callback("phasor",    GenericNodeFactory<PhasorNode<FloatType>>());
+            callback("phasor",    GenericNodeFactory<PhasorNode<FloatType, false>>());
+            callback("sphasor",   GenericNodeFactory<PhasorNode<FloatType, true>>());
             callback("sr",        GenericNodeFactory<SampleRateNode<FloatType>>());
             callback("seq",       GenericNodeFactory<SequenceNode<FloatType>>());
             callback("seq2",      GenericNodeFactory<Seq2Node<FloatType>>());
