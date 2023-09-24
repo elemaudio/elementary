@@ -73,12 +73,6 @@ namespace elem
             // Set up our output derivation
             auto const m = _mode.load();
 
-            auto deriveOutput = ((m == Mode::Low)
-                ? [](double const lp, double const /* xn */) { return lp; }
-                : ((m == Mode::High)
-                    ? [](double const lp, double const xn) { return xn - lp; }
-                    : [](double const lp, double const xn) { return lp + lp - xn; }));
-
             // Run the filter
             for (size_t i = 0; i < numSamples; ++i) {
                 auto const g = std::clamp(static_cast<double>(inputData[0][i]), 0.0, 0.9999);
@@ -93,7 +87,19 @@ namespace elem
 
                 z = lp + v;
 
-                outputData[i] = FloatType(deriveOutput(lp, xn));
+                switch (m) {
+                    case Mode::Low:
+                        outputData[i] = FloatType(lp);
+                        break;
+                    case Mode::High:
+                        outputData[i] = xn - FloatType(lp);
+                        break;
+                    case Mode::All:
+                        outputData[i] = FloatType(lp + lp - xn);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
