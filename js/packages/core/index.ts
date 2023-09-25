@@ -11,8 +11,6 @@ import {
   resolve,
 } from './nodeUtils';
 
-import {EventEmitter} from './src/Events';
-export {EventEmitter};
 
 import * as co from './lib/core';
 import * as dy from './lib/dynamics';
@@ -22,8 +20,8 @@ import * as fi from './lib/filters';
 import * as os from './lib/oscillators';
 import * as si from './lib/signals';
 
-import type {ElemNode, NodeRepr_t} from './nodeUtils';
-export type {ElemNode, NodeRepr_t};
+export type { ElemNode, NodeRepr_t } from './nodeUtils';
+export { EventEmitter } from './src/Events';
 
 const stdlib = {
   ...co,
