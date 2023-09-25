@@ -82,7 +82,7 @@ namespace elem
         // audio graph.
         void pruneSharedResourceMap();
 
-        // Returns an iterator through the names of the entries in the shared resouce map.
+        // Returns an iterator through the names of the entries in the shared resoure map.
         //
         // Intentionally, this does not provide access to the values in the map.
         typename SharedResourceMap<FloatType>::KeyViewType getSharedResourceMapKeys();
