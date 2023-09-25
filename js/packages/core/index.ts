@@ -173,7 +173,7 @@ class Renderer {
   //  // Render a ref just the same as you would any other node
   //  core.render(el.lowpass(cutoffFreq, 1, el.in({channel: 0})));
   //
-  //  // Subsequent property changes can be made through the property settter returned
+  //  // Subsequent property changes can be made through the property setter returned
   //  // from the call to createRef
   //  setCutoffFreq({ value: 440 });
   //
