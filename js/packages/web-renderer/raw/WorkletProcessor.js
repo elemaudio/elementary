@@ -16,20 +16,23 @@ const EventTypes = {
 // Right now we're only looking for the ArrayBuffers behind Float32Array instances as that's
 // the only type of transferable object that the native engine delivers, but this could be
 // extended to other types easily.
-function findTransferables(val) {
+function findTransferables(val, transferables = []) {
+  
   if (val instanceof Float32Array) {
-    return [val.buffer];
-  }
-
-  if (typeof val === 'object') {
+    transferables.push(val.buffer);
+  } else if (typeof val === 'object') {
     if (Array.isArray(val)) {
-      return Array.prototype.concat.apply([], val.map(findTransferables));
+      for (let i = 0; i < val.length; ++i) {
+        findTransferables(val[i], transferables);
+      }
+    } else if (val !== null) {
+      for (let key of Object.keys(val)) {
+        findTransferables(val[key], transferables);
+      }
     }
-
-    return Array.prototype.concat.apply([], Object.keys(val).map(key => findTransferables(val[key])));
   }
 
-  return [];
+  return transferables;
 }
 
 class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
