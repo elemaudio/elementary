@@ -3,7 +3,6 @@
 #include <AudioFFT.h>
 
 #include <GraphNode.h>
-#include <Invariant.h>
 #include <MultiChannelRingBuffer.h>
 
 
@@ -29,15 +28,16 @@ namespace elem
           return (x > 0) && ((x & (x - 1)) == 0);
         }
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
             if (key == "size") {
-                invariant(val.isNumber(), "size prop on the fft node must be a number.");
+                if (!val.isNumber())
+                    return elem::ReturnCode::InvalidPropertyType();
 
                 int const size = static_cast<int>((js::Number) val);
 
-                invariant((size > 255) && (size < 8193), "size prop on the fft node must be betwen 256 and 8192, inclusive");
-                invariant(isPowerOfTwo(size), "size prop on the fft node must be a power of two");
+                if (!isPowerOfTwo(size) || size < 256 || size > 8192)
+                    return elem::ReturnCode::InvalidPropertyValue();
 
                 fft.init(size);
                 scratchData.resize(size);
@@ -65,11 +65,10 @@ namespace elem
                 }
             }
 
-            if (key == "name") {
-                invariant(val.isString(), "name prop on the fft node must be a string.");
-            }
+            if (key == "name" && !val.isString())
+                return elem::ReturnCode::InvalidPropertyType();
 
-            GraphNode<FloatType>::setProperty(key, val);
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <GraphNode.h>
-#include <Invariant.h>
 
 
 namespace elem
