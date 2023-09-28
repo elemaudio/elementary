@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
     "allowJs": true,
     "declaration": true,
     "target": "es6",
-    "module": "es6",
+    "module": "es2020",
     "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true
-  },
-  "files": [
-    "index.ts",
-  ]
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+  }
 }

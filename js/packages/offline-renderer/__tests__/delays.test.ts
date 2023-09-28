@@ -66,7 +66,7 @@ test('sdelay basics', async function() {
   });
 
   // Graph
-  core.render(el.sdelay({size: 10}, el.in({channel: 0}), 0));
+  core.render(el.sdelay({size: 10}, el.in({channel: 0})));
 
   // Ten blocks of data
   let inps = [new Float32Array(512 * 10)];

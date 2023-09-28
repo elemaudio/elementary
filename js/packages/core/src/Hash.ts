@@ -1,6 +1,5 @@
 import shallowEqual from 'shallowequal';
 
-
 export function updateNodeProps(renderer, hash, prevProps, nextProps) {
   for (let key in nextProps) {
     if (nextProps.hasOwnProperty(key)) {

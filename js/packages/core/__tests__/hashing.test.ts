@@ -1,7 +1,8 @@
 import {
   el,
   renderWithDelegate,
-} from '..';
+  RenderDelegate_t
+} from '../index';
 
 
 const InstructionTypes = {
@@ -13,16 +14,13 @@ const InstructionTypes = {
   COMMIT_UPDATES: 5,
 };
 
-class HashlessRenderer {
-  constructor(config) {
-    this.nodeMap = new Map();
-    this.memoMap = new Map();
-    this.batch = [];
-    this.roots = [];
-
-    this.nextMaskId = 0;
-    this.maskTable = new Map();
-  }
+class HashlessRenderer extends RenderDelegate_t {
+  nodeMap = new Map();
+  memoMap = new Map();
+  batch = [];
+  roots = [];
+  nextMaskId = 0;
+  maskTable = new Map();
 
   getMaskId(hash) {
     if (!this.maskTable.has(hash)) {
@@ -85,7 +83,7 @@ class HashlessRenderer {
   }
 
   render(...args) {
-    this.roots = renderWithDelegate(this, args);
+    this.roots = renderWithDelegate(this, args) as any;
   }
 }
 

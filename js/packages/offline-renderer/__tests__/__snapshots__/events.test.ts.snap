@@ -1,23 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`event propagation 1`] = `
-Array [
-  Object {
+[
+  {
     "max": 0,
     "min": 0,
     "source": undefined,
   },
-  Object {
+  {
     "max": 0,
     "min": 0,
     "source": undefined,
   },
-  Object {
+  {
     "max": 0,
     "min": 0,
     "source": undefined,
   },
-  Object {
+  {
     "max": 0,
     "min": 0,
     "source": undefined,
@@ -26,23 +26,23 @@ Array [
 `;
 
 exports[`event propagation 2`] = `
-Array [
-  Object {
+[
+  {
     "max": 1,
     "min": 1,
     "source": undefined,
   },
-  Object {
+  {
     "max": 1,
     "min": 1,
     "source": undefined,
   },
-  Object {
+  {
     "max": 1,
     "min": 1,
     "source": undefined,
   },
-  Object {
+  {
     "max": 1,
     "min": 1,
     "source": undefined,

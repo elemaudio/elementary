@@ -1,6 +1,7 @@
 import {
   renderWithDelegate,
   stepGarbageCollector,
+  RenderDelegate_t,
 } from './src/Reconciler.gen';
 
 import { updateNodeProps } from './src/Hash';
@@ -11,9 +12,6 @@ import {
   resolve,
 } from './nodeUtils';
 
-import {EventEmitter} from './src/Events';
-export {EventEmitter};
-
 import * as co from './lib/core';
 import * as dy from './lib/dynamics';
 import * as en from './lib/envelopes';
@@ -22,8 +20,9 @@ import * as fi from './lib/filters';
 import * as os from './lib/oscillators';
 import * as si from './lib/signals';
 
-import type {ElemNode, NodeRepr_t} from './nodeUtils';
-export type {ElemNode, NodeRepr_t};
+export type { ElemNode, NodeRepr_t } from './nodeUtils';
+export { RenderDelegate_t } from './src/Reconciler.gen';
+export { EventEmitter } from './src/Events';
 
 const stdlib = {
   ...co,
@@ -49,7 +48,7 @@ const InstructionTypes = {
 
 // A default render delegate which batches instruction sets while recording
 // stats about the render pass.
-class Delegate {
+class Delegate extends RenderDelegate_t {
   public nodesAdded: number;
   public nodesRemoved: number;
   public edgesAdded: number;
@@ -61,6 +60,7 @@ class Delegate {
   private batch: any;
 
   constructor() {
+    super();
     this.nodeMap = new Map();
     this.currentActiveRoots = new Set();
 
@@ -155,7 +155,7 @@ function now() {
 // Applications which need more fine grained control can write their own Renderer
 // or their own Delegate.
 class Renderer {
-  private _delegate: Delegate;
+  protected _delegate: Delegate;
   private _sendMessage: Function;
   private _nextRefId: number;
 
@@ -181,7 +181,7 @@ class Renderer {
   //
   // Note: refs should only be rendered by the Renderer instance from which they were created.
   // In other words, don't share refs between different renderer instances.
-  createRef(kind, props, children) {
+  createRef(kind: string, props, children) {
     let key = `__refKey:${this._nextRefId++}`;
     let node = createNode(kind, Object.assign({key}, props), children);
 
@@ -199,7 +199,7 @@ class Renderer {
       this._sendMessage(this._delegate.getPackedInstructions());
     };
 
-    return [node, setter];
+    return [node, setter] as const;
   }
 
   render(...args) {

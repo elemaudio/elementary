@@ -38,53 +38,53 @@ Float32Array [
 `;
 
 exports[`events 1`] = `
-Array [
-  Object {
+[
+  {
     "max": 6,
     "min": 6,
     "source": undefined,
   },
-  Object {
+  {
     "max": 6,
     "min": 6,
     "source": undefined,
   },
-  Object {
+  {
     "max": 6,
     "min": 6,
     "source": undefined,
   },
-  Object {
+  {
     "max": 6,
     "min": 6,
     "source": undefined,
   },
-  Object {
+  {
     "max": 6,
     "min": 6,
     "source": undefined,
   },
-  Object {
+  {
     "max": 6,
     "min": 6,
     "source": undefined,
   },
-  Object {
+  {
     "max": 6,
     "min": 6,
     "source": undefined,
   },
-  Object {
+  {
     "max": 6,
     "min": 6,
     "source": undefined,
   },
-  Object {
+  {
     "max": 6,
     "min": 6,
     "source": undefined,
   },
-  Object {
+  {
     "max": 6,
     "min": 6,
     "source": undefined,

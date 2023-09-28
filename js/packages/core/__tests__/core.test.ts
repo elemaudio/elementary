@@ -4,10 +4,11 @@ import {
   stepGarbageCollector,
   resolve,
   Renderer,
-} from '..';
-
+  Delegate,
+} from "../index";
 
 class TestRenderer extends Renderer {
+  public _delegate: Delegate;
   constructor() {
     super(() => {});
   }
@@ -57,59 +58,52 @@ function sortInstructionBatch(x) {
   });
 }
 
-test('the basics', function() {
+test("the basics", function () {
   let tr = new TestRenderer();
 
   tr.render(
     createNode("sin", {}, [
       createNode("mul", {}, [
-        createNode("const", {value: 2 * Math.PI}, []),
+        createNode("const", { value: 2 * Math.PI }, []),
         createNode("phasor", {}, [
-          createNode("const", {key: 'fq', value: 440}, [])
-        ])
-      ])
+          createNode("const", { key: "fq", value: 440 }, []),
+        ]),
+      ]),
     ])
   );
 
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
-test('numeric literals', function() {
+test("numeric literals", function () {
   let tr = new TestRenderer();
 
   tr.render(
     createNode("sin", {}, [
-      createNode("mul", {}, [
-        2 * Math.PI,
-        createNode("phasor", {}, [440])
-      ])
+      createNode("mul", {}, [2 * Math.PI, createNode("phasor", {}, [440])]),
     ])
   );
 
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
-test('distinguish by props', function() {
+test("distinguish by props", function () {
   let tr = new TestRenderer();
 
   const renderVoice = (path, seq) => {
-    return (
-      createNode("sample", {path}, [
-        createNode("seq", {seq}, [
-          createNode("le", {}, [
-            createNode("phasor", {}, [
-              createNode("const", {value: 2}, [])
-            ]),
-            createNode("const", {value: 0.5}, [])
-          ]),
+    return createNode("sample", { path }, [
+      createNode("seq", { seq }, [
+        createNode("le", {}, [
+          createNode("phasor", {}, [createNode("const", { value: 2 }, [])]),
+          createNode("const", { value: 0.5 }, []),
         ]),
-      ])
-    );
+      ]),
+    ]);
   };
 
   tr.render(
-    renderVoice('test/path.wav', [0, 0, 1]),
-    renderVoice('test/path.wav', [0, 1, 0]),
+    renderVoice("test/path.wav", [0, 0, 1]),
+    renderVoice("test/path.wav", [0, 1, 0])
   );
 
   // Here we haven't specified any keys, so the renderer should do a lot of
@@ -120,19 +114,17 @@ test('distinguish by props', function() {
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
-test('multi-channel basics', function() {
+test("multi-channel basics", function () {
   const tr = new TestRenderer();
 
-  const monoProcess = (
-    createNode("sin", {}, [
-      createNode("mul", {}, [
-        createNode("const", {value: 2 * Math.PI}, []),
-        createNode("phasor", {}, [
-          createNode("const", {key: 'fq', value: 440}, [])
-        ])
-      ])
-    ])
-  );
+  const monoProcess = createNode("sin", {}, [
+    createNode("mul", {}, [
+      createNode("const", { value: 2 * Math.PI }, []),
+      createNode("phasor", {}, [
+        createNode("const", { key: "fq", value: 440 }, []),
+      ]),
+    ]),
+  ]);
 
   // Run the same thing in the left and the right channel
   tr.render(monoProcess, monoProcess);
@@ -141,17 +133,17 @@ test('multi-channel basics', function() {
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
-test('simple sharing', function() {
+test("simple sharing", function () {
   let tr = new TestRenderer();
 
   tr.render(
     createNode("sin", {}, [
       createNode("mul", {}, [
-        createNode("const", {value: 2 * Math.PI}, []),
+        createNode("const", { value: 2 * Math.PI }, []),
         createNode("phasor", {}, [
-          createNode("const", {key: 'fq', value: 440}, [])
-        ])
-      ])
+          createNode("const", { key: "fq", value: 440 }, []),
+        ]),
+      ]),
     ])
   );
 
@@ -161,118 +153,109 @@ test('simple sharing', function() {
     createNode("tanh", {}, [
       createNode("sin", {}, [
         createNode("mul", {}, [
-          createNode("const", {value: 2 * Math.PI}, []),
+          createNode("const", { value: 2 * Math.PI }, []),
           createNode("phasor", {}, [
-            createNode("const", {key: 'fq', value: 440}, [])
-          ])
-        ])
-      ])
+            createNode("const", { key: "fq", value: 440 }, []),
+          ]),
+        ]),
+      ]),
     ])
   );
 
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
-test('distinguished subtrees by key', function() {
+test("distinguished subtrees by key", function () {
   let tr = new TestRenderer();
 
   const voices = [
-    {key: 'fq1', freq: 440},
-    {key: 'fq2', freq: 440},
-    {key: 'fq3', freq: 440},
-    {key: 'fq4', freq: 440},
+    { key: "fq1", freq: 440 },
+    { key: "fq2", freq: 440 },
+    { key: "fq3", freq: 440 },
+    { key: "fq4", freq: 440 },
   ];
 
   const renderVoice = (voice) => {
-    return (
-      createNode("sin", {}, [
-        createNode("mul", {}, [
-          createNode("const", {value: 2 * Math.PI}, []),
-          createNode("phasor", {}, [
-            createNode("const", {key: voice.key, value: voice.freq}, [])
-          ])
-        ])
-      ])
-    );
+    return createNode("sin", {}, [
+      createNode("mul", {}, [
+        createNode("const", { value: 2 * Math.PI }, []),
+        createNode("phasor", {}, [
+          createNode("const", { key: voice.key, value: voice.freq }, []),
+        ]),
+      ]),
+    ]);
   };
 
-  tr.render(createNode("add", {}, voices.map(renderVoice)))
+  tr.render(createNode("add", {}, voices.map(renderVoice)));
 
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
-test('structural equality with value change', function() {
+test("structural equality with value change", function () {
   const tr = new TestRenderer();
 
   const voices = [
-    {key: 'fq1', freq: 440},
-    {key: 'fq2', freq: 440},
-    {key: 'fq3', freq: 440},
-    {key: 'fq4', freq: 440},
+    { key: "fq1", freq: 440 },
+    { key: "fq2", freq: 440 },
+    { key: "fq3", freq: 440 },
+    { key: "fq4", freq: 440 },
   ];
 
   const renderVoice = (voice) => {
-    return (
-      createNode("sin", {}, [
-        createNode("mul", {}, [
-          createNode("const", {value: 2 * Math.PI}, []),
-          createNode("phasor", {}, [
-            createNode("const", {key: voice.key, value: voice.freq}, [])
-          ])
-        ])
-      ])
-    );
+    return createNode("sin", {}, [
+      createNode("mul", {}, [
+        createNode("const", { value: 2 * Math.PI }, []),
+        createNode("phasor", {}, [
+          createNode("const", { key: voice.key, value: voice.freq }, []),
+        ]),
+      ]),
+    ]);
   };
 
-  tr.render(createNode("add", {}, voices.map(renderVoice)))
+  tr.render(createNode("add", {}, voices.map(renderVoice)));
 
   // Change one of the keyed values, should see structural equality
   // with no new nodes created
   voices[0].freq = 441;
 
-  tr.render(createNode("add", {}, voices.map(renderVoice)))
+  tr.render(createNode("add", {}, voices.map(renderVoice)));
 
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 // Testing here to ensure that the root node activation works as expected.
-test('switch and switch back', function() {
+test("switch and switch back", function () {
   const tr = new TestRenderer();
 
   const renderVoice = (voice) => {
-    return (
-      createNode("sin", {}, [
-        createNode("mul", {}, [
-          createNode("const", {value: 2 * Math.PI}, []),
-          createNode("phasor", {}, [
-            createNode("const", {key: voice.key, value: voice.freq}, [])
-          ])
-        ])
-      ])
-    );
+    return createNode("sin", {}, [
+      createNode("mul", {}, [
+        createNode("const", { value: 2 * Math.PI }, []),
+        createNode("phasor", {}, [
+          createNode("const", { key: voice.key, value: voice.freq }, []),
+        ]),
+      ]),
+    ]);
   };
 
   // We're going to render three times with graphs A, B, A. We want to see on
   // the third render that almost nothing was done because we still have the nodes
   // around that we need, i.e. they haven't been garbage collected, but we will need
   // to see that the correct root nodes are in place.
-  tr.render(renderVoice({key: 'hi', freq: 440}));
-  tr.render(renderVoice({key: 'bye', freq: 880}));
+  tr.render(renderVoice({ key: "hi", freq: 440 }));
+  tr.render(renderVoice({ key: "bye", freq: 880 }));
 
-  tr.render(renderVoice({key: 'hi', freq: 440}));
+  tr.render(renderVoice({ key: "hi", freq: 440 }));
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
-test('garbage collection', function() {
+test("garbage collection", function () {
   let tr = new TestRenderer();
 
   // First, render a sine tone with `sin`
   tr.render(
     createNode("sin", {}, [
-      createNode("mul", {}, [
-        2 * Math.PI,
-        createNode("phasor", {}, [440])
-      ])
+      createNode("mul", {}, [2 * Math.PI, createNode("phasor", {}, [440])]),
     ])
   );
 
@@ -282,10 +265,7 @@ test('garbage collection', function() {
 
   tr.render(
     createNode("cos", {}, [
-      createNode("mul", {}, [
-        2 * Math.PI,
-        createNode("phasor", {}, [440])
-      ])
+      createNode("mul", {}, [2 * Math.PI, createNode("phasor", {}, [440])]),
     ])
   );
 
@@ -302,29 +282,23 @@ test('garbage collection', function() {
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
-test('refs', function() {
+test("refs", function () {
   let tr = new TestRenderer();
 
   // Sine tone with a frequency set by ref
-  let [freq, setFreq] = tr.createRef("const", {value: 440}, []);
+  let [freq, setFreq] = tr.createRef("const", { value: 440 }, []);
 
   // Render the ref
   tr.render(
     createNode("sin", {}, [
-      createNode("mul", {}, [
-        2 * Math.PI,
-        createNode("phasor", {}, [freq])
-      ])
+      createNode("mul", {}, [2 * Math.PI, createNode("phasor", {}, [freq])]),
     ])
   );
 
   // Using our ref setter
-  setFreq({value: 550});
+  setFreq({ value: 550 });
 
   // We expect here to see a single set property instruction
   // followed by the commit instruction
-  expect(tr.getBatch()).toEqual([
-    [ 3, 1915043800, 'value', 550 ],
-    [ 5 ],
-  ]);
+  expect(tr.getBatch()).toEqual([[3, 1915043800, "value", 550], [5]]);
 });

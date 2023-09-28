@@ -1,4 +1,4 @@
-import events from 'events';
+import { EventEmitter as NodeEventEmitter } from 'events';
 
 type EventListener<E> = (event: E) => void
 
@@ -25,4 +25,4 @@ export declare interface EventEmitter {
   rawListeners<K extends keyof Events>(eventName: K): Function[];
 }
 
-export class EventEmitter extends events.EventEmitter { }
+export class EventEmitter extends NodeEventEmitter { }

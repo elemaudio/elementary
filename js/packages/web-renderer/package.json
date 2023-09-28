@@ -28,17 +28,6 @@
     "build": "rollup -c rollup.config.js",
     "serve": "vite -c test/vite.config.js test"
   },
-  "devDependencies": {
-    "@rollup/plugin-commonjs": "^21.0.2",
-    "@rollup/plugin-node-resolve": "^13.1.3",
-    "@rollup/plugin-replace": "^4.0.0",
-    "@rollup/plugin-typescript": "^8.3.1",
-    "invariant": "^2.2.4",
-    "rollup": "^2.70.0",
-    "rollup-pluginutils": "^2.8.2",
-    "terser": "^5.12.0",
-    "vite": "^4.4.9"
-  },
   "dependencies": {
     "@elemaudio/core": "^2.1.0"
   }

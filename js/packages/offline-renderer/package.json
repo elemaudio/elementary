@@ -23,21 +23,6 @@
     "snaps": "jest --updateSnapshot",
     "test": "jest"
   },
-  "jest": {
-    "transformIgnorePatterns": [
-      "node_modules/(?!@elemaudio/core)"
-    ]
-  },
-  "devDependencies": {
-    "@babel/preset-env": "^7.16.11",
-    "@babel/preset-typescript": "^7.16.7",
-    "@rollup/plugin-commonjs": "^21.0.2",
-    "@rollup/plugin-replace": "^4.0.0",
-    "@rollup/plugin-typescript": "^8.3.1",
-    "jest": "^27.5.1",
-    "rollup": "^2.70.0",
-    "rollup-plugin-ignore": "^1.0.10"
-  },
   "dependencies": {
     "@elemaudio/core": "^2.1.0",
     "invariant": "^2.2.4"

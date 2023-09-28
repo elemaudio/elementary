@@ -87,7 +87,7 @@ test('child limit', async function() {
   let inps = [];
   let outs = [new Float32Array(512 * 10)];
 
-  core.render(createNode("add", {}, Array.from({length: 100}).fill(1)));
+  core.render(createNode("add", {}, Array.from<number>({length: 100}).fill(1)));
   core.process(inps, outs);
 
   // Once this settles, we should see 100s everywhere

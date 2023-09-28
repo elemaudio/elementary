@@ -53,9 +53,8 @@ export function accum(a, b, c?) {
 }
 
 // Phasor node
-export function phasor(rate: ElemNode): NodeRepr_t;
-export function phasor(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
-export function phasor(a, b?) {
+export function phasor(...args: [rate: ElemNode] | [props: OptionalKeyProps, rate: ElemNode]) {
+  const [a, b] = args;
   if (typeof a === "number" || isNode(a)) {
     return createNode("phasor", {}, [resolve(a)]);
   }
@@ -216,6 +215,7 @@ type SparSeqNodeProps = {
   resetOnLoop?: boolean,
   interpolate?: number,
   tickInterval?: number,
+  follow?: boolean,
 };
 
 export function sparseq(props: SparSeqNodeProps, trigger: ElemNode, reset: ElemNode): NodeRepr_t {
@@ -226,6 +226,7 @@ export function sparseq(props: SparSeqNodeProps, trigger: ElemNode, reset: ElemN
 type SparSeq2NodeProps = {
   key?: string,
   seq?: Array<{value: number, time: number}>,
+  interpolate?: number,
 };
 
 export function sparseq2(props: SparSeq2NodeProps, time: ElemNode): NodeRepr_t {

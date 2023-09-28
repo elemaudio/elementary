@@ -31,14 +31,13 @@ const el = {
  * @param {core.Node|number} rate - Frequency
  * @returns {core.Node}
  */
-export function train(rate: ElemNode): NodeRepr_t;
-export function train(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
-export function train(a, b?) {
+export function train(...args: [rate: ElemNode] | [props: OptionalKeyProps, rate: ElemNode]) {
+  const [a, b] = args;
   if (typeof a === "number" || isNode(a)) {
-    return el.le(el.phasor(a, 0), 0.5);
+    return el.le(el.phasor(a), 0.5);
   }
 
-  return el.le(el.phasor(a, b, 0), 0.5);
+  return el.le(el.phasor(a, b), 0.5);
 }
 
 /**
@@ -54,8 +53,8 @@ export function cycle(rate: ElemNode): NodeRepr_t;
 export function cycle(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function cycle(a, b?) {
   return (typeof a === "number" || isNode(a))
-    ? el.sin(el.mul(2.0 * Math.PI, el.phasor(a, 0)))
-    : el.sin(el.mul(2.0 * Math.PI, el.phasor(a, b, 0)));
+    ? el.sin(el.mul(2.0 * Math.PI, el.phasor(a)))
+    : el.sin(el.mul(2.0 * Math.PI, el.phasor(a, b)));
 }
 
 /**
@@ -74,8 +73,8 @@ export function saw(rate: ElemNode): NodeRepr_t;
 export function saw(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function saw(a, b?) {
   return (typeof a === "number" || isNode(a))
-    ? el.sub(el.mul(2, el.phasor(a, 0)), 1)
-    : el.sub(el.mul(2, el.phasor(a, b, 0)), 1);
+    ? el.sub(el.mul(2, el.phasor(a)), 1)
+    : el.sub(el.mul(2, el.phasor(a, b)), 1);
 }
 
 /**
@@ -154,7 +153,7 @@ export function blepsaw(a, b?) {
   let props = hasProps ? a : {};
   let rate = hasProps ? b : a;
 
-  let phase = el.phasor(props, rate, 0);
+  let phase = el.phasor(props, rate);
   let naive = el.sub(el.mul(2, phase), 1);
   let step = el.div(rate, el.sr());
 
@@ -177,7 +176,7 @@ export function blepsquare(a, b?) {
   let props = hasProps ? a : {};
   let rate = hasProps ? b : a;
 
-  let phase = el.phasor(props, rate, 0);
+  let phase = el.phasor(props, rate);
   let trn = el.le(phase, 0.5);
   let naive = el.sub(el.mul(2, trn), 1);
   let step = el.div(rate, el.sr());
