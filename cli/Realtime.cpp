@@ -5,8 +5,6 @@
 #include <choc_javascript.h>
 #include <choc_javascript_QuickJS.h>
 
-#include <Runtime.h>
-
 #include "Realtime.h"
 
 #define MINIAUDIO_IMPLEMENTATION

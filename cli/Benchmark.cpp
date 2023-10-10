@@ -7,7 +7,7 @@
 #include <choc_javascript.h>
 #include <choc_javascript_QuickJS.h>
 
-#include "Runtime.h"
+#include "Benchmark.h"
 
 
 const auto* kConsoleShimScript = R"script(

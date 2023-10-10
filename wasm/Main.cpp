@@ -1,7 +1,7 @@
 #include <emscripten/bind.h>
 
 #include <memory>
-#include <Runtime.h>
+#include <elem/Runtime.h>
 
 #include "Convolve.h"
 #include "FFT.h"
