@@ -17,8 +17,6 @@ Please see the full documentation at [https://www.elementary.audio/](https://www
 npm install --save @elemaudio/offline-renderer
 ```
 
-**Note**: the offline renderer requires Node v18, or Node v16+ with the `--experimental-wasm-eh` flag set.
-
 ## Usage
 
 ```js
