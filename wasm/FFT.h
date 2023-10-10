@@ -2,8 +2,8 @@
 
 #include <AudioFFT.h>
 
-#include <GraphNode.h>
-#include <MultiChannelRingBuffer.h>
+#include <elem/GraphNode.h>
+#include <elem/MultiChannelRingBuffer.h>
 
 
 namespace elem

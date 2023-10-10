@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GraphNode.h>
+#include <elem/GraphNode.h>
 
 
 namespace elem

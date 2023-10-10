@@ -2,8 +2,8 @@
 
 #include <TwoStageFFTConvolver.h>
 
-#include <GraphNode.h>
-#include <SingleWriterSingleReaderQueue.h>
+#include <elem/GraphNode.h>
+#include <elem/SingleWriterSingleReaderQueue.h>
 
 
 namespace elem
