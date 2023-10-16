@@ -11,7 +11,7 @@ import {Renderer, el} from '@elemaudio/core';
 // The signal we're generating here is a simple sine tone via `el.cycle` at 440Hz in the left
 // channel and 441Hz in the right, creating some interesting binaural beating. Each sine tone is
 // then multiplied by 0.3 to apply some simple gain before going to the output. That's it!
-let core = new Renderer(44100, (batch) => {
+let core = new Renderer((batch) => {
   __postNativeMessage__(JSON.stringify(batch));
 });
 

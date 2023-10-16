@@ -6,7 +6,7 @@ import {
 test('errors on graph construction', function() {
   expect(() => {
     // Missing second argument, should throw
-    let p = el.phasor(1);
+    let p = el.seq({}, 1);
   }).toThrow();
 
   expect(() => {

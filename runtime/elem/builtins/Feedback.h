@@ -3,7 +3,6 @@
 #include <functional>
 
 #include "../GraphNode.h"
-#include "../Invariant.h"
 #include "../SingleWriterSingleReaderQueue.h"
 
 #include "helpers/RefCountedPool.h"
@@ -20,16 +19,17 @@ namespace elem
     struct TapInNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "name") {
-                invariant(val.isString(), "name prop for tapIn node must be a string type");
+                if (!val.isString())
+                    return ReturnCode::InvalidPropertyType();
 
                 auto ref = resources.getOrCreateMutable((js::String) val, GraphNode<FloatType>::getBlockSize());
                 bufferQueue.push(std::move(ref));
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
@@ -65,16 +65,17 @@ namespace elem
             std::fill_n(delayBuffer.data(), blockSize, FloatType(0));
         }
 
-        void setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "name") {
-                invariant(val.isString(), "name prop for tapOut node must be a string type");
+                if (!val.isString())
+                    return ReturnCode::InvalidPropertyType();
 
                 auto ref = resources.getOrCreateMutable((js::String) val, GraphNode<FloatType>::getBlockSize());
                 tapBufferQueue.push(std::move(ref));
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void promoteTapBuffers(size_t numSamples) {

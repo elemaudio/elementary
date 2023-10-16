@@ -7,6 +7,7 @@
 #include "builtins/Delays.h"
 #include "builtins/Feedback.h"
 #include "builtins/Filters.h"
+#include "builtins/filters/MultiMode1p.h"
 #include "builtins/filters/SVF.h"
 #include "builtins/filters/SVFShelf.h"
 #include "builtins/Capture.h"
@@ -15,6 +16,7 @@
 #include "builtins/Sample.h"
 #include "builtins/Seq2.h"
 #include "builtins/SparSeq.h"
+#include "builtins/SparSeq2.h"
 #include "builtins/Table.h"
 
 
@@ -79,11 +81,13 @@ namespace elem
             // Core nodes
             callback("root",      GenericNodeFactory<RootNode<FloatType>>());
             callback("const",     GenericNodeFactory<ConstNode<FloatType>>());
-            callback("phasor",    GenericNodeFactory<PhasorNode<FloatType>>());
+            callback("phasor",    GenericNodeFactory<PhasorNode<FloatType, false>>());
+            callback("sphasor",   GenericNodeFactory<PhasorNode<FloatType, true>>());
             callback("sr",        GenericNodeFactory<SampleRateNode<FloatType>>());
             callback("seq",       GenericNodeFactory<SequenceNode<FloatType>>());
             callback("seq2",      GenericNodeFactory<Seq2Node<FloatType>>());
             callback("sparseq",   GenericNodeFactory<SparSeqNode<FloatType>>());
+            callback("sparseq2",  GenericNodeFactory<SparSeq2Node<FloatType>>());
             callback("counter",   GenericNodeFactory<CounterNode<FloatType>>());
             callback("accum",     GenericNodeFactory<AccumNode<FloatType>>());
             callback("latch",     GenericNodeFactory<LatchNode<FloatType>>());
@@ -100,6 +104,8 @@ namespace elem
             callback("pole",      GenericNodeFactory<OnePoleNode<FloatType>>());
             callback("env",       GenericNodeFactory<EnvelopeNode<FloatType>>());
             callback("biquad",    GenericNodeFactory<BiquadFilterNode<FloatType>>());
+            callback("prewarp",   GenericNodeFactory<CutoffPrewarpNode<FloatType>>());
+            callback("mm1p",      GenericNodeFactory<MultiMode1p<FloatType>>());
             callback("svf",       GenericNodeFactory<StateVariableFilterNode<FloatType>>());
             callback("svfshelf",  GenericNodeFactory<StateVariableShelfFilterNode<FloatType>>());
 

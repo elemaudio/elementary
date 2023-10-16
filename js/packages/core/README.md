@@ -22,8 +22,7 @@ import { el, Renderer } from '@elemaudio/core';
 
 // Here we're using a default Renderer instance, so it's our responsibility to
 // send the instruction batches to the underlying engine
-let sampleRate = 44100;
-let core = new Renderer(sampleRate, (batch) => {
+let core = new Renderer((batch) => {
   // Send the instruction batch somewhere: you can set up whatever message
   // passing channel you want!
   console.log(batch);

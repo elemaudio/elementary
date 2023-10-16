@@ -3,7 +3,7 @@ import {Renderer, el} from '@elemaudio/core';
 
 // Much like the FM Arp example, this example demonstrates another case of building a simple
 // synth arp to recreate the classic Stranger Things synth line.
-let core = new Renderer(44100, (batch) => {
+let core = new Renderer((batch) => {
   __postNativeMessage__(JSON.stringify(batch));
 });
 

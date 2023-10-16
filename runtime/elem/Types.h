@@ -27,6 +27,46 @@ namespace elem
     }
 
     //==============================================================================
+    // A static helper for enumerating and describing return codes used throughout
+    // the codebase
+    struct ReturnCode {
+        static int Ok()                         { return 0; }
+        static int UnknownNodeType()            { return 1; }
+        static int NodeNotFound()               { return 2; }
+        static int NodeAlreadyExists()          { return 3; }
+        static int NodeTypeAlreadyExists()      { return 4; }
+        static int InvalidPropertyType()        { return 5; }
+        static int InvalidPropertyValue()       { return 6; }
+        static int InvariantViolation()         { return 7; }
+        static int InvalidInstructionFormat()   { return 8; }
+
+        static std::string describe (int c) {
+            switch (c) {
+                case 0:
+                    return "Ok";
+                case 1:
+                    return "Node type not recognized";
+                case 2:
+                    return "Node not found";
+                case 3:
+                    return "Attempting to create a node that already exists";
+                case 4:
+                    return "Attempting to create a node type that already exists";
+                case 5:
+                    return "Invalid value type for the given node property";
+                case 6:
+                    return "Invalid value for the given node property";
+                case 7:
+                    return "Invariant violation";
+                case 8:
+                    return "Invalid instruction format";
+                default:
+                    return "Return code not recognized";
+            }
+        }
+    };
+
+    //==============================================================================
     // A simple struct representing the inputs to a given GraphNode during the realtime
     // audio block processing step.
     template <typename FloatType>
@@ -110,17 +150,9 @@ namespace elem
     // Details...
     template <typename FloatType>
     bool SharedResourceMap<FloatType>::insert (std::string const& p, SharedResourceBuffer<FloatType>&& srb) {
-        // TODO: This is risky. In the case that a key is already present and we assign to it, it could be
-        // that there's a realtime node somewhere who is also holding a shared_ptr to the existing resource.
-        // If the resource map then drops its reference, it may leave the realtime node holding the last one,
-        // in which case a dealloc there could cause memory troubles on the realtime thread.
-        //
-        // Is there any reason not to enforce that this map is itself immutable? I.e. you can only ever add to it, you can't
-        // change existing entries? That would give the guarantees we need here.
-        //
-        // Update: we're now returning the result to indicate the existing behavior is deprecated and will
-        // change in the next major version.
-        return imms.insert_or_assign(p, std::move(srb)).second;
+        // We only allow insertions here, not updates. This preserves immutability of existing
+        // entries which we need in case any active graph nodes hold references to those entries.
+        return imms.emplace(p, std::move(srb)).second;
     }
 
     template <typename FloatType>

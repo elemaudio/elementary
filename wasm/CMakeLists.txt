@@ -23,25 +23,22 @@ target_link_libraries(${TargetName} PRIVATE
 # We use these flags for compiling our wasm bundle such that the exported Module
 # factory function asynchronously initializes the module. It's important for the browser
 # and node.js contexts, whereas we want synchronous initialization for the webaudio worklet
-set(EM_FLAGS_ASYNC "-lembind --closure 1 -fwasm-exceptions -s WASM=1 -s WASM_ASYNC_COMPILATION=1 -s MODULARIZE=1 -s SINGLE_FILE=1 -s ALLOW_MEMORY_GROWTH=1")
+set(EM_FLAGS_ASYNC "-lembind --closure 1 -s WASM=1 -s WASM_ASYNC_COMPILATION=1 -s MODULARIZE=1 -s SINGLE_FILE=1 -s ALLOW_MEMORY_GROWTH=1")
 
 # We use these flags for compiling our wasm bundle such that the exported Module
 # factory function _synchronously_ initializes the module. We use this specifically in the
 # initialization of the web audio worklet where we don't necessarily have room to wait for
 # an asynchronous init
-set(EM_FLAGS_SYNC "-lembind --closure 1 -fwasm-exceptions -s WASM=1 -s WASM_ASYNC_COMPILATION=0 -s MODULARIZE=1 -s SINGLE_FILE=1 -s ALLOW_MEMORY_GROWTH=1")
+set(EM_FLAGS_SYNC "-lembind --closure 1 -s WASM=1 -s WASM_ASYNC_COMPILATION=0 -s MODULARIZE=1 -s SINGLE_FILE=1 -s ALLOW_MEMORY_GROWTH=1")
 
 if ($ENV{ELEM_BUILD_ASYNC})
   set_target_properties(${TargetName}
     PROPERTIES
-    # This is a bit tricky... not supported in node 16, but generally supported elsewhere. I think it's
-    # probably ok for now. Mention it in the docs somewhere.
-    # @see https://emscripten.org/docs/porting/exceptions.html#webassembly-exception-handling-proposal
-    COMPILE_FLAGS "-O3 -fwasm-exceptions"
+    COMPILE_FLAGS "-O3"
     LINK_FLAGS ${EM_FLAGS_ASYNC})
 else()
   set_target_properties(${TargetName}
     PROPERTIES
-    COMPILE_FLAGS "-O3 -fwasm-exceptions"
+    COMPILE_FLAGS "-O3"
     LINK_FLAGS ${EM_FLAGS_SYNC})
 endif()

@@ -3,7 +3,6 @@
 #include <atomic>
 
 #include "../GraphNode.h"
-#include "../Invariant.h"
 #include "../SingleWriterSingleReaderQueue.h"
 #include "../MultiChannelRingBuffer.h"
 
@@ -153,27 +152,30 @@ namespace elem
             setProperty("size", js::Value((js::Number) 512));
         }
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
             if (key == "size") {
-                invariant(val.isNumber(), "size prop on the scope node must be a number.");
-                invariant(
-                    (255 < (js::Number) val) && (8193 > (js::Number) val),
-                    "size prop on the scope node must be between 256 and 8192, inclusive."
-                );
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                if ((js::Number) val < 256 || (js::Number) val > 8192)
+                    return ReturnCode::InvalidPropertyValue();
             }
 
             if (key == "channels") {
-                invariant(val.isNumber(), "channels prop on the scope node must be a number.");
-                invariant(
-                    (0 < (js::Number) val) && (5 > (js::Number) val),
-                    "channels prop on the scope node must be between 1 and 4, inclusive."
-                  );
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                if ((js::Number) val < 0 || (js::Number) val > 4)
+                    return ReturnCode::InvalidPropertyValue();
             }
 
-            if (key == "name") { invariant(val.isString(), "name prop on the scope node must be a string."); }
+            if (key == "name") {
+                if (!val.isString())
+                    return ReturnCode::InvalidPropertyType();
+            }
 
-            GraphNode<FloatType>::setProperty(key, val);
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {

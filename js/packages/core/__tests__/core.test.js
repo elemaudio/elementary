@@ -2,96 +2,59 @@ import {
   createNode,
   renderWithDelegate,
   stepGarbageCollector,
+  resolve,
+  Renderer,
 } from '..';
 
 
-class TestRenderer {
-  constructor(config) {
-    this.nodeMap = new Map();
-    this.memoMap = new Map();
-    this.batch = [];
-    this.roots = [];
-    this.config = Object.assign({
-      logCreateNode: true,
-      logDeleteNode: true,
-      logAppendChild: true,
-      logSetProperty: true,
-      logActivateRoots: true,
-      logCommitUpdates: true,
-    }, config);
-  }
-
-  getNodeMap() {
-    return this.nodeMap;
-  }
-
-  getMemoMap() {
-    return this.memoMap;
-  }
-
-  getRenderContext() {
-    return {};
-  }
-
-  getActiveRoots() {
-    return this.roots;
-  }
-
-  getTerminalGeneration() {
-    return 4;
-  }
-
-  getBatch() {
-    return this.batch;
-  }
-
-  clearBatch() {
-    this.batch = [];
-  }
-
-  createNode(...args) {
-    if (this.config.logCreateNode) {
-      this.batch.push(["createNode", ...args]);
-    }
-  }
-
-  deleteNode(...args) {
-    if (this.config.logDeleteNode) {
-      this.batch.push(["deleteNode", ...args]);
-    }
-  }
-
-  appendChild(...args) {
-    if (this.config.logAppendChild) {
-      this.batch.push(["appendChild", ...args]);
-    }
-  }
-
-  setProperty(...args) {
-    if (this.config.logSetProperty) {
-      this.batch.push(["setProperty", ...args]);
-    }
-  }
-
-  activateRoots(...args) {
-    if (this.config.logActivateRoots) {
-      this.batch.push(["activateRoots", ...args]);
-    }
-  }
-
-  commitUpdates(...args) {
-    if (this.config.logCommitUpdates) {
-      this.batch.push(["commitUpdates", ...args]);
-    }
+class TestRenderer extends Renderer {
+  constructor() {
+    super(() => {});
   }
 
   render(...args) {
-    this.roots = renderWithDelegate(this, args);
+    this._delegate.clear();
+
+    renderWithDelegate(this._delegate, args.map(resolve));
+
+    return {
+      nodesAdded: this._delegate.nodesAdded,
+      edgesAdded: this._delegate.edgesAdded,
+      propsWritten: this._delegate.propsWritten,
+      elapsedTimeMs: 0,
+    };
+  }
+
+  getBatch() {
+    return this._delegate.getPackedInstructions();
+  }
+
+  getTerminalGeneration() {
+    return this._delegate.getTerminalGeneration();
   }
 
   gc() {
-    stepGarbageCollector(this);
+    stepGarbageCollector(this._delegate);
   }
+}
+
+function sortInstructionBatch(x) {
+  let copy = [...x];
+
+  // This is an odd sort step; in particular, we only sort here within each
+  // type of instruction. That is, createNodes all come before deleteNodes, all come before
+  // appendChilds, etc, in the snapshot files. The Renderer instance, via its getPackedInstructions
+  // method, provides that group-level sort during render. However, the snapshots then sort
+  // within those groups according to hash values so that our tests are not coupled to the traversal
+  // order of the reconciler. This whole thing is temporary anyway; once we finish the v3 refactor,
+  // we can remove this sorting and update the snapshots.
+  return copy.sort((a, b) => {
+    if (a[0] === b[0]) {
+      return a[1] < b[1] ? -1 : 1;
+    }
+
+    return 0;
+  });
 }
 
 test('the basics', function() {
@@ -108,7 +71,7 @@ test('the basics', function() {
     ])
   );
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('numeric literals', function() {
@@ -123,7 +86,7 @@ test('numeric literals', function() {
     ])
   );
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('distinguish by props', function() {
@@ -154,7 +117,7 @@ test('distinguish by props', function() {
   // we expect to see the pulse train (starting at the "le" node) shared, but
   // then see two different root nodes, two different sample nodes, and two
   // different seq nodes.
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('multi-channel basics', function() {
@@ -175,7 +138,7 @@ test('multi-channel basics', function() {
   tr.render(monoProcess, monoProcess);
 
   // We should see structural sharing except for the root nodes
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('simple sharing', function() {
@@ -192,9 +155,6 @@ test('simple sharing', function() {
     ])
   );
 
-  // Clear the call stack
-  tr.clearBatch();
-
   // Second render inserts a tanh at the top, we should find this and
   // share all of the child nodes during this render pass
   tr.render(
@@ -210,7 +170,7 @@ test('simple sharing', function() {
     ])
   );
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('distinguished subtrees by key', function() {
@@ -238,7 +198,7 @@ test('distinguished subtrees by key', function() {
 
   tr.render(createNode("add", {}, voices.map(renderVoice)))
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('structural equality with value change', function() {
@@ -266,16 +226,13 @@ test('structural equality with value change', function() {
 
   tr.render(createNode("add", {}, voices.map(renderVoice)))
 
-  // Clear the call stack
-  tr.clearBatch();
-
   // Change one of the keyed values, should see structural equality
   // with no new nodes created
   voices[0].freq = 441;
 
   tr.render(createNode("add", {}, voices.map(renderVoice)))
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 // Testing here to ensure that the root node activation works as expected.
@@ -302,72 +259,8 @@ test('switch and switch back', function() {
   tr.render(renderVoice({key: 'hi', freq: 440}));
   tr.render(renderVoice({key: 'bye', freq: 880}));
 
-  tr.clearBatch();
-
   tr.render(renderVoice({key: 'hi', freq: 440}));
-  expect(tr.getBatch()).toMatchSnapshot();
-});
-
-test('composite with keyed children', function() {
-  const tr = new TestRenderer();
-  const composite = ({context, props, children}) => {
-    return createNode("add", {}, children);
-  };
-
-  tr.render(createNode(composite, {}, [
-    createNode("const", {key: 'g', value: 0}, [])
-  ]));
-
-  expect(tr.getBatch()).toMatchSnapshot();
-  tr.clearBatch();
-
-  tr.render(createNode(composite, {}, [
-    createNode("const", {key: 'g', value: 1}, [])
-  ]));
-
-  expect(tr.getBatch()).toMatchSnapshot();
-});
-
-test('shared reference to composite node', function() {
-  let tr = new TestRenderer();
-  let calls = 0;
-
-  let train = ({props, children: [rate]}) => {
-    calls++;
-
-    return (
-      createNode("le", {}, [
-        createNode("phasor", {}, [rate]),
-        0.5,
-      ])
-    );
-  };
-
-  // We expect `train` to be called once in resolving the composite node, and for
-  // the latter two instances in our stereo graph to be resolved via the cache
-  let t = createNode(train, {}, [5]);
-
-  tr.render(
-    createNode("seq", {seq: [1, 2, 3]}, [t, t]),
-    createNode("seq", {seq: [1, 2, 3]}, [t]),
-  );
-
-  expect(calls).toBe(1);
-
-  // Now if we make multiple composite node instances each referencing the same composite
-  // function, we have to unroll each of them with their associated inputs. Due to the v2.0.1
-  // change which disables memoization we no longer attempt to prevent that second call by memoization
-  calls = 0;
-
-  let u = createNode(train, {}, [5]);
-  let v = createNode(train, {}, [5]);
-
-  tr.render(
-    createNode("seq", {seq: [1, 2, 3]}, [u, v]),
-    createNode("seq", {seq: [1, 2, 3]}, [v]),
-  );
-
-  expect(calls).toBe(2);
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
 test('garbage collection', function() {
@@ -385,7 +278,6 @@ test('garbage collection', function() {
 
   // Next we're going to render a sine tone using cosine. We'll expect to
   // see most of the prior structure preserved.
-  tr.clearBatch();
   tr.gc();
 
   tr.render(
@@ -397,15 +289,42 @@ test('garbage collection', function() {
     ])
   );
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
+  tr._delegate.clear();
 
   // Now if we step the garbage collector enough we should see the sine node
   // and its parent root get cleaned up now that they're no longer referenced
   // in the active tree
   for (let i = 0; i < tr.getTerminalGeneration() - 1; ++i) {
-    tr.clearBatch();
     tr.gc();
   }
 
-  expect(tr.getBatch()).toMatchSnapshot();
+  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
+});
+
+test('refs', function() {
+  let tr = new TestRenderer();
+
+  // Sine tone with a frequency set by ref
+  let [freq, setFreq] = tr.createRef("const", {value: 440}, []);
+
+  // Render the ref
+  tr.render(
+    createNode("sin", {}, [
+      createNode("mul", {}, [
+        2 * Math.PI,
+        createNode("phasor", {}, [freq])
+      ])
+    ])
+  );
+
+  // Using our ref setter
+  setFreq({value: 550});
+
+  // We expect here to see a single set property instruction
+  // followed by the commit instruction
+  expect(tr.getBatch()).toEqual([
+    [ 3, 1915043800, 'value', 550 ],
+    [ 5 ],
+  ]);
 });

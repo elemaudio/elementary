@@ -1,7 +1,7 @@
 #include <emscripten/bind.h>
 
 #include <memory>
-#include <Runtime.h>
+#include <elem/Runtime.h>
 
 #include "Convolve.h"
 #include "FFT.h"
@@ -90,15 +90,10 @@ public:
         }
 
         auto const& batch = v.getArray();
+        auto const rc = runtime->applyInstructions(batch);
 
-        try {
-            runtime->applyInstructions(batch);
-        } catch (elem::InvariantViolation const& e) {
-            errorCallback(val("error"), val(e.what()));
-        } catch (mpark::bad_variant_access const& e) {
-            errorCallback(val("error"), val("Bad variant access"));
-        } catch (...) {
-            errorCallback(val("error"), val("Unhandled exception"));
+        if (rc != elem::ReturnCode::Ok()) {
+            errorCallback(val("error"), val(elem::ReturnCode::describe(rc)));
         }
     }
 
@@ -122,11 +117,13 @@ public:
             return false;
         }
 
-        try {
-            auto buf = b.isArray() ? arrayToFloatVector(b.getArray()) : b.getFloat32Array();
-            return runtime->updateSharedResourceMap((elem::js::String) p, buf.data(), buf.size());
-        } catch (elem::InvariantViolation const& e) {
-            errorCallback(val("Invalid buffer for updating resource map"));
+        if (b.isArray()) {
+            if (auto f32vec = arrayToFloatVector(b.getArray())) {
+                return runtime->updateSharedResourceMap((elem::js::String) p, f32vec->data(), f32vec->size());
+            }
+        } else {
+            auto& f32vec = b.getFloat32Array();
+            return runtime->updateSharedResourceMap((elem::js::String) p, f32vec.data(), f32vec.size());
         }
 
         return false;
@@ -184,19 +181,19 @@ public:
 
 private:
     //==============================================================================
-    std::vector<float> arrayToFloatVector (elem::js::Array const& ar)
+    std::optional<std::vector<float>> arrayToFloatVector (elem::js::Array const& ar)
     {
-        try {
-            std::vector<float> ret (ar.size());
+        std::vector<float> ret (ar.size());
 
-            for (size_t i = 0; i < ar.size(); ++i) {
-                ret[i] = static_cast<float>((elem::js::Number) ar[i]);
+        for (size_t i = 0; i < ar.size(); ++i) {
+            if (!ar[i].isNumber()) {
+                return {};
             }
 
-            return ret;
-        } catch (std::exception const& e) {
-            throw elem::InvariantViolation("Failed to convert Array to float vector; invalid array child!");
+            ret[i] = static_cast<float>((elem::js::Number) ar[i]);
         }
+
+        return ret;
     }
 
     elem::js::Value emValToValue (val const& v)

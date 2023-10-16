@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../GraphNode.h"
-#include "../Invariant.h"
 #include "../MultiChannelRingBuffer.h"
 
 #include "helpers/Change.h"
@@ -14,7 +13,7 @@ namespace elem
     struct CaptureNode : public GraphNode<FloatType> {
         CaptureNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize),
-              ringBuffer(1, 8 * blockSize)
+              ringBuffer(1, static_cast<size_t>(sr))
         {
         }
 

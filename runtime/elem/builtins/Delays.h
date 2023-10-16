@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../GraphNode.h"
-#include "../Invariant.h"
 #include "../SingleWriterSingleReaderQueue.h"
 
 #include "helpers/Change.h"
@@ -74,13 +73,14 @@ namespace elem
         VariableDelayNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
         {
-            setProperty("size", js::Value((js::Number) blockSize));
+            (void) setProperty("size", js::Value((js::Number) blockSize));
         }
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
             if (key == "size") {
-                invariant(val.isNumber(), "size prop must be a number.");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
 
                 auto const size = static_cast<int>((js::Number) val);
                 auto data = bufferPool.allocate();
@@ -97,6 +97,8 @@ namespace elem
                 // queue for the realtime thread.
                 bufferQueue.push(std::move(data));
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
@@ -198,13 +200,14 @@ namespace elem
             : GraphNode<FloatType>::GraphNode(id, sr, bs)
             , blockSize(bs)
         {
-            setProperty("size", js::Value((js::Number) blockSize));
+            (void) setProperty("size", js::Value((js::Number) blockSize));
         }
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
             if (key == "size") {
-                invariant(val.isNumber(), "size prop must be a number.");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
 
                 // Here we make sure that we allocate at least one block size
                 // more than the desired delay length so that we can run our write
@@ -228,6 +231,8 @@ namespace elem
                 bufferQueue.push(std::move(data));
                 length.store(len);
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {

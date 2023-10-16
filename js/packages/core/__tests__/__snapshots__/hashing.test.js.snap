@@ -1,770 +1,2721 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`instruction set similarity without hash values 1`] = `
-Array [
-  Array [
-    "createNode",
+[
+  [
     0,
-    "const",
-  ],
-  Array [
-    "setProperty",
     0,
-    "value",
-    6.283185307179586,
-  ],
-  Array [
-    "createNode",
-    1,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    1,
-    "value",
-    440,
-  ],
-  Array [
-    "createNode",
-    2,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    2,
-    "value",
-    0,
-  ],
-  Array [
-    "createNode",
-    3,
-    "phasor",
-  ],
-  Array [
-    "appendChild",
-    3,
-    1,
-  ],
-  Array [
-    "appendChild",
-    3,
-    2,
-  ],
-  Array [
-    "createNode",
-    4,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    4,
-    0,
-  ],
-  Array [
-    "appendChild",
-    4,
-    3,
-  ],
-  Array [
-    "createNode",
-    5,
-    "sin",
-  ],
-  Array [
-    "appendChild",
-    5,
-    4,
-  ],
-  Array [
-    "createNode",
-    6,
     "root",
   ],
-  Array [
-    "setProperty",
-    6,
+  [
+    0,
+    1,
+    "sin",
+  ],
+  [
+    0,
+    2,
+    "mul",
+  ],
+  [
+    0,
+    3,
+    "const",
+  ],
+  [
+    0,
+    4,
+    "phasor",
+  ],
+  [
+    0,
+    5,
+    "const",
+  ],
+  [
+    2,
+    0,
+    1,
+  ],
+  [
+    2,
+    1,
+    2,
+  ],
+  [
+    2,
+    2,
+    3,
+  ],
+  [
+    2,
+    2,
+    4,
+  ],
+  [
+    2,
+    4,
+    5,
+  ],
+  [
+    3,
+    0,
     "channel",
     0,
   ],
-  Array [
-    "appendChild",
-    6,
-    5,
+  [
+    3,
+    3,
+    "value",
+    6.283185307179586,
   ],
-  Array [
-    "activateRoots",
-    Array [
-      6,
+  [
+    3,
+    5,
+    "value",
+    440,
+  ],
+  [
+    4,
+    [
+      0,
     ],
   ],
-  Array [
-    "commitUpdates",
+  [
+    5,
   ],
 ]
 `;
 
 exports[`instruction set similarity without hash values 2 1`] = `
-Array [
-  Array [
-    "createNode",
+[
+  [
     0,
+    0,
+    "root",
+  ],
+  [
+    0,
+    1,
+    "mul",
+  ],
+  [
+    0,
+    2,
     "const",
   ],
-  Array [
-    "setProperty",
+  [
     0,
+    3,
+    "svf",
+  ],
+  [
+    0,
+    4,
+    "add",
+  ],
+  [
+    0,
+    5,
+    "const",
+  ],
+  [
+    0,
+    6,
+    "mul",
+  ],
+  [
+    0,
+    7,
+    "const",
+  ],
+  [
+    0,
+    8,
+    "mul",
+  ],
+  [
+    0,
+    9,
+    "add",
+  ],
+  [
+    0,
+    10,
+    "pole",
+  ],
+  [
+    0,
+    11,
+    "const",
+  ],
+  [
+    0,
+    12,
+    "mul",
+  ],
+  [
+    0,
+    13,
+    "const",
+  ],
+  [
+    0,
+    14,
+    "sin",
+  ],
+  [
+    0,
+    15,
+    "mul",
+  ],
+  [
+    0,
+    16,
+    "const",
+  ],
+  [
+    0,
+    17,
+    "phasor",
+  ],
+  [
+    0,
+    18,
+    "const",
+  ],
+  [
+    0,
+    19,
+    "exp",
+  ],
+  [
+    0,
+    20,
+    "mul",
+  ],
+  [
+    0,
+    21,
+    "div",
+  ],
+  [
+    0,
+    22,
+    "const",
+  ],
+  [
+    0,
+    23,
+    "mul",
+  ],
+  [
+    0,
+    24,
+    "div",
+  ],
+  [
+    0,
+    25,
+    "sr",
+  ],
+  [
+    0,
+    26,
+    "add",
+  ],
+  [
+    0,
+    27,
+    "const",
+  ],
+  [
+    0,
+    28,
+    "mul",
+  ],
+  [
+    0,
+    29,
+    "mul",
+  ],
+  [
+    0,
+    30,
+    "le",
+  ],
+  [
+    0,
+    31,
+    "add",
+  ],
+  [
+    0,
+    32,
+    "phasor",
+  ],
+  [
+    0,
+    33,
+    "const",
+  ],
+  [
+    0,
+    34,
+    "const",
+  ],
+  [
+    0,
+    35,
+    "mul",
+  ],
+  [
+    0,
+    36,
+    "mul",
+  ],
+  [
+    0,
+    37,
+    "le",
+  ],
+  [
+    0,
+    38,
+    "const",
+  ],
+  [
+    0,
+    39,
+    "counter",
+  ],
+  [
+    0,
+    40,
+    "mul",
+  ],
+  [
+    0,
+    41,
+    "sub",
+  ],
+  [
+    0,
+    42,
+    "sub",
+  ],
+  [
+    0,
+    43,
+    "const",
+  ],
+  [
+    0,
+    44,
+    "sub",
+  ],
+  [
+    0,
+    45,
+    "add",
+  ],
+  [
+    0,
+    46,
+    "mul",
+  ],
+  [
+    0,
+    47,
+    "mul",
+  ],
+  [
+    0,
+    48,
+    "add",
+  ],
+  [
+    0,
+    49,
+    "mul",
+  ],
+  [
+    0,
+    50,
+    "mul",
+  ],
+  [
+    0,
+    51,
+    "const",
+  ],
+  [
+    0,
+    52,
+    "add",
+  ],
+  [
+    0,
+    53,
+    "sub",
+  ],
+  [
+    0,
+    54,
+    "sub",
+  ],
+  [
+    0,
+    55,
+    "sub",
+  ],
+  [
+    0,
+    56,
+    "sub",
+  ],
+  [
+    0,
+    57,
+    "sub",
+  ],
+  [
+    0,
+    58,
+    "add",
+  ],
+  [
+    0,
+    59,
+    "mul",
+  ],
+  [
+    0,
+    60,
+    "const",
+  ],
+  [
+    0,
+    61,
+    "phasor",
+  ],
+  [
+    0,
+    62,
+    "mul",
+  ],
+  [
+    0,
+    63,
+    "seq",
+  ],
+  [
+    0,
+    64,
+    "const",
+  ],
+  [
+    0,
+    65,
+    "mul",
+  ],
+  [
+    0,
+    66,
+    "mul",
+  ],
+  [
+    0,
+    67,
+    "le",
+  ],
+  [
+    0,
+    68,
+    "sub",
+  ],
+  [
+    0,
+    69,
+    "div",
+  ],
+  [
+    0,
+    70,
+    "mul",
+  ],
+  [
+    0,
+    71,
+    "mul",
+  ],
+  [
+    0,
+    72,
+    "div",
+  ],
+  [
+    0,
+    73,
+    "ge",
+  ],
+  [
+    0,
+    74,
+    "add",
+  ],
+  [
+    0,
+    75,
+    "sub",
+  ],
+  [
+    0,
+    76,
+    "mul",
+  ],
+  [
+    0,
+    77,
+    "mul",
+  ],
+  [
+    0,
+    78,
+    "div",
+  ],
+  [
+    0,
+    79,
+    "sub",
+  ],
+  [
+    0,
+    80,
+    "add",
+  ],
+  [
+    0,
+    81,
+    "add",
+  ],
+  [
+    0,
+    82,
+    "sub",
+  ],
+  [
+    0,
+    83,
+    "add",
+  ],
+  [
+    0,
+    84,
+    "mul",
+  ],
+  [
+    0,
+    85,
+    "le",
+  ],
+  [
+    0,
+    86,
+    "phasor",
+  ],
+  [
+    0,
+    87,
+    "mul",
+  ],
+  [
+    0,
+    88,
+    "const",
+  ],
+  [
+    0,
+    89,
+    "mul",
+  ],
+  [
+    0,
+    90,
+    "mul",
+  ],
+  [
+    0,
+    91,
+    "le",
+  ],
+  [
+    0,
+    92,
+    "sub",
+  ],
+  [
+    0,
+    93,
+    "div",
+  ],
+  [
+    0,
+    94,
+    "mul",
+  ],
+  [
+    0,
+    95,
+    "mul",
+  ],
+  [
+    0,
+    96,
+    "div",
+  ],
+  [
+    0,
+    97,
+    "ge",
+  ],
+  [
+    0,
+    98,
+    "add",
+  ],
+  [
+    0,
+    99,
+    "sub",
+  ],
+  [
+    0,
+    100,
+    "mul",
+  ],
+  [
+    0,
+    101,
+    "mul",
+  ],
+  [
+    0,
+    102,
+    "div",
+  ],
+  [
+    0,
+    103,
+    "sub",
+  ],
+  [
+    0,
+    104,
+    "mul",
+  ],
+  [
+    0,
+    105,
+    "mul",
+  ],
+  [
+    0,
+    106,
+    "le",
+  ],
+  [
+    0,
+    107,
+    "sub",
+  ],
+  [
+    0,
+    108,
+    "mod",
+  ],
+  [
+    0,
+    109,
+    "add",
+  ],
+  [
+    0,
+    110,
+    "mul",
+  ],
+  [
+    0,
+    111,
+    "mul",
+  ],
+  [
+    0,
+    112,
+    "div",
+  ],
+  [
+    0,
+    113,
+    "ge",
+  ],
+  [
+    0,
+    114,
+    "add",
+  ],
+  [
+    0,
+    115,
+    "mul",
+  ],
+  [
+    0,
+    116,
+    "mul",
+  ],
+  [
+    0,
+    117,
+    "div",
+  ],
+  [
+    0,
+    118,
+    "sub",
+  ],
+  [
+    0,
+    119,
+    "add",
+  ],
+  [
+    0,
+    120,
+    "add",
+  ],
+  [
+    0,
+    121,
+    "sub",
+  ],
+  [
+    0,
+    122,
+    "add",
+  ],
+  [
+    0,
+    123,
+    "mul",
+  ],
+  [
+    0,
+    124,
+    "le",
+  ],
+  [
+    0,
+    125,
+    "phasor",
+  ],
+  [
+    0,
+    126,
+    "mul",
+  ],
+  [
+    0,
+    127,
+    "const",
+  ],
+  [
+    0,
+    128,
+    "mul",
+  ],
+  [
+    0,
+    129,
+    "mul",
+  ],
+  [
+    0,
+    130,
+    "le",
+  ],
+  [
+    0,
+    131,
+    "sub",
+  ],
+  [
+    0,
+    132,
+    "div",
+  ],
+  [
+    0,
+    133,
+    "mul",
+  ],
+  [
+    0,
+    134,
+    "mul",
+  ],
+  [
+    0,
+    135,
+    "div",
+  ],
+  [
+    0,
+    136,
+    "ge",
+  ],
+  [
+    0,
+    137,
+    "add",
+  ],
+  [
+    0,
+    138,
+    "sub",
+  ],
+  [
+    0,
+    139,
+    "mul",
+  ],
+  [
+    0,
+    140,
+    "mul",
+  ],
+  [
+    0,
+    141,
+    "div",
+  ],
+  [
+    0,
+    142,
+    "sub",
+  ],
+  [
+    0,
+    143,
+    "mul",
+  ],
+  [
+    0,
+    144,
+    "mul",
+  ],
+  [
+    0,
+    145,
+    "le",
+  ],
+  [
+    0,
+    146,
+    "sub",
+  ],
+  [
+    0,
+    147,
+    "mod",
+  ],
+  [
+    0,
+    148,
+    "add",
+  ],
+  [
+    0,
+    149,
+    "mul",
+  ],
+  [
+    0,
+    150,
+    "mul",
+  ],
+  [
+    0,
+    151,
+    "div",
+  ],
+  [
+    0,
+    152,
+    "ge",
+  ],
+  [
+    0,
+    153,
+    "add",
+  ],
+  [
+    0,
+    154,
+    "mul",
+  ],
+  [
+    0,
+    155,
+    "mul",
+  ],
+  [
+    0,
+    156,
+    "div",
+  ],
+  [
+    0,
+    157,
+    "sub",
+  ],
+  [
+    0,
+    158,
+    "sub",
+  ],
+  [
+    0,
+    159,
+    "add",
+  ],
+  [
+    0,
+    160,
+    "mul",
+  ],
+  [
+    0,
+    161,
+    "phasor",
+  ],
+  [
+    0,
+    162,
+    "mul",
+  ],
+  [
+    0,
+    163,
+    "const",
+  ],
+  [
+    0,
+    164,
+    "mul",
+  ],
+  [
+    0,
+    165,
+    "mul",
+  ],
+  [
+    0,
+    166,
+    "le",
+  ],
+  [
+    0,
+    167,
+    "sub",
+  ],
+  [
+    0,
+    168,
+    "div",
+  ],
+  [
+    0,
+    169,
+    "mul",
+  ],
+  [
+    0,
+    170,
+    "mul",
+  ],
+  [
+    0,
+    171,
+    "div",
+  ],
+  [
+    0,
+    172,
+    "ge",
+  ],
+  [
+    0,
+    173,
+    "add",
+  ],
+  [
+    0,
+    174,
+    "sub",
+  ],
+  [
+    0,
+    175,
+    "mul",
+  ],
+  [
+    0,
+    176,
+    "mul",
+  ],
+  [
+    0,
+    177,
+    "div",
+  ],
+  [
+    0,
+    178,
+    "sub",
+  ],
+  [
+    0,
+    179,
+    "root",
+  ],
+  [
+    2,
+    0,
+    1,
+  ],
+  [
+    2,
+    1,
+    2,
+  ],
+  [
+    2,
+    1,
+    3,
+  ],
+  [
+    2,
+    3,
+    4,
+  ],
+  [
+    2,
+    3,
+    5,
+  ],
+  [
+    2,
+    3,
+    6,
+  ],
+  [
+    2,
+    4,
+    7,
+  ],
+  [
+    2,
+    4,
+    8,
+  ],
+  [
+    2,
+    6,
+    2,
+  ],
+  [
+    2,
+    6,
+    52,
+  ],
+  [
+    2,
+    8,
+    9,
+  ],
+  [
+    2,
+    8,
+    10,
+  ],
+  [
+    2,
+    9,
+    11,
+  ],
+  [
+    2,
+    9,
+    12,
+  ],
+  [
+    2,
+    10,
+    19,
+  ],
+  [
+    2,
+    10,
+    20,
+  ],
+  [
+    2,
+    12,
+    13,
+  ],
+  [
+    2,
+    12,
+    14,
+  ],
+  [
+    2,
+    14,
+    15,
+  ],
+  [
+    2,
+    15,
+    16,
+  ],
+  [
+    2,
+    15,
+    17,
+  ],
+  [
+    2,
+    17,
+    18,
+  ],
+  [
+    2,
+    19,
+    21,
+  ],
+  [
+    2,
+    20,
+    44,
+  ],
+  [
+    2,
+    20,
+    45,
+  ],
+  [
+    2,
+    21,
+    22,
+  ],
+  [
+    2,
+    21,
+    23,
+  ],
+  [
+    2,
+    23,
+    24,
+  ],
+  [
+    2,
+    23,
+    25,
+  ],
+  [
+    2,
+    24,
+    26,
+  ],
+  [
+    2,
+    24,
+    27,
+  ],
+  [
+    2,
+    26,
+    28,
+  ],
+  [
+    2,
+    26,
+    29,
+  ],
+  [
+    2,
+    28,
+    30,
+  ],
+  [
+    2,
+    28,
+    31,
+  ],
+  [
+    2,
+    29,
+    42,
+  ],
+  [
+    2,
+    29,
+    43,
+  ],
+  [
+    2,
+    30,
+    32,
+  ],
+  [
+    2,
+    30,
+    33,
+  ],
+  [
+    2,
+    31,
+    35,
+  ],
+  [
+    2,
+    31,
+    36,
+  ],
+  [
+    2,
+    32,
+    34,
+  ],
+  [
+    2,
+    35,
+    37,
+  ],
+  [
+    2,
+    35,
+    38,
+  ],
+  [
+    2,
+    36,
+    41,
+  ],
+  [
+    2,
+    36,
+    33,
+  ],
+  [
+    2,
+    37,
+    39,
+  ],
+  [
+    2,
+    37,
+    40,
+  ],
+  [
+    2,
+    39,
+    30,
+  ],
+  [
+    2,
+    40,
+    38,
+  ],
+  [
+    2,
+    40,
+    25,
+  ],
+  [
+    2,
+    41,
+    5,
+  ],
+  [
+    2,
+    41,
+    37,
+  ],
+  [
+    2,
+    42,
+    5,
+  ],
+  [
+    2,
+    42,
+    30,
+  ],
+  [
+    2,
+    44,
+    5,
+  ],
+  [
+    2,
+    44,
+    19,
+  ],
+  [
+    2,
+    45,
+    46,
+  ],
+  [
+    2,
+    45,
+    47,
+  ],
+  [
+    2,
+    46,
+    30,
+  ],
+  [
+    2,
+    46,
+    48,
+  ],
+  [
+    2,
+    47,
+    42,
+  ],
+  [
+    2,
+    47,
+    51,
+  ],
+  [
+    2,
+    48,
+    49,
+  ],
+  [
+    2,
+    48,
+    50,
+  ],
+  [
+    2,
+    49,
+    37,
+  ],
+  [
+    2,
+    49,
+    5,
+  ],
+  [
+    2,
+    50,
+    41,
+  ],
+  [
+    2,
+    50,
+    51,
+  ],
+  [
+    2,
+    52,
+    53,
+  ],
+  [
+    2,
+    52,
+    54,
+  ],
+  [
+    2,
+    52,
+    55,
+  ],
+  [
+    2,
+    52,
+    56,
+  ],
+  [
+    2,
+    53,
+    57,
+  ],
+  [
+    2,
+    53,
+    58,
+  ],
+  [
+    2,
+    54,
+    80,
+  ],
+  [
+    2,
+    54,
+    81,
+  ],
+  [
+    2,
+    55,
+    119,
+  ],
+  [
+    2,
+    55,
+    120,
+  ],
+  [
+    2,
+    56,
+    158,
+  ],
+  [
+    2,
+    56,
+    159,
+  ],
+  [
+    2,
+    57,
+    59,
+  ],
+  [
+    2,
+    57,
+    5,
+  ],
+  [
+    2,
+    58,
+    65,
+  ],
+  [
+    2,
+    58,
+    66,
+  ],
+  [
+    2,
+    59,
+    60,
+  ],
+  [
+    2,
+    59,
+    61,
+  ],
+  [
+    2,
+    61,
+    62,
+  ],
+  [
+    2,
+    62,
+    63,
+  ],
+  [
+    2,
+    62,
+    64,
+  ],
+  [
+    2,
+    63,
+    30,
+  ],
+  [
+    2,
+    63,
+    51,
+  ],
+  [
+    2,
+    65,
+    67,
+  ],
+  [
+    2,
+    65,
+    68,
+  ],
+  [
+    2,
+    66,
+    73,
+  ],
+  [
+    2,
+    66,
+    74,
+  ],
+  [
+    2,
+    67,
+    61,
+  ],
+  [
+    2,
+    67,
+    69,
+  ],
+  [
+    2,
+    68,
+    70,
+  ],
+  [
+    2,
+    68,
+    71,
+  ],
+  [
+    2,
+    68,
+    5,
+  ],
+  [
+    2,
+    69,
+    62,
+  ],
+  [
+    2,
+    69,
+    25,
+  ],
+  [
+    2,
+    70,
+    60,
+  ],
+  [
+    2,
+    70,
+    72,
+  ],
+  [
+    2,
+    71,
+    72,
+  ],
+  [
+    2,
+    71,
+    72,
+  ],
+  [
+    2,
+    72,
+    61,
+  ],
+  [
+    2,
+    72,
+    69,
+  ],
+  [
+    2,
+    73,
+    61,
+  ],
+  [
+    2,
+    73,
+    75,
+  ],
+  [
+    2,
+    74,
+    76,
+  ],
+  [
+    2,
+    74,
+    77,
+  ],
+  [
+    2,
+    74,
+    5,
+  ],
+  [
+    2,
+    75,
+    5,
+  ],
+  [
+    2,
+    75,
+    69,
+  ],
+  [
+    2,
+    76,
+    60,
+  ],
+  [
+    2,
+    76,
+    78,
+  ],
+  [
+    2,
+    77,
+    78,
+  ],
+  [
+    2,
+    77,
+    78,
+  ],
+  [
+    2,
+    78,
+    79,
+  ],
+  [
+    2,
+    78,
+    69,
+  ],
+  [
+    2,
+    79,
+    61,
+  ],
+  [
+    2,
+    79,
+    5,
+  ],
+  [
+    2,
+    80,
+    82,
+  ],
+  [
+    2,
+    80,
+    83,
+  ],
+  [
+    2,
+    81,
+    104,
+  ],
+  [
+    2,
+    81,
+    105,
+  ],
+  [
+    2,
+    82,
+    84,
+  ],
+  [
+    2,
+    82,
+    5,
+  ],
+  [
+    2,
+    83,
+    89,
+  ],
+  [
+    2,
+    83,
+    90,
+  ],
+  [
+    2,
+    84,
+    60,
+  ],
+  [
+    2,
+    84,
+    85,
+  ],
+  [
+    2,
+    85,
+    86,
+  ],
+  [
+    2,
+    85,
+    33,
+  ],
+  [
+    2,
+    86,
+    87,
+  ],
+  [
+    2,
+    87,
+    63,
+  ],
+  [
+    2,
+    87,
+    88,
+  ],
+  [
+    2,
+    89,
+    91,
+  ],
+  [
+    2,
+    89,
+    92,
+  ],
+  [
+    2,
+    90,
+    97,
+  ],
+  [
+    2,
+    90,
+    98,
+  ],
+  [
+    2,
+    91,
+    86,
+  ],
+  [
+    2,
+    91,
+    93,
+  ],
+  [
+    2,
+    92,
+    94,
+  ],
+  [
+    2,
+    92,
+    95,
+  ],
+  [
+    2,
+    92,
+    5,
+  ],
+  [
+    2,
+    93,
+    87,
+  ],
+  [
+    2,
+    93,
+    25,
+  ],
+  [
+    2,
+    94,
+    60,
+  ],
+  [
+    2,
+    94,
+    96,
+  ],
+  [
+    2,
+    95,
+    96,
+  ],
+  [
+    2,
+    95,
+    96,
+  ],
+  [
+    2,
+    96,
+    86,
+  ],
+  [
+    2,
+    96,
+    93,
+  ],
+  [
+    2,
+    97,
+    86,
+  ],
+  [
+    2,
+    97,
+    99,
+  ],
+  [
+    2,
+    98,
+    100,
+  ],
+  [
+    2,
+    98,
+    101,
+  ],
+  [
+    2,
+    98,
+    5,
+  ],
+  [
+    2,
+    99,
+    5,
+  ],
+  [
+    2,
+    99,
+    93,
+  ],
+  [
+    2,
+    100,
+    60,
+  ],
+  [
+    2,
+    100,
+    102,
+  ],
+  [
+    2,
+    101,
+    102,
+  ],
+  [
+    2,
+    101,
+    102,
+  ],
+  [
+    2,
+    102,
+    103,
+  ],
+  [
+    2,
+    102,
+    93,
+  ],
+  [
+    2,
+    103,
+    86,
+  ],
+  [
+    2,
+    103,
+    5,
+  ],
+  [
+    2,
+    104,
+    106,
+  ],
+  [
+    2,
+    104,
+    107,
+  ],
+  [
+    2,
+    105,
+    113,
+  ],
+  [
+    2,
+    105,
+    114,
+  ],
+  [
+    2,
+    106,
+    108,
+  ],
+  [
+    2,
+    106,
+    93,
+  ],
+  [
+    2,
+    107,
+    110,
+  ],
+  [
+    2,
+    107,
+    111,
+  ],
+  [
+    2,
+    107,
+    5,
+  ],
+  [
+    2,
+    108,
+    109,
+  ],
+  [
+    2,
+    108,
+    5,
+  ],
+  [
+    2,
+    109,
+    86,
+  ],
+  [
+    2,
+    109,
+    33,
+  ],
+  [
+    2,
+    110,
+    60,
+  ],
+  [
+    2,
+    110,
+    112,
+  ],
+  [
+    2,
+    111,
+    112,
+  ],
+  [
+    2,
+    111,
+    112,
+  ],
+  [
+    2,
+    112,
+    108,
+  ],
+  [
+    2,
+    112,
+    93,
+  ],
+  [
+    2,
+    113,
+    108,
+  ],
+  [
+    2,
+    113,
+    99,
+  ],
+  [
+    2,
+    114,
+    115,
+  ],
+  [
+    2,
+    114,
+    116,
+  ],
+  [
+    2,
+    114,
+    5,
+  ],
+  [
+    2,
+    115,
+    60,
+  ],
+  [
+    2,
+    115,
+    117,
+  ],
+  [
+    2,
+    116,
+    117,
+  ],
+  [
+    2,
+    116,
+    117,
+  ],
+  [
+    2,
+    117,
+    118,
+  ],
+  [
+    2,
+    117,
+    93,
+  ],
+  [
+    2,
+    118,
+    108,
+  ],
+  [
+    2,
+    118,
+    5,
+  ],
+  [
+    2,
+    119,
+    121,
+  ],
+  [
+    2,
+    119,
+    122,
+  ],
+  [
+    2,
+    120,
+    143,
+  ],
+  [
+    2,
+    120,
+    144,
+  ],
+  [
+    2,
+    121,
+    123,
+  ],
+  [
+    2,
+    121,
+    5,
+  ],
+  [
+    2,
+    122,
+    128,
+  ],
+  [
+    2,
+    122,
+    129,
+  ],
+  [
+    2,
+    123,
+    60,
+  ],
+  [
+    2,
+    123,
+    124,
+  ],
+  [
+    2,
+    124,
+    125,
+  ],
+  [
+    2,
+    124,
+    33,
+  ],
+  [
+    2,
+    125,
+    126,
+  ],
+  [
+    2,
+    126,
+    63,
+  ],
+  [
+    2,
+    126,
+    127,
+  ],
+  [
+    2,
+    128,
+    130,
+  ],
+  [
+    2,
+    128,
+    131,
+  ],
+  [
+    2,
+    129,
+    136,
+  ],
+  [
+    2,
+    129,
+    137,
+  ],
+  [
+    2,
+    130,
+    125,
+  ],
+  [
+    2,
+    130,
+    132,
+  ],
+  [
+    2,
+    131,
+    133,
+  ],
+  [
+    2,
+    131,
+    134,
+  ],
+  [
+    2,
+    131,
+    5,
+  ],
+  [
+    2,
+    132,
+    126,
+  ],
+  [
+    2,
+    132,
+    25,
+  ],
+  [
+    2,
+    133,
+    60,
+  ],
+  [
+    2,
+    133,
+    135,
+  ],
+  [
+    2,
+    134,
+    135,
+  ],
+  [
+    2,
+    134,
+    135,
+  ],
+  [
+    2,
+    135,
+    125,
+  ],
+  [
+    2,
+    135,
+    132,
+  ],
+  [
+    2,
+    136,
+    125,
+  ],
+  [
+    2,
+    136,
+    138,
+  ],
+  [
+    2,
+    137,
+    139,
+  ],
+  [
+    2,
+    137,
+    140,
+  ],
+  [
+    2,
+    137,
+    5,
+  ],
+  [
+    2,
+    138,
+    5,
+  ],
+  [
+    2,
+    138,
+    132,
+  ],
+  [
+    2,
+    139,
+    60,
+  ],
+  [
+    2,
+    139,
+    141,
+  ],
+  [
+    2,
+    140,
+    141,
+  ],
+  [
+    2,
+    140,
+    141,
+  ],
+  [
+    2,
+    141,
+    142,
+  ],
+  [
+    2,
+    141,
+    132,
+  ],
+  [
+    2,
+    142,
+    125,
+  ],
+  [
+    2,
+    142,
+    5,
+  ],
+  [
+    2,
+    143,
+    145,
+  ],
+  [
+    2,
+    143,
+    146,
+  ],
+  [
+    2,
+    144,
+    152,
+  ],
+  [
+    2,
+    144,
+    153,
+  ],
+  [
+    2,
+    145,
+    147,
+  ],
+  [
+    2,
+    145,
+    132,
+  ],
+  [
+    2,
+    146,
+    149,
+  ],
+  [
+    2,
+    146,
+    150,
+  ],
+  [
+    2,
+    146,
+    5,
+  ],
+  [
+    2,
+    147,
+    148,
+  ],
+  [
+    2,
+    147,
+    5,
+  ],
+  [
+    2,
+    148,
+    125,
+  ],
+  [
+    2,
+    148,
+    33,
+  ],
+  [
+    2,
+    149,
+    60,
+  ],
+  [
+    2,
+    149,
+    151,
+  ],
+  [
+    2,
+    150,
+    151,
+  ],
+  [
+    2,
+    150,
+    151,
+  ],
+  [
+    2,
+    151,
+    147,
+  ],
+  [
+    2,
+    151,
+    132,
+  ],
+  [
+    2,
+    152,
+    147,
+  ],
+  [
+    2,
+    152,
+    138,
+  ],
+  [
+    2,
+    153,
+    154,
+  ],
+  [
+    2,
+    153,
+    155,
+  ],
+  [
+    2,
+    153,
+    5,
+  ],
+  [
+    2,
+    154,
+    60,
+  ],
+  [
+    2,
+    154,
+    156,
+  ],
+  [
+    2,
+    155,
+    156,
+  ],
+  [
+    2,
+    155,
+    156,
+  ],
+  [
+    2,
+    156,
+    157,
+  ],
+  [
+    2,
+    156,
+    132,
+  ],
+  [
+    2,
+    157,
+    147,
+  ],
+  [
+    2,
+    157,
+    5,
+  ],
+  [
+    2,
+    158,
+    160,
+  ],
+  [
+    2,
+    158,
+    5,
+  ],
+  [
+    2,
+    159,
+    164,
+  ],
+  [
+    2,
+    159,
+    165,
+  ],
+  [
+    2,
+    160,
+    60,
+  ],
+  [
+    2,
+    160,
+    161,
+  ],
+  [
+    2,
+    161,
+    162,
+  ],
+  [
+    2,
+    162,
+    63,
+  ],
+  [
+    2,
+    162,
+    163,
+  ],
+  [
+    2,
+    164,
+    166,
+  ],
+  [
+    2,
+    164,
+    167,
+  ],
+  [
+    2,
+    165,
+    172,
+  ],
+  [
+    2,
+    165,
+    173,
+  ],
+  [
+    2,
+    166,
+    161,
+  ],
+  [
+    2,
+    166,
+    168,
+  ],
+  [
+    2,
+    167,
+    169,
+  ],
+  [
+    2,
+    167,
+    170,
+  ],
+  [
+    2,
+    167,
+    5,
+  ],
+  [
+    2,
+    168,
+    162,
+  ],
+  [
+    2,
+    168,
+    25,
+  ],
+  [
+    2,
+    169,
+    60,
+  ],
+  [
+    2,
+    169,
+    171,
+  ],
+  [
+    2,
+    170,
+    171,
+  ],
+  [
+    2,
+    170,
+    171,
+  ],
+  [
+    2,
+    171,
+    161,
+  ],
+  [
+    2,
+    171,
+    168,
+  ],
+  [
+    2,
+    172,
+    161,
+  ],
+  [
+    2,
+    172,
+    174,
+  ],
+  [
+    2,
+    173,
+    175,
+  ],
+  [
+    2,
+    173,
+    176,
+  ],
+  [
+    2,
+    173,
+    5,
+  ],
+  [
+    2,
+    174,
+    5,
+  ],
+  [
+    2,
+    174,
+    168,
+  ],
+  [
+    2,
+    175,
+    60,
+  ],
+  [
+    2,
+    175,
+    177,
+  ],
+  [
+    2,
+    176,
+    177,
+  ],
+  [
+    2,
+    176,
+    177,
+  ],
+  [
+    2,
+    177,
+    178,
+  ],
+  [
+    2,
+    177,
+    168,
+  ],
+  [
+    2,
+    178,
+    161,
+  ],
+  [
+    2,
+    178,
+    5,
+  ],
+  [
+    2,
+    179,
+    1,
+  ],
+  [
+    3,
+    0,
+    "channel",
+    0,
+  ],
+  [
+    3,
+    2,
     "value",
     0.25,
   ],
-  Array [
-    "createNode",
-    1,
-    "const",
+  [
+    3,
+    3,
+    "mode",
+    "lowpass",
   ],
-  Array [
-    "setProperty",
+  [
+    3,
+    5,
+    "value",
     1,
+  ],
+  [
+    3,
+    7,
     "value",
     40,
   ],
-  Array [
-    "createNode",
-    2,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    2,
+  [
+    3,
+    11,
     "value",
     1840,
   ],
-  Array [
-    "createNode",
+  [
     3,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    3,
+    13,
     "value",
     1800,
   ],
-  Array [
-    "createNode",
-    4,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    4,
+  [
+    3,
+    16,
     "value",
     6.283185307179586,
   ],
-  Array [
-    "createNode",
-    5,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    5,
+  [
+    3,
+    18,
     "value",
     0.05,
   ],
-  Array [
-    "createNode",
-    6,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    6,
-    "value",
-    0,
-  ],
-  Array [
-    "createNode",
-    7,
-    "phasor",
-  ],
-  Array [
-    "appendChild",
-    7,
-    5,
-  ],
-  Array [
-    "appendChild",
-    7,
-    6,
-  ],
-  Array [
-    "createNode",
-    8,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    8,
-    4,
-  ],
-  Array [
-    "appendChild",
-    8,
-    7,
-  ],
-  Array [
-    "createNode",
-    9,
-    "sin",
-  ],
-  Array [
-    "appendChild",
-    9,
-    8,
-  ],
-  Array [
-    "createNode",
-    10,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    10,
+  [
     3,
-  ],
-  Array [
-    "appendChild",
-    10,
-    9,
-  ],
-  Array [
-    "createNode",
-    11,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    11,
-    2,
-  ],
-  Array [
-    "appendChild",
-    11,
-    10,
-  ],
-  Array [
-    "createNode",
-    12,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    12,
+    22,
     "value",
     -1,
   ],
-  Array [
-    "createNode",
-    13,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    13,
-    "value",
-    4.8,
-  ],
-  Array [
-    "createNode",
-    14,
-    "phasor",
-  ],
-  Array [
-    "appendChild",
-    14,
-    13,
-  ],
-  Array [
-    "appendChild",
-    14,
-    6,
-  ],
-  Array [
-    "createNode",
-    15,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    15,
-    "value",
-    0.5,
-  ],
-  Array [
-    "createNode",
-    16,
-    "le",
-  ],
-  Array [
-    "appendChild",
-    16,
-    14,
-  ],
-  Array [
-    "appendChild",
-    16,
-    15,
-  ],
-  Array [
-    "createNode",
-    17,
-    "counter",
-  ],
-  Array [
-    "appendChild",
-    17,
-    16,
-  ],
-  Array [
-    "createNode",
-    18,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    18,
-    "value",
-    0.01,
-  ],
-  Array [
-    "createNode",
-    19,
-    "sr",
-  ],
-  Array [
-    "createNode",
-    20,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    20,
-    18,
-  ],
-  Array [
-    "appendChild",
-    20,
-    19,
-  ],
-  Array [
-    "createNode",
-    21,
-    "le",
-  ],
-  Array [
-    "appendChild",
-    21,
-    17,
-  ],
-  Array [
-    "appendChild",
-    21,
-    20,
-  ],
-  Array [
-    "createNode",
-    22,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    22,
-    21,
-  ],
-  Array [
-    "appendChild",
-    22,
-    18,
-  ],
-  Array [
-    "createNode",
-    23,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    23,
-    "value",
-    1,
-  ],
-  Array [
-    "createNode",
-    24,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    24,
-    23,
-  ],
-  Array [
-    "appendChild",
-    24,
-    21,
-  ],
-  Array [
-    "createNode",
-    25,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    25,
-    24,
-  ],
-  Array [
-    "appendChild",
-    25,
-    15,
-  ],
-  Array [
-    "createNode",
-    26,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    26,
-    22,
-  ],
-  Array [
-    "appendChild",
-    26,
-    25,
-  ],
-  Array [
-    "createNode",
+  [
+    3,
     27,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    27,
-    16,
-  ],
-  Array [
-    "appendChild",
-    27,
-    26,
-  ],
-  Array [
-    "createNode",
-    28,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    28,
-    23,
-  ],
-  Array [
-    "appendChild",
-    28,
-    16,
-  ],
-  Array [
-    "createNode",
-    29,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    29,
-    "value",
-    0.4,
-  ],
-  Array [
-    "createNode",
-    30,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    30,
-    28,
-  ],
-  Array [
-    "appendChild",
-    30,
-    29,
-  ],
-  Array [
-    "createNode",
-    31,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    31,
-    27,
-  ],
-  Array [
-    "appendChild",
-    31,
-    30,
-  ],
-  Array [
-    "createNode",
-    32,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    32,
     "value",
     6.91,
   ],
-  Array [
-    "createNode",
+  [
+    3,
     33,
-    "div",
+    "value",
+    0.5,
   ],
-  Array [
-    "appendChild",
-    33,
-    31,
-  ],
-  Array [
-    "appendChild",
-    33,
-    32,
-  ],
-  Array [
-    "createNode",
+  [
+    3,
     34,
-    "mul",
+    "value",
+    4.8,
   ],
-  Array [
-    "appendChild",
-    34,
-    33,
-  ],
-  Array [
-    "appendChild",
-    34,
-    19,
-  ],
-  Array [
-    "createNode",
-    35,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    35,
-    12,
-  ],
-  Array [
-    "appendChild",
-    35,
-    34,
-  ],
-  Array [
-    "createNode",
-    36,
-    "exp",
-  ],
-  Array [
-    "appendChild",
-    36,
-    35,
-  ],
-  Array [
-    "createNode",
-    37,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    37,
-    23,
-  ],
-  Array [
-    "appendChild",
-    37,
-    36,
-  ],
-  Array [
-    "createNode",
+  [
+    3,
     38,
-    "mul",
+    "value",
+    0.01,
   ],
-  Array [
-    "appendChild",
-    38,
-    21,
-  ],
-  Array [
-    "appendChild",
-    38,
-    23,
-  ],
-  Array [
-    "createNode",
-    39,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    39,
-    24,
-  ],
-  Array [
-    "appendChild",
-    39,
-    6,
-  ],
-  Array [
-    "createNode",
-    40,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    40,
-    38,
-  ],
-  Array [
-    "appendChild",
-    40,
-    39,
-  ],
-  Array [
-    "createNode",
-    41,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    41,
-    16,
-  ],
-  Array [
-    "appendChild",
-    41,
-    40,
-  ],
-  Array [
-    "createNode",
-    42,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    42,
-    28,
-  ],
-  Array [
-    "appendChild",
-    42,
-    6,
-  ],
-  Array [
-    "createNode",
+  [
+    3,
     43,
-    "add",
+    "value",
+    0.4,
   ],
-  Array [
-    "appendChild",
-    43,
-    41,
+  [
+    3,
+    51,
+    "value",
+    0,
   ],
-  Array [
-    "appendChild",
-    43,
-    42,
-  ],
-  Array [
-    "createNode",
-    44,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    44,
-    37,
-  ],
-  Array [
-    "appendChild",
-    44,
-    43,
-  ],
-  Array [
-    "createNode",
-    45,
-    "pole",
-  ],
-  Array [
-    "appendChild",
-    45,
-    36,
-  ],
-  Array [
-    "appendChild",
-    45,
-    44,
-  ],
-  Array [
-    "createNode",
-    46,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    46,
-    11,
-  ],
-  Array [
-    "appendChild",
-    46,
-    45,
-  ],
-  Array [
-    "createNode",
-    47,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    47,
-    1,
-  ],
-  Array [
-    "appendChild",
-    47,
-    46,
-  ],
-  Array [
-    "createNode",
-    48,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    48,
+  [
+    3,
+    60,
     "value",
     2,
   ],
-  Array [
-    "createNode",
-    49,
+  [
+    3,
+    63,
     "seq",
-  ],
-  Array [
-    "setProperty",
-    49,
-    "seq",
-    Array [
+    [
       130.815,
       164.81657214199782,
       196.0010402616231,
@@ -775,2048 +2726,51 @@ Array [
       164.81657214199782,
     ],
   ],
-  Array [
-    "setProperty",
-    49,
+  [
+    3,
+    63,
     "hold",
     true,
   ],
-  Array [
-    "appendChild",
-    49,
-    16,
-  ],
-  Array [
-    "appendChild",
-    49,
-    6,
-  ],
-  Array [
-    "createNode",
-    50,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    50,
+  [
+    3,
+    64,
     "value",
     1.001,
   ],
-  Array [
-    "createNode",
-    51,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    51,
-    49,
-  ],
-  Array [
-    "appendChild",
-    51,
-    50,
-  ],
-  Array [
-    "createNode",
-    52,
-    "phasor",
-  ],
-  Array [
-    "appendChild",
-    52,
-    51,
-  ],
-  Array [
-    "appendChild",
-    52,
-    6,
-  ],
-  Array [
-    "createNode",
-    53,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    53,
-    48,
-  ],
-  Array [
-    "appendChild",
-    53,
-    52,
-  ],
-  Array [
-    "createNode",
-    54,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    54,
-    53,
-  ],
-  Array [
-    "appendChild",
-    54,
-    23,
-  ],
-  Array [
-    "createNode",
-    55,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    55,
-    51,
-  ],
-  Array [
-    "appendChild",
-    55,
-    19,
-  ],
-  Array [
-    "createNode",
-    56,
-    "le",
-  ],
-  Array [
-    "appendChild",
-    56,
-    52,
-  ],
-  Array [
-    "appendChild",
-    56,
-    55,
-  ],
-  Array [
-    "createNode",
-    57,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    57,
-    52,
-  ],
-  Array [
-    "appendChild",
-    57,
-    55,
-  ],
-  Array [
-    "createNode",
-    58,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    58,
-    48,
-  ],
-  Array [
-    "appendChild",
-    58,
-    57,
-  ],
-  Array [
-    "createNode",
-    59,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    59,
-    57,
-  ],
-  Array [
-    "appendChild",
-    59,
-    57,
-  ],
-  Array [
-    "createNode",
-    60,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    60,
-    58,
-  ],
-  Array [
-    "appendChild",
-    60,
-    59,
-  ],
-  Array [
-    "appendChild",
-    60,
-    23,
-  ],
-  Array [
-    "createNode",
-    61,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    61,
-    56,
-  ],
-  Array [
-    "appendChild",
-    61,
-    60,
-  ],
-  Array [
-    "createNode",
-    62,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    62,
-    23,
-  ],
-  Array [
-    "appendChild",
-    62,
-    55,
-  ],
-  Array [
-    "createNode",
-    63,
-    "ge",
-  ],
-  Array [
-    "appendChild",
-    63,
-    52,
-  ],
-  Array [
-    "appendChild",
-    63,
-    62,
-  ],
-  Array [
-    "createNode",
-    64,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    64,
-    52,
-  ],
-  Array [
-    "appendChild",
-    64,
-    23,
-  ],
-  Array [
-    "createNode",
-    65,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    65,
-    64,
-  ],
-  Array [
-    "appendChild",
-    65,
-    55,
-  ],
-  Array [
-    "createNode",
-    66,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    66,
-    48,
-  ],
-  Array [
-    "appendChild",
-    66,
-    65,
-  ],
-  Array [
-    "createNode",
-    67,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    67,
-    65,
-  ],
-  Array [
-    "appendChild",
-    67,
-    65,
-  ],
-  Array [
-    "createNode",
-    68,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    68,
-    66,
-  ],
-  Array [
-    "appendChild",
-    68,
-    67,
-  ],
-  Array [
-    "appendChild",
-    68,
-    23,
-  ],
-  Array [
-    "createNode",
-    69,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    69,
-    63,
-  ],
-  Array [
-    "appendChild",
-    69,
-    68,
-  ],
-  Array [
-    "createNode",
-    70,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    70,
-    61,
-  ],
-  Array [
-    "appendChild",
-    70,
-    69,
-  ],
-  Array [
-    "createNode",
-    71,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    71,
-    54,
-  ],
-  Array [
-    "appendChild",
-    71,
-    70,
-  ],
-  Array [
-    "createNode",
-    72,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    72,
+  [
+    3,
+    88,
     "value",
     0.994,
   ],
-  Array [
-    "createNode",
-    73,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    73,
-    49,
-  ],
-  Array [
-    "appendChild",
-    73,
-    72,
-  ],
-  Array [
-    "createNode",
-    74,
-    "phasor",
-  ],
-  Array [
-    "appendChild",
-    74,
-    73,
-  ],
-  Array [
-    "appendChild",
-    74,
-    6,
-  ],
-  Array [
-    "createNode",
-    75,
-    "le",
-  ],
-  Array [
-    "appendChild",
-    75,
-    74,
-  ],
-  Array [
-    "appendChild",
-    75,
-    15,
-  ],
-  Array [
-    "createNode",
-    76,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    76,
-    48,
-  ],
-  Array [
-    "appendChild",
-    76,
-    75,
-  ],
-  Array [
-    "createNode",
-    77,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    77,
-    76,
-  ],
-  Array [
-    "appendChild",
-    77,
-    23,
-  ],
-  Array [
-    "createNode",
-    78,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    78,
-    73,
-  ],
-  Array [
-    "appendChild",
-    78,
-    19,
-  ],
-  Array [
-    "createNode",
-    79,
-    "le",
-  ],
-  Array [
-    "appendChild",
-    79,
-    74,
-  ],
-  Array [
-    "appendChild",
-    79,
-    78,
-  ],
-  Array [
-    "createNode",
-    80,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    80,
-    74,
-  ],
-  Array [
-    "appendChild",
-    80,
-    78,
-  ],
-  Array [
-    "createNode",
-    81,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    81,
-    48,
-  ],
-  Array [
-    "appendChild",
-    81,
-    80,
-  ],
-  Array [
-    "createNode",
-    82,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    82,
-    80,
-  ],
-  Array [
-    "appendChild",
-    82,
-    80,
-  ],
-  Array [
-    "createNode",
-    83,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    83,
-    81,
-  ],
-  Array [
-    "appendChild",
-    83,
-    82,
-  ],
-  Array [
-    "appendChild",
-    83,
-    23,
-  ],
-  Array [
-    "createNode",
-    84,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    84,
-    79,
-  ],
-  Array [
-    "appendChild",
-    84,
-    83,
-  ],
-  Array [
-    "createNode",
-    85,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    85,
-    23,
-  ],
-  Array [
-    "appendChild",
-    85,
-    78,
-  ],
-  Array [
-    "createNode",
-    86,
-    "ge",
-  ],
-  Array [
-    "appendChild",
-    86,
-    74,
-  ],
-  Array [
-    "appendChild",
-    86,
-    85,
-  ],
-  Array [
-    "createNode",
-    87,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    87,
-    74,
-  ],
-  Array [
-    "appendChild",
-    87,
-    23,
-  ],
-  Array [
-    "createNode",
-    88,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    88,
-    87,
-  ],
-  Array [
-    "appendChild",
-    88,
-    78,
-  ],
-  Array [
-    "createNode",
-    89,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    89,
-    48,
-  ],
-  Array [
-    "appendChild",
-    89,
-    88,
-  ],
-  Array [
-    "createNode",
-    90,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    90,
-    88,
-  ],
-  Array [
-    "appendChild",
-    90,
-    88,
-  ],
-  Array [
-    "createNode",
-    91,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    91,
-    89,
-  ],
-  Array [
-    "appendChild",
-    91,
-    90,
-  ],
-  Array [
-    "appendChild",
-    91,
-    23,
-  ],
-  Array [
-    "createNode",
-    92,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    92,
-    86,
-  ],
-  Array [
-    "appendChild",
-    92,
-    91,
-  ],
-  Array [
-    "createNode",
-    93,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    93,
-    84,
-  ],
-  Array [
-    "appendChild",
-    93,
-    92,
-  ],
-  Array [
-    "createNode",
-    94,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    94,
-    77,
-  ],
-  Array [
-    "appendChild",
-    94,
-    93,
-  ],
-  Array [
-    "createNode",
-    95,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    95,
-    74,
-  ],
-  Array [
-    "appendChild",
-    95,
-    15,
-  ],
-  Array [
-    "createNode",
-    96,
-    "mod",
-  ],
-  Array [
-    "appendChild",
-    96,
-    95,
-  ],
-  Array [
-    "appendChild",
-    96,
-    23,
-  ],
-  Array [
-    "createNode",
-    97,
-    "le",
-  ],
-  Array [
-    "appendChild",
-    97,
-    96,
-  ],
-  Array [
-    "appendChild",
-    97,
-    78,
-  ],
-  Array [
-    "createNode",
-    98,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    98,
-    96,
-  ],
-  Array [
-    "appendChild",
-    98,
-    78,
-  ],
-  Array [
-    "createNode",
-    99,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    99,
-    48,
-  ],
-  Array [
-    "appendChild",
-    99,
-    98,
-  ],
-  Array [
-    "createNode",
-    100,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    100,
-    98,
-  ],
-  Array [
-    "appendChild",
-    100,
-    98,
-  ],
-  Array [
-    "createNode",
-    101,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    101,
-    99,
-  ],
-  Array [
-    "appendChild",
-    101,
-    100,
-  ],
-  Array [
-    "appendChild",
-    101,
-    23,
-  ],
-  Array [
-    "createNode",
-    102,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    102,
-    97,
-  ],
-  Array [
-    "appendChild",
-    102,
-    101,
-  ],
-  Array [
-    "createNode",
-    103,
-    "ge",
-  ],
-  Array [
-    "appendChild",
-    103,
-    96,
-  ],
-  Array [
-    "appendChild",
-    103,
-    85,
-  ],
-  Array [
-    "createNode",
-    104,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    104,
-    96,
-  ],
-  Array [
-    "appendChild",
-    104,
-    23,
-  ],
-  Array [
-    "createNode",
-    105,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    105,
-    104,
-  ],
-  Array [
-    "appendChild",
-    105,
-    78,
-  ],
-  Array [
-    "createNode",
-    106,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    106,
-    48,
-  ],
-  Array [
-    "appendChild",
-    106,
-    105,
-  ],
-  Array [
-    "createNode",
-    107,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    107,
-    105,
-  ],
-  Array [
-    "appendChild",
-    107,
-    105,
-  ],
-  Array [
-    "createNode",
-    108,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    108,
-    106,
-  ],
-  Array [
-    "appendChild",
-    108,
-    107,
-  ],
-  Array [
-    "appendChild",
-    108,
-    23,
-  ],
-  Array [
-    "createNode",
-    109,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    109,
-    103,
-  ],
-  Array [
-    "appendChild",
-    109,
-    108,
-  ],
-  Array [
-    "createNode",
-    110,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    110,
-    102,
-  ],
-  Array [
-    "appendChild",
-    110,
-    109,
-  ],
-  Array [
-    "createNode",
-    111,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    111,
-    94,
-  ],
-  Array [
-    "appendChild",
-    111,
-    110,
-  ],
-  Array [
-    "createNode",
-    112,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    112,
+  [
+    3,
+    127,
     "value",
     0.501,
   ],
-  Array [
-    "createNode",
-    113,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    113,
-    49,
-  ],
-  Array [
-    "appendChild",
-    113,
-    112,
-  ],
-  Array [
-    "createNode",
-    114,
-    "phasor",
-  ],
-  Array [
-    "appendChild",
-    114,
-    113,
-  ],
-  Array [
-    "appendChild",
-    114,
-    6,
-  ],
-  Array [
-    "createNode",
-    115,
-    "le",
-  ],
-  Array [
-    "appendChild",
-    115,
-    114,
-  ],
-  Array [
-    "appendChild",
-    115,
-    15,
-  ],
-  Array [
-    "createNode",
-    116,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    116,
-    48,
-  ],
-  Array [
-    "appendChild",
-    116,
-    115,
-  ],
-  Array [
-    "createNode",
-    117,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    117,
-    116,
-  ],
-  Array [
-    "appendChild",
-    117,
-    23,
-  ],
-  Array [
-    "createNode",
-    118,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    118,
-    113,
-  ],
-  Array [
-    "appendChild",
-    118,
-    19,
-  ],
-  Array [
-    "createNode",
-    119,
-    "le",
-  ],
-  Array [
-    "appendChild",
-    119,
-    114,
-  ],
-  Array [
-    "appendChild",
-    119,
-    118,
-  ],
-  Array [
-    "createNode",
-    120,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    120,
-    114,
-  ],
-  Array [
-    "appendChild",
-    120,
-    118,
-  ],
-  Array [
-    "createNode",
-    121,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    121,
-    48,
-  ],
-  Array [
-    "appendChild",
-    121,
-    120,
-  ],
-  Array [
-    "createNode",
-    122,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    122,
-    120,
-  ],
-  Array [
-    "appendChild",
-    122,
-    120,
-  ],
-  Array [
-    "createNode",
-    123,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    123,
-    121,
-  ],
-  Array [
-    "appendChild",
-    123,
-    122,
-  ],
-  Array [
-    "appendChild",
-    123,
-    23,
-  ],
-  Array [
-    "createNode",
-    124,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    124,
-    119,
-  ],
-  Array [
-    "appendChild",
-    124,
-    123,
-  ],
-  Array [
-    "createNode",
-    125,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    125,
-    23,
-  ],
-  Array [
-    "appendChild",
-    125,
-    118,
-  ],
-  Array [
-    "createNode",
-    126,
-    "ge",
-  ],
-  Array [
-    "appendChild",
-    126,
-    114,
-  ],
-  Array [
-    "appendChild",
-    126,
-    125,
-  ],
-  Array [
-    "createNode",
-    127,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    127,
-    114,
-  ],
-  Array [
-    "appendChild",
-    127,
-    23,
-  ],
-  Array [
-    "createNode",
-    128,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    128,
-    127,
-  ],
-  Array [
-    "appendChild",
-    128,
-    118,
-  ],
-  Array [
-    "createNode",
-    129,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    129,
-    48,
-  ],
-  Array [
-    "appendChild",
-    129,
-    128,
-  ],
-  Array [
-    "createNode",
-    130,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    130,
-    128,
-  ],
-  Array [
-    "appendChild",
-    130,
-    128,
-  ],
-  Array [
-    "createNode",
-    131,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    131,
-    129,
-  ],
-  Array [
-    "appendChild",
-    131,
-    130,
-  ],
-  Array [
-    "appendChild",
-    131,
-    23,
-  ],
-  Array [
-    "createNode",
-    132,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    132,
-    126,
-  ],
-  Array [
-    "appendChild",
-    132,
-    131,
-  ],
-  Array [
-    "createNode",
-    133,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    133,
-    124,
-  ],
-  Array [
-    "appendChild",
-    133,
-    132,
-  ],
-  Array [
-    "createNode",
-    134,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    134,
-    117,
-  ],
-  Array [
-    "appendChild",
-    134,
-    133,
-  ],
-  Array [
-    "createNode",
-    135,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    135,
-    114,
-  ],
-  Array [
-    "appendChild",
-    135,
-    15,
-  ],
-  Array [
-    "createNode",
-    136,
-    "mod",
-  ],
-  Array [
-    "appendChild",
-    136,
-    135,
-  ],
-  Array [
-    "appendChild",
-    136,
-    23,
-  ],
-  Array [
-    "createNode",
-    137,
-    "le",
-  ],
-  Array [
-    "appendChild",
-    137,
-    136,
-  ],
-  Array [
-    "appendChild",
-    137,
-    118,
-  ],
-  Array [
-    "createNode",
-    138,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    138,
-    136,
-  ],
-  Array [
-    "appendChild",
-    138,
-    118,
-  ],
-  Array [
-    "createNode",
-    139,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    139,
-    48,
-  ],
-  Array [
-    "appendChild",
-    139,
-    138,
-  ],
-  Array [
-    "createNode",
-    140,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    140,
-    138,
-  ],
-  Array [
-    "appendChild",
-    140,
-    138,
-  ],
-  Array [
-    "createNode",
-    141,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    141,
-    139,
-  ],
-  Array [
-    "appendChild",
-    141,
-    140,
-  ],
-  Array [
-    "appendChild",
-    141,
-    23,
-  ],
-  Array [
-    "createNode",
-    142,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    142,
-    137,
-  ],
-  Array [
-    "appendChild",
-    142,
-    141,
-  ],
-  Array [
-    "createNode",
-    143,
-    "ge",
-  ],
-  Array [
-    "appendChild",
-    143,
-    136,
-  ],
-  Array [
-    "appendChild",
-    143,
-    125,
-  ],
-  Array [
-    "createNode",
-    144,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    144,
-    136,
-  ],
-  Array [
-    "appendChild",
-    144,
-    23,
-  ],
-  Array [
-    "createNode",
-    145,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    145,
-    144,
-  ],
-  Array [
-    "appendChild",
-    145,
-    118,
-  ],
-  Array [
-    "createNode",
-    146,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    146,
-    48,
-  ],
-  Array [
-    "appendChild",
-    146,
-    145,
-  ],
-  Array [
-    "createNode",
-    147,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    147,
-    145,
-  ],
-  Array [
-    "appendChild",
-    147,
-    145,
-  ],
-  Array [
-    "createNode",
-    148,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    148,
-    146,
-  ],
-  Array [
-    "appendChild",
-    148,
-    147,
-  ],
-  Array [
-    "appendChild",
-    148,
-    23,
-  ],
-  Array [
-    "createNode",
-    149,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    149,
-    143,
-  ],
-  Array [
-    "appendChild",
-    149,
-    148,
-  ],
-  Array [
-    "createNode",
-    150,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    150,
-    142,
-  ],
-  Array [
-    "appendChild",
-    150,
-    149,
-  ],
-  Array [
-    "createNode",
-    151,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    151,
-    134,
-  ],
-  Array [
-    "appendChild",
-    151,
-    150,
-  ],
-  Array [
-    "createNode",
-    152,
-    "const",
-  ],
-  Array [
-    "setProperty",
-    152,
+  [
+    3,
+    163,
     "value",
     0.496,
   ],
-  Array [
-    "createNode",
-    153,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    153,
-    49,
-  ],
-  Array [
-    "appendChild",
-    153,
-    152,
-  ],
-  Array [
-    "createNode",
-    154,
-    "phasor",
-  ],
-  Array [
-    "appendChild",
-    154,
-    153,
-  ],
-  Array [
-    "appendChild",
-    154,
-    6,
-  ],
-  Array [
-    "createNode",
-    155,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    155,
-    48,
-  ],
-  Array [
-    "appendChild",
-    155,
-    154,
-  ],
-  Array [
-    "createNode",
-    156,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    156,
-    155,
-  ],
-  Array [
-    "appendChild",
-    156,
-    23,
-  ],
-  Array [
-    "createNode",
-    157,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    157,
-    153,
-  ],
-  Array [
-    "appendChild",
-    157,
-    19,
-  ],
-  Array [
-    "createNode",
-    158,
-    "le",
-  ],
-  Array [
-    "appendChild",
-    158,
-    154,
-  ],
-  Array [
-    "appendChild",
-    158,
-    157,
-  ],
-  Array [
-    "createNode",
-    159,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    159,
-    154,
-  ],
-  Array [
-    "appendChild",
-    159,
-    157,
-  ],
-  Array [
-    "createNode",
-    160,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    160,
-    48,
-  ],
-  Array [
-    "appendChild",
-    160,
-    159,
-  ],
-  Array [
-    "createNode",
-    161,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    161,
-    159,
-  ],
-  Array [
-    "appendChild",
-    161,
-    159,
-  ],
-  Array [
-    "createNode",
-    162,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    162,
-    160,
-  ],
-  Array [
-    "appendChild",
-    162,
-    161,
-  ],
-  Array [
-    "appendChild",
-    162,
-    23,
-  ],
-  Array [
-    "createNode",
-    163,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    163,
-    158,
-  ],
-  Array [
-    "appendChild",
-    163,
-    162,
-  ],
-  Array [
-    "createNode",
-    164,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    164,
-    23,
-  ],
-  Array [
-    "appendChild",
-    164,
-    157,
-  ],
-  Array [
-    "createNode",
-    165,
-    "ge",
-  ],
-  Array [
-    "appendChild",
-    165,
-    154,
-  ],
-  Array [
-    "appendChild",
-    165,
-    164,
-  ],
-  Array [
-    "createNode",
-    166,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    166,
-    154,
-  ],
-  Array [
-    "appendChild",
-    166,
-    23,
-  ],
-  Array [
-    "createNode",
-    167,
-    "div",
-  ],
-  Array [
-    "appendChild",
-    167,
-    166,
-  ],
-  Array [
-    "appendChild",
-    167,
-    157,
-  ],
-  Array [
-    "createNode",
-    168,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    168,
-    48,
-  ],
-  Array [
-    "appendChild",
-    168,
-    167,
-  ],
-  Array [
-    "createNode",
-    169,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    169,
-    167,
-  ],
-  Array [
-    "appendChild",
-    169,
-    167,
-  ],
-  Array [
-    "createNode",
-    170,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    170,
-    168,
-  ],
-  Array [
-    "appendChild",
-    170,
-    169,
-  ],
-  Array [
-    "appendChild",
-    170,
-    23,
-  ],
-  Array [
-    "createNode",
-    171,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    171,
-    165,
-  ],
-  Array [
-    "appendChild",
-    171,
-    170,
-  ],
-  Array [
-    "createNode",
-    172,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    172,
-    163,
-  ],
-  Array [
-    "appendChild",
-    172,
-    171,
-  ],
-  Array [
-    "createNode",
-    173,
-    "sub",
-  ],
-  Array [
-    "appendChild",
-    173,
-    156,
-  ],
-  Array [
-    "appendChild",
-    173,
-    172,
-  ],
-  Array [
-    "createNode",
-    174,
-    "add",
-  ],
-  Array [
-    "appendChild",
-    174,
-    71,
-  ],
-  Array [
-    "appendChild",
-    174,
-    111,
-  ],
-  Array [
-    "appendChild",
-    174,
-    151,
-  ],
-  Array [
-    "appendChild",
-    174,
-    173,
-  ],
-  Array [
-    "createNode",
-    175,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    175,
-    0,
-  ],
-  Array [
-    "appendChild",
-    175,
-    174,
-  ],
-  Array [
-    "createNode",
-    176,
-    "svf",
-  ],
-  Array [
-    "setProperty",
-    176,
-    "mode",
-    "lowpass",
-  ],
-  Array [
-    "appendChild",
-    176,
-    47,
-  ],
-  Array [
-    "appendChild",
-    176,
-    23,
-  ],
-  Array [
-    "appendChild",
-    176,
-    175,
-  ],
-  Array [
-    "createNode",
-    177,
-    "mul",
-  ],
-  Array [
-    "appendChild",
-    177,
-    0,
-  ],
-  Array [
-    "appendChild",
-    177,
-    176,
-  ],
-  Array [
-    "createNode",
-    178,
-    "root",
-  ],
-  Array [
-    "setProperty",
-    178,
-    "channel",
-    0,
-  ],
-  Array [
-    "appendChild",
-    178,
-    177,
-  ],
-  Array [
-    "createNode",
-    179,
-    "root",
-  ],
-  Array [
-    "setProperty",
+  [
+    3,
     179,
     "channel",
     1,
   ],
-  Array [
-    "appendChild",
-    179,
-    177,
-  ],
-  Array [
-    "activateRoots",
-    Array [
-      178,
+  [
+    4,
+    [
+      0,
       179,
     ],
   ],
-  Array [
-    "commitUpdates",
+  [
+    5,
   ],
 ]
 `;

@@ -2,9 +2,8 @@
 
 #include <TwoStageFFTConvolver.h>
 
-#include <GraphNode.h>
-#include <Invariant.h>
-#include <SingleWriterSingleReaderQueue.h>
+#include <elem/GraphNode.h>
+#include <elem/SingleWriterSingleReaderQueue.h>
 
 
 namespace elem
@@ -14,13 +13,14 @@ namespace elem
     struct ConvolutionNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "path") {
-                invariant(val.isString(), "path prop must be a string");
-                invariant(resources.has((js::String) val), "failed to find a resource at the given path");
+                if (!val.isString())
+                    return elem::ReturnCode::InvalidPropertyType();
+
+                if (!resources.has((js::String) val))
+                    return elem::ReturnCode::InvalidPropertyValue();
 
                 auto ref = resources.get((js::String) val);
                 auto co = std::make_shared<fftconvolver::TwoStageFFTConvolver>();
@@ -30,6 +30,8 @@ namespace elem
 
                 convolverQueue.push(std::move(co));
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {

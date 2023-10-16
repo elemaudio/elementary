@@ -4,7 +4,7 @@ import {
   resolve,
 } from '../nodeUtils';
 
-import type {NodeRepr_t} from '../src/Reconciler.gen';
+import type {ElemNode, NodeRepr_t} from '../nodeUtils';
 
 
 // Generic
@@ -31,8 +31,8 @@ export function time(): NodeRepr_t {
 }
 
 // Counter node
-export function counter(gate: NodeRepr_t | number): NodeRepr_t;
-export function counter(props: OptionalKeyProps, gate: NodeRepr_t | number): NodeRepr_t;
+export function counter(gate: ElemNode): NodeRepr_t;
+export function counter(props: OptionalKeyProps, gate: ElemNode): NodeRepr_t;
 export function counter(a, b?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("counter", {}, [resolve(a)]);
@@ -42,8 +42,8 @@ export function counter(a, b?) {
 }
 
 // Accum node
-export function accum(xn: NodeRepr_t | number, reset: NodeRepr_t | number): NodeRepr_t;
-export function accum(props: OptionalKeyProps, xn: NodeRepr_t | number, reset: NodeRepr_t | number): NodeRepr_t;
+export function accum(xn: ElemNode, reset: ElemNode): NodeRepr_t;
+export function accum(props: OptionalKeyProps, xn: ElemNode, reset: ElemNode): NodeRepr_t;
 export function accum(a, b, c?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("accum", {}, [resolve(a), resolve(b)]);
@@ -53,19 +53,29 @@ export function accum(a, b, c?) {
 }
 
 // Phasor node
-export function phasor(rate: NodeRepr_t | number, reset: NodeRepr_t | number): NodeRepr_t;
-export function phasor(props: OptionalKeyProps, rate: NodeRepr_t | number, reset: NodeRepr_t | number): NodeRepr_t;
-export function phasor(a, b, c?) {
+export function phasor(rate: ElemNode): NodeRepr_t;
+export function phasor(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
+export function phasor(a, b?) {
   if (typeof a === "number" || isNode(a)) {
-    return createNode("phasor", {}, [resolve(a), resolve(b)]);
+    return createNode("phasor", {}, [resolve(a)]);
   }
 
-  return createNode("phasor", a, [resolve(b), resolve(c)]);
+  return createNode("phasor", a, [resolve(b)]);
+}
+
+export function syncphasor(rate: ElemNode, reset: ElemNode): NodeRepr_t;
+export function syncphasor(props: OptionalKeyProps, rate: ElemNode, reset: ElemNode): NodeRepr_t;
+export function syncphasor(a, b, c?) {
+  if (typeof a === "number" || isNode(a)) {
+    return createNode("sphasor", {}, [resolve(a), resolve(b)]);
+  }
+
+  return createNode("sphasor", a, [resolve(b), resolve(c)]);
 }
 
 // Latch node
-export function latch(t: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function latch(props: OptionalKeyProps, t: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function latch(t: ElemNode, x: ElemNode): NodeRepr_t;
+export function latch(props: OptionalKeyProps, t: ElemNode, x: ElemNode): NodeRepr_t;
 export function latch(a, b, c?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("latch", {}, [resolve(a), resolve(b)]);
@@ -80,8 +90,8 @@ type MaxHoldNodeProps = {
   hold?: number,
 };
 
-export function maxhold(x: NodeRepr_t | number, reset: NodeRepr_t | number): NodeRepr_t;
-export function maxhold(props: MaxHoldNodeProps, x: NodeRepr_t | number, reset: NodeRepr_t | number): NodeRepr_t;
+export function maxhold(x: ElemNode, reset: ElemNode): NodeRepr_t;
+export function maxhold(props: MaxHoldNodeProps, x: ElemNode, reset: ElemNode): NodeRepr_t;
 export function maxhold(a, b, c?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("maxhold", {}, [resolve(a), resolve(b)]);
@@ -96,8 +106,8 @@ type OnceNodeProps = {
   arm?: boolean,
 };
 
-export function once(x: NodeRepr_t | number): NodeRepr_t;
-export function once(props: OnceNodeProps, x: NodeRepr_t | number): NodeRepr_t;
+export function once(x: ElemNode): NodeRepr_t;
+export function once(props: OnceNodeProps, x: ElemNode): NodeRepr_t;
 export function once(a, b?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("once", {}, [resolve(a)]);
@@ -147,7 +157,7 @@ type SampleNodeProps = {
   stopOffset?: number,
 };
 
-export function sample(props: SampleNodeProps, trigger: NodeRepr_t | number, rate: NodeRepr_t | number): NodeRepr_t {
+export function sample(props: SampleNodeProps, trigger: ElemNode, rate: ElemNode): NodeRepr_t {
   return createNode("sample", props, [resolve(trigger), resolve(rate)]);
 }
 
@@ -157,7 +167,7 @@ type TableNodeProps = {
   path?: string,
 };
 
-export function table(props: TableNodeProps, t: NodeRepr_t | number): NodeRepr_t {
+export function table(props: TableNodeProps, t: ElemNode): NodeRepr_t {
   return createNode("table", props, [resolve(t)]);
 }
 
@@ -167,7 +177,7 @@ type ConvolveNodeProps = {
   path?: string,
 };
 
-export function convolve(props: ConvolveNodeProps, x: NodeRepr_t | number): NodeRepr_t {
+export function convolve(props: ConvolveNodeProps, x: ElemNode): NodeRepr_t {
   return createNode("convolve", props, [resolve(x)]);
 }
 
@@ -180,7 +190,7 @@ type SeqNodeProps = {
   loop?: boolean,
 };
 
-export function seq(props: SeqNodeProps, trigger: NodeRepr_t | number, reset: NodeRepr_t | number): NodeRepr_t {
+export function seq(props: SeqNodeProps, trigger: ElemNode, reset: ElemNode): NodeRepr_t {
   return createNode("seq", props, [resolve(trigger), resolve(reset)]);
 }
 
@@ -193,7 +203,7 @@ type Seq2NodeProps = {
   loop?: boolean,
 };
 
-export function seq2(props: Seq2NodeProps, trigger: NodeRepr_t | number, reset: NodeRepr_t | number): NodeRepr_t {
+export function seq2(props: Seq2NodeProps, trigger: ElemNode, reset: ElemNode): NodeRepr_t {
   return createNode("seq2", props, [resolve(trigger), resolve(reset)]);
 }
 
@@ -208,13 +218,23 @@ type SparSeqNodeProps = {
   tickInterval?: number,
 };
 
-export function sparseq(props: SparSeqNodeProps, trigger: NodeRepr_t | number, reset: NodeRepr_t | number): NodeRepr_t {
+export function sparseq(props: SparSeqNodeProps, trigger: ElemNode, reset: ElemNode): NodeRepr_t {
   return createNode("sparseq", props, [resolve(trigger), resolve(reset)]);
 }
 
+// SparSeq2 node
+type SparSeq2NodeProps = {
+  key?: string,
+  seq?: Array<{value: number, time: number}>,
+};
+
+export function sparseq2(props: SparSeq2NodeProps, time: ElemNode): NodeRepr_t {
+  return createNode("sparseq2", props, [resolve(time)]);
+}
+
 // Pole node
-export function pole(p: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function pole(props: OptionalKeyProps, p: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function pole(p: ElemNode, x: ElemNode): NodeRepr_t;
+export function pole(props: OptionalKeyProps, p: ElemNode, x: ElemNode): NodeRepr_t;
 export function pole(a, b, c?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("pole", {}, [resolve(a), resolve(b)]);
@@ -224,8 +244,8 @@ export function pole(a, b, c?) {
 }
 
 // Env node
-export function env(atkPole: NodeRepr_t | number, relPole: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function env(props: OptionalKeyProps, atkPole: NodeRepr_t | number, relPole: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function env(atkPole: ElemNode, relPole: ElemNode, x: ElemNode): NodeRepr_t;
+export function env(props: OptionalKeyProps, atkPole: ElemNode, relPole: ElemNode, x: ElemNode): NodeRepr_t;
 export function env(a, b, c, d?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("env", {}, [resolve(a), resolve(b), resolve(c)]);
@@ -235,8 +255,8 @@ export function env(a, b, c, d?) {
 }
 
 // Single sample delay node
-export function z(x: NodeRepr_t | number): NodeRepr_t;
-export function z(props: OptionalKeyProps, x: NodeRepr_t | number): NodeRepr_t;
+export function z(x: ElemNode): NodeRepr_t;
+export function z(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function z(a, b?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("z", {}, [resolve(a)]);
@@ -253,9 +273,9 @@ type DelayNodeProps = {
 
 export function delay(
   props: DelayNodeProps,
-  len: NodeRepr_t | number,
-  fb: NodeRepr_t | number,
-  x : NodeRepr_t | number,
+  len: ElemNode,
+  fb: ElemNode,
+  x : ElemNode,
 ): NodeRepr_t;
 
 export function delay(a, b, c, d) {
@@ -266,15 +286,48 @@ export function delay(a, b, c, d) {
   return createNode("delay", a, [resolve(b), resolve(c), resolve(d)]);
 }
 
-export function sdelay(props: DelayNodeProps, x: NodeRepr_t | number): NodeRepr_t {
+export function sdelay(props: DelayNodeProps, x: ElemNode): NodeRepr_t {
   return createNode("sdelay", props, [resolve(x)]);
+}
+
+// Multimode1p
+export function prewarp(fc: ElemNode): NodeRepr_t {
+  return createNode("prewarp", {}, [fc]);
+}
+
+export function mm1p(
+  fc: ElemNode,
+  x: ElemNode,
+): NodeRepr_t;
+
+export function mm1p(
+  props: {
+    key?: string,
+    mode?: string,
+  },
+  fc: ElemNode,
+  x: ElemNode,
+): NodeRepr_t;
+
+export function mm1p(a, b, c?) {
+  if (typeof a === "number" || isNode(a)) {
+    return createNode("mm1p", {}, [
+      resolve(a),
+      resolve(b),
+    ]);
+  }
+
+  return createNode("mm1p", a, [
+    resolve(b),
+    resolve(c),
+  ]);
 }
 
 // SVF
 export function svf(
-  fc: NodeRepr_t | number,
-  q: NodeRepr_t | number,
-  x: NodeRepr_t | number,
+  fc: ElemNode,
+  q: ElemNode,
+  x: ElemNode,
 ): NodeRepr_t;
 
 export function svf(
@@ -282,9 +335,9 @@ export function svf(
     key?: string,
     mode?: string,
   },
-  fc: NodeRepr_t | number,
-  q: NodeRepr_t | number,
-  x: NodeRepr_t | number,
+  fc: ElemNode,
+  q: ElemNode,
+  x: ElemNode,
 ): NodeRepr_t;
 
 export function svf(a, b, c, d?) {
@@ -304,10 +357,10 @@ export function svf(a, b, c, d?) {
 }
 
 export function svfshelf(
-  fc: NodeRepr_t | number,
-  q: NodeRepr_t | number,
-  gainDecibels: NodeRepr_t | number,
-  x: NodeRepr_t | number,
+  fc: ElemNode,
+  q: ElemNode,
+  gainDecibels: ElemNode,
+  x: ElemNode,
 ): NodeRepr_t;
 
 export function svfshelf(
@@ -315,10 +368,10 @@ export function svfshelf(
     key?: string,
     mode?: string,
   },
-  fc: NodeRepr_t | number,
-  q: NodeRepr_t | number,
-  gainDecibels: NodeRepr_t | number,
-  x: NodeRepr_t | number,
+  fc: ElemNode,
+  q: ElemNode,
+  gainDecibels: ElemNode,
+  x: ElemNode,
 ): NodeRepr_t;
 
 export function svfshelf(a, b, c, d, e?) {
@@ -341,22 +394,22 @@ export function svfshelf(a, b, c, d, e?) {
 
 // Biquad node
 export function biquad(
-  b0: NodeRepr_t | number,
-  b1: NodeRepr_t | number,
-  b2: NodeRepr_t | number,
-  a1: NodeRepr_t | number,
-  a2: NodeRepr_t | number,
-  x: NodeRepr_t | number,
+  b0: ElemNode,
+  b1: ElemNode,
+  b2: ElemNode,
+  a1: ElemNode,
+  a2: ElemNode,
+  x: ElemNode,
 ): NodeRepr_t;
 
 export function biquad(
   props: OptionalKeyProps,
-  b0: NodeRepr_t | number,
-  b1: NodeRepr_t | number,
-  b2: NodeRepr_t | number,
-  a1: NodeRepr_t | number,
-  a2: NodeRepr_t | number,
-  x: NodeRepr_t | number,
+  b0: ElemNode,
+  b1: ElemNode,
+  b2: ElemNode,
+  a1: ElemNode,
+  a2: ElemNode,
+  x: ElemNode,
 ): NodeRepr_t;
 
 export function biquad(a, b, c, d, e, f, g?) {
@@ -394,7 +447,7 @@ export function tapIn(props: TapInNodeProps): NodeRepr_t {
   return createNode("tapIn", props, []);
 }
 
-export function tapOut(props: TapOutNodeProps, x: NodeRepr_t | number): NodeRepr_t {
+export function tapOut(props: TapOutNodeProps, x: ElemNode): NodeRepr_t {
   return createNode("tapOut", props, [resolve(x)]);
 }
 
@@ -404,8 +457,8 @@ type MeterNodeProps = {
   name?: string,
 };
 
-export function meter(x: NodeRepr_t | number): NodeRepr_t;
-export function meter(props: MeterNodeProps, x: NodeRepr_t | number): NodeRepr_t;
+export function meter(x: ElemNode): NodeRepr_t;
+export function meter(props: MeterNodeProps, x: ElemNode): NodeRepr_t;
 export function meter(a, b?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("meter", {}, [resolve(a)]);
@@ -420,8 +473,8 @@ type SnapshotNodeProps = {
   name?: string,
 };
 
-export function snapshot(trigger: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function snapshot(props: SnapshotNodeProps, trigger: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function snapshot(trigger: ElemNode, x: ElemNode): NodeRepr_t;
+export function snapshot(props: SnapshotNodeProps, trigger: ElemNode, x: ElemNode): NodeRepr_t;
 export function snapshot(a, b, c?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("snapshot", {}, [resolve(a), resolve(b)]);
@@ -438,8 +491,8 @@ type ScopeNodeProps = {
   channels?: number,
 };
 
-export function scope(...args : Array<NodeRepr_t | number>): NodeRepr_t;
-export function scope(props: ScopeNodeProps, ...args : Array<NodeRepr_t | number>): NodeRepr_t;
+export function scope(...args : Array<ElemNode>): NodeRepr_t;
+export function scope(props: ScopeNodeProps, ...args : Array<ElemNode>): NodeRepr_t;
 export function scope(a, ...bs) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("scope", {}, [a, ...bs].map(resolve));
@@ -455,8 +508,8 @@ type FFTNodeProps = {
   size?: number,
 };
 
-export function fft(x: NodeRepr_t | number): NodeRepr_t;
-export function fft(props: FFTNodeProps, x: NodeRepr_t | number): NodeRepr_t;
+export function fft(x: ElemNode): NodeRepr_t;
+export function fft(props: FFTNodeProps, x: ElemNode): NodeRepr_t;
 export function fft(a, b?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("fft", {}, [resolve(a)]);
@@ -471,8 +524,8 @@ type CaptureNodeProps = {
   size?: number,
 };
 
-export function capture(g: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
-export function capture(props: CaptureNodeProps, g: NodeRepr_t | number, x: NodeRepr_t | number): NodeRepr_t;
+export function capture(g: ElemNode, x: ElemNode): NodeRepr_t;
+export function capture(props: CaptureNodeProps, g: ElemNode, x: ElemNode): NodeRepr_t;
 export function capture(a, b, c?) {
   if (typeof a === "number" || isNode(a)) {
     return createNode("capture", {}, [resolve(a), resolve(b)]);

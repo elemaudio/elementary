@@ -2,9 +2,8 @@
 
 #include <map>
 #include <sstream>
+#include <variant>
 #include <vector>
-
-#include "./deps/variant.hpp"
 
 
 namespace elem
@@ -75,33 +74,33 @@ namespace js
 
         //==============================================================================
         // Type checks
-        bool isUndefined()      const { return mpark::holds_alternative<Undefined>(var); }
-        bool isNull()           const { return mpark::holds_alternative<Null>(var); }
-        bool isBool()           const { return mpark::holds_alternative<Boolean>(var); }
-        bool isNumber()         const { return mpark::holds_alternative<Number>(var); }
-        bool isString()         const { return mpark::holds_alternative<String>(var); }
-        bool isArray()          const { return mpark::holds_alternative<Array>(var); }
-        bool isFloat32Array()   const { return mpark::holds_alternative<Float32Array>(var); }
-        bool isObject()         const { return mpark::holds_alternative<Object>(var); }
-        bool isFunction()       const { return mpark::holds_alternative<Function>(var); }
+        bool isUndefined()      const { return std::holds_alternative<Undefined>(var); }
+        bool isNull()           const { return std::holds_alternative<Null>(var); }
+        bool isBool()           const { return std::holds_alternative<Boolean>(var); }
+        bool isNumber()         const { return std::holds_alternative<Number>(var); }
+        bool isString()         const { return std::holds_alternative<String>(var); }
+        bool isArray()          const { return std::holds_alternative<Array>(var); }
+        bool isFloat32Array()   const { return std::holds_alternative<Float32Array>(var); }
+        bool isObject()         const { return std::holds_alternative<Object>(var); }
+        bool isFunction()       const { return std::holds_alternative<Function>(var); }
 
         //==============================================================================
         // Primitive value casts
-        operator Boolean()  const { return mpark::get<Boolean>(var); }
-        operator Number()   const { return mpark::get<Number>(var); }
-        operator String()   const { return mpark::get<String>(var); }
-        operator Array()    const { return mpark::get<Array>(var); }
+        operator Boolean()  const { return std::get<Boolean>(var); }
+        operator Number()   const { return std::get<Number>(var); }
+        operator String()   const { return std::get<String>(var); }
+        operator Array()    const { return std::get<Array>(var); }
 
         // Object value getters
-        Array const& getArray()                 const { return mpark::get<Array>(var); }
-        Float32Array const& getFloat32Array()   const { return mpark::get<Float32Array>(var); }
-        Object const& getObject()               const { return mpark::get<Object>(var); }
-        Function const& getFunction()           const { return mpark::get<Function>(var); }
+        Array const& getArray()                 const { return std::get<Array>(var); }
+        Float32Array const& getFloat32Array()   const { return std::get<Float32Array>(var); }
+        Object const& getObject()               const { return std::get<Object>(var); }
+        Function const& getFunction()           const { return std::get<Function>(var); }
 
-        Array& getArray()                   { return mpark::get<Array>(var); }
-        Float32Array& getFloat32Array()     { return mpark::get<Float32Array>(var); }
-        Object& getObject()                 { return mpark::get<Object>(var); }
-        Function& getFunction()             { return mpark::get<Function>(var); }
+        Array& getArray()                   { return std::get<Array>(var); }
+        Float32Array& getFloat32Array()     { return std::get<Float32Array>(var); }
+        Object& getObject()                 { return std::get<Object>(var); }
+        Function& getFunction()             { return std::get<Function>(var); }
 
         //==============================================================================
         // Object property access with a default return value
@@ -122,9 +121,9 @@ namespace js
         {
             if (isUndefined()) { return "undefined"; }
             if (isNull()) { return "null"; }
-            if (isBool()) { return String(std::to_string(mpark::get<Boolean>(var))); }
-            if (isNumber()) { return String(std::to_string(mpark::get<Number>(var))); }
-            if (isString()) { return mpark::get<String>(var); }
+            if (isBool()) { return String(std::to_string(std::get<Boolean>(var))); }
+            if (isNumber()) { return String(std::to_string(std::get<Number>(var))); }
+            if (isString()) { return std::get<String>(var); }
             if (isArray())
             {
                 auto& a = getArray();
@@ -183,7 +182,7 @@ namespace js
     private:
         //==============================================================================
         // Internally we represent the Value's real value with a variant
-        using VarType = mpark::variant<
+        using VarType = std::variant<
             Undefined,
             Null,
             Boolean,

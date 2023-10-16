@@ -1,6 +1,6 @@
 {
   "name": "@elemaudio/core",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "type": "module",
   "description": "Official Elementary Audio core package",
   "keywords": [
@@ -48,7 +48,7 @@
   "devDependencies": {
     "@babel/preset-env": "^7.16.11",
     "gentype": "^4.5.0",
-    "jest": "^27.5.1",
+    "jest": "^29.6.4",
     "rescript": "^10.0.0",
     "tsup": "^6.0.1"
   },

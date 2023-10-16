@@ -1,7 +1,6 @@
 #pragma once
 
-#include <GraphNode.h>
-#include <Invariant.h>
+#include <elem/GraphNode.h>
 
 
 namespace elem
@@ -16,13 +15,14 @@ namespace elem
             setProperty("interval", js::Value((js::Number) 1000.0));
         }
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "interval") {
-                invariant(val.isNumber(), "interval prop on the metro node must be a number.");
-                invariant(0.0 < (js::Number) val, "interval prop on the metro node must be greater than 0.");
+                if (!val.isNumber())
+                    return elem::ReturnCode::InvalidPropertyType();
+
+                if (0 >= (js::Number) val)
+                    return elem::ReturnCode::InvalidPropertyValue();
 
                 // We don't allow an interval smaller than 2 samples because we need at least
                 // one sample for the train to go high and one sample for the train to go low.
@@ -30,6 +30,8 @@ namespace elem
                 auto const is = ((js::Number) val) * 0.001 * GraphNode<FloatType>::getSampleRate();
                 intervalSamps.store(static_cast<int64_t>(std::max(2.0, is)));
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../GraphNode.h"
-#include "../Invariant.h"
 #include "../SingleWriterSingleReaderQueue.h"
 
 #include "helpers/Change.h"
@@ -36,28 +35,36 @@ namespace elem
     struct Seq2Node : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        void setProperty(std::string const& key, js::Value const& val) override
+        int setProperty(std::string const& key, js::Value const& val) override
         {
-            GraphNode<FloatType>::setProperty(key, val);
-
             if (key == "hold") {
-                invariant(val.isBool(), "hold prop for seq node must be a boolean type.");
+                if (!val.isBool())
+                    return ReturnCode::InvalidPropertyType();
+
                 wantsHold.store((js::Boolean) val);
             }
 
             if (key == "loop") {
-                invariant(val.isBool(), "loop prop for seq node must be a boolean type.");
+                if (!val.isBool())
+                    return ReturnCode::InvalidPropertyType();
+
                 wantsLoop.store((js::Boolean) val);
             }
 
             if (key == "offset") {
-                invariant(val.isNumber(), "offset prop for seq node must be a number type.");
-                invariant(((js::Number) val) >= ((js::Number) 0.0), "offset prop for seq node must be >= 0");
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                if ((js::Number) val < 0.0)
+                    return ReturnCode::InvalidPropertyValue();
+
                 seqOffset.store(static_cast<size_t>((js::Number) val));
             }
 
             if (key == "seq") {
-                invariant(val.isArray(), "seq prop for seq node must be an array type.");
+                if (!val.isArray())
+                    return ReturnCode::InvalidPropertyType();
+
                 auto& seq = val.getArray();
                 auto data = sequencePool.allocate();
 
@@ -73,6 +80,8 @@ namespace elem
                 // queue for the realtime thread.
                 sequenceQueue.push(std::move(data));
             }
+
+            return GraphNode<FloatType>::setProperty(key, val);
         }
 
         void process (BlockContext<FloatType> const& ctx) override {

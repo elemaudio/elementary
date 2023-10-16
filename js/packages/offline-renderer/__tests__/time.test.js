@@ -2,7 +2,7 @@ import OfflineRenderer from '../index';
 import { el } from '@elemaudio/core';
 
 
-test.only('time node', async function() {
+test('time node', async function() {
   let core = new OfflineRenderer();
 
   await core.initialize({
