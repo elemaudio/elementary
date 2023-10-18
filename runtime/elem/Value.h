@@ -4,7 +4,7 @@
 #include <sstream>
 #include <variant>
 #include <vector>
-
+#include <functional>
 
 namespace elem
 {

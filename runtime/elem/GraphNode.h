@@ -4,7 +4,7 @@
 #include "Value.h"
 
 #include <unordered_map>
-
+#include <functional>
 
 namespace elem
 {
