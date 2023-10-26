@@ -17,7 +17,6 @@ const EventTypes = {
 // the only type of transferable object that the native engine delivers, but this could be
 // extended to other types easily.
 function findTransferables(val, transferables = []) {
-  
   if (val instanceof Float32Array) {
     transferables.push(val.buffer);
   } else if (typeof val === 'object') {
@@ -169,4 +168,4 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
   }
 }
 
-registerProcessor('ElementaryAudioWorkletProcessor', ElementaryAudioWorkletProcessor);
+registerProcessor(`ElementaryAudioWorkletProcessor@${__PKG_VERSION__}`, ElementaryAudioWorkletProcessor);
