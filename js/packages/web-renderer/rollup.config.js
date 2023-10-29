@@ -1,6 +1,7 @@
 import cjs from '@rollup/plugin-commonjs';
 import replace from '@rollup/plugin-replace';
 import typescript from '@rollup/plugin-typescript';
+import pkg from './package.json';
 
 import { createFilter } from 'rollup-pluginutils';
 import { minify } from 'terser';
@@ -43,16 +44,18 @@ export default {
   },
   external: ['@elemaudio/core'],
   plugins: [
-    // Must come first, otherwise rollup will inject some resolvey thingies that
-    // I don't actually want in my raw strings
-    minString({
-      include: './raw/**/*.js',
-    }),
     replace({
       preventAssignment: true,
       values: {
         'process.env.NODE_ENV': JSON.stringify('production'),
+        '__PKG_VERSION__': JSON.stringify(pkg.version),
       },
+    }),
+    // This plugin must come before the module resolution plugins, otherwise
+    // rollup will inject some resolvey thingies that I don't actually want in my
+    // raw strings
+    minString({
+      include: './raw/**/*.js',
     }),
     cjs(),
     typescript(),

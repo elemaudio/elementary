@@ -5,6 +5,8 @@ import {
   Renderer,
 } from '@elemaudio/core';
 
+import { pkgVersion } from './version';
+
 /* @ts-ignore */
 import WorkletProcessor from './raw/WorkletProcessor';
 import WasmModule from './raw/elementary-wasm';
@@ -27,7 +29,15 @@ export default class WebAudioRenderer extends EventEmitter {
     // our own Map<AudioContext, boolean> but that feels like overkill.
     //
     // @ts-ignore
-    if (!audioContext.__elemRegistered) {
+    if (typeof audioContext._elemWorkletRegistry !== 'object') {
+      // @ts-ignore
+      audioContext._elemWorkletRegistry = {};
+    }
+
+    // @ts-ignore
+    const workletRegistry = audioContext._elemWorkletRegistry;
+
+    if (!workletRegistry.hasOwnProperty(pkgVersion)) {
       const blob = new Blob([WasmModule, WorkletProcessor], {type: 'text/javascript'});
       const blobUrl = URL.createObjectURL(blob);
 
@@ -40,14 +50,13 @@ export default class WebAudioRenderer extends EventEmitter {
       // from the raw/* directory are loaded as raw, minified strings.
       await audioContext.audioWorklet.addModule(blobUrl);
 
-      // @ts-ignore
-      audioContext.__elemRegistered = true;
+      workletRegistry[pkgVersion] = true;
     }
 
     this._promiseMap = new Map();
     this._nextPromiseKey = 0;
 
-    this._worklet = new AudioWorkletNode(audioContext, 'ElementaryAudioWorkletProcessor', Object.assign({
+    this._worklet = new AudioWorkletNode(audioContext, `ElementaryAudioWorkletProcessor@${pkgVersion}`, Object.assign({
       numberOfInputs: 0,
       numberOfOutputs: 1,
       outputChannelCount: [2],
