@@ -59,6 +59,9 @@ namespace elem
         template <typename ValueType>
         ValueType getPropertyWithDefault(std::string const& key, ValueType const& df);
 
+        // Returns a copy of the entire property object in its current state
+        js::Object getProperties();
+
         // Process the next block of audio data.
         //
         // Users must override this method when creating a custom GraphNode.
@@ -120,6 +123,11 @@ namespace elem
         }
 
         return df;
+    }
+
+    template <typename FloatType>
+    js::Object GraphNode<FloatType>::getProperties() {
+        return js::Object(props.begin(), props.end());
     }
 
 } // namespace elem
