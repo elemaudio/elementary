@@ -71,6 +71,8 @@ focusing on the community around Elementary, the immediate goals in this reposit
 careful and slow to add new features, so if there's a particular feature you want to see here, please [open an issue](https://github.com/elemaudio/elementary/issues/new) to start a conversation around your
 proposal first.
 
+If you wish to become involved in the project beyond developpement, you could [become a sponsor](https://github.com/sponsors/nick-thompson). This form of assistance is deeply valued and instrumental in propelling the project forward. We are genuinely grateful for any support you choose to provide.
+
 ## License
 
 Elementary is [MIT licensed](./LICENSE.md).
