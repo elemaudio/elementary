@@ -3,7 +3,7 @@ import {
   isNode,
 } from '../nodeUtils';
 
-import type {ElemNode, NodeRepr_t} from '../nodeUtils';
+import type { ElemNode, NodeRepr_t } from '../nodeUtils';
 
 import * as co from './core';
 import * as ma from './math';
@@ -68,31 +68,21 @@ export function compress(a_, b_, c_, d_, e_, f_, g_?) {
 
   const envDecibels = el.gain2db(env);
 
-  // Strength here is on the range [0, 1] where 0 = 1:1, 1 = infinity:1.
-  //
-  // We therefore need to map [1, infinity] onto [0, 1] for the standard "ratio" idea,
-  // which is done here. We do so by basically arbitrarily saying any ratio value 50:1 or
-  // greater is considered inf:1.
-  const strength = el.select(
-    el.leq(ratio, 1),
-    0,
-    el.select(
-      el.geq(ratio, 50),
-      1,
-      el.div(1, ratio),
-    ),
+  // Calculate the gain reduction for dBs over the threshold
+  // This is the core part of the compressor's ratio logic
+  const gainReduction = el.select(
+    el.leq(envDecibels, threshold),
+    0, // No reduction if below threshold
+    el.mul(
+      el.sub(envDecibels, threshold),
+      el.sub(1, el.div(1, ratio)) // Reduction amount per dB over threshold
+    )
   );
 
-  const gain = el.select(
-    el.ge(envDecibels, threshold),
-    el.db2gain(
-      el.mul(
-        el.sub(threshold, envDecibels),
-        strength,
-      ),
-    ),
-    1,
+  // Convert the gain reduction in dB to a gain factor
+  const compressedGain = el.db2gain(
+    el.mul(-1, gainReduction)
   );
 
-  return el.mul(xn, gain);
+  return el.mul(xn, compressedGain);
 }
