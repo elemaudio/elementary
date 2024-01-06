@@ -22,7 +22,7 @@ const el = {
 };
 
 /* A simple compressor with parameterized attack and release times,
- * threshold, and compression ratio.
+ * threshold, compression ratio and (soft) knee width.
  *
  * Users may drive the compressor with an optional sidechain signal, or send the
  * same input both as the input to be compressed and as the sidechain signal itself
@@ -70,17 +70,26 @@ export function compress(a_, b_, c_, d_, e_, f_, g_, h_?) {
   );
 
   const envDecibels = el.gain2db(env);
+
+  // Calculate the soft knee bounds around the threshold
   const lowerKneeBound = el.sub(threshold, el.div(kneeWidth, 2)); // threshold - kneeWidth/2
   const upperKneeBound = el.add(threshold, el.div(kneeWidth, 2)); // threshold + kneeWidth/2
 
+  // Check if the envelope is in the soft knee range
   const isInSoftKneeRange = el.and(
     el.geq(envDecibels, lowerKneeBound), // envDecibels >= lowerKneeBound
     el.leq(envDecibels, upperKneeBound), // envDecibels <= upperKneeBound
   );
 
-  const adjustedRatio = el.sub(1, el.div(1, ratio)); // 1 - 1/ratio
+  // Calculate gain multiplier for the ratio (1 - 1/ratio)
+  const adjustedRatio = el.sub(1, el.div(1, ratio));
 
-  // Gain calculation
+  /* Gain calculation
+  * When in soft knee range, do : 
+  * 0.5 * adjustedRatio * ((envDecibels - lowerKneeBound) / kneeWidth) * (lowerKneeBound - envDecibels)
+  * Else do :
+  * adjustedRatio * (threshold - envDecibels)
+  */
   const gain = el.select(
     isInSoftKneeRange,
     el.mul(
@@ -89,11 +98,11 @@ export function compress(a_, b_, c_, d_, e_, f_, g_, h_?) {
         el.div(el.sub(envDecibels, lowerKneeBound), kneeWidth),
         el.sub(lowerKneeBound, envDecibels)
       )
-    ), // 0.5 * adjustedRatio * ((envDecibels - lowerKneeBound) / kneeWidth) * (lowerKneeBound - envDecibels)
+    ),
     el.mul(
       adjustedRatio,
       el.sub(threshold, envDecibels)
-    ) // adjustedRatio * (threshold - envDecibels)
+    )
   );
 
   // Ensuring gain is not positive
