@@ -46,8 +46,8 @@ export function compress(
 
 export function compress(a_, b_, c_, d_, e_, f_, g_?) {
   let children = (typeof a_ === "number" || isNode(a_))
-    ? [a_, b_, c_, d_, e_, f_,]
-    : [b_, c_, d_, e_, f_, g_,];
+    ? [a_, b_, c_, d_, e_, f_]
+    : [b_, c_, d_, e_, f_, g_];
 
   const [atkMs, relMs, threshold, ratio, sidechain, xn] = children;
   const env = el.env(
