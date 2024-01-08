@@ -14,6 +14,7 @@
 #include "builtins/Math.h"
 #include "builtins/Noise.h"
 #include "builtins/Sample.h"
+#include "builtins/SampleSeq.h"
 #include "builtins/Seq2.h"
 #include "builtins/SparSeq.h"
 #include "builtins/SparSeq2.h"
@@ -115,6 +116,7 @@ namespace elem
 
             // Sample/Buffer nodes
             callback("sample",    GenericNodeFactory<SampleNode<FloatType>>());
+            callback("sampleseq", GenericNodeFactory<SampleSeqNode<FloatType>>());
             callback("table",     GenericNodeFactory<TableNode<FloatType>>());
 
             // Analyzer nodes
