@@ -232,6 +232,18 @@ export function sparseq2(props: SparSeq2NodeProps, time: ElemNode): NodeRepr_t {
   return createNode("sparseq2", props, [resolve(time)]);
 }
 
+// Sampleseq node
+type SampleSeqNodeProps = {
+  key?: string,
+  seq?: Array<{value: number, time: number}>,
+  duration: number,
+  path: string,
+};
+
+export function sampleseq(props: SampleSeqNodeProps, time: ElemNode): NodeRepr_t {
+  return createNode("sampleseq", props, [resolve(time)]);
+}
+
 // Pole node
 export function pole(p: ElemNode, x: ElemNode): NodeRepr_t;
 export function pole(props: OptionalKeyProps, p: ElemNode, x: ElemNode): NodeRepr_t;

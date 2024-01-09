@@ -206,7 +206,6 @@ namespace elem
 
         void updateEventBoundaries(double t) {
             nextEvent = activeSeq->upper_bound(t);
-            std::cout << "ya" << std::endl;
 
             // The next event is the first one in the sequence
             if (nextEvent == activeSeq->begin()) {
@@ -275,9 +274,16 @@ namespace elem
 
             for (size_t i = 0; i < numSamples; ++i) {
                 auto const t = static_cast<double>(inputData[0][i]);
+                auto const dt = (change(t) / sampleDur) * (double) activeBuffer->size();
+
+                // We update our event boundaries if we just took a new sequence, if we've stepped
+                // forwards or backwards over the next event time, or if our time step is larger
+                // than 16 samples (in which case we treat it as needing to allocate the next reader
+                // to avoid a discontinuity).
                 auto const shouldUpdateBounds = (prevEvent == seqEnd && nextEvent == seqEnd)
                     || (prevEvent != seqEnd && before(t, prevEvent->first))
-                    || (nextEvent != seqEnd && after(t, nextEvent->first));
+                    || (nextEvent != seqEnd && after(t, nextEvent->first))
+                    || (std::abs(dt) > 16.0);
 
                 if (shouldUpdateBounds) {
                     updateEventBoundaries(t);
@@ -303,6 +309,7 @@ namespace elem
         std::array<detail::BufferReader<FloatType>, 2> readers;
         size_t activeReader = 0;
 
+        Change<double> change;
         std::atomic<double> sampleDuration = 0;
         double rtSampleDuration = 0;
     };
