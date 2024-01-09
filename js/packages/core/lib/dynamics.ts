@@ -44,12 +44,8 @@ export function compress(
   xn: ElemNode,
 ): NodeRepr_t;
 
-export function compress(a_, b_, c_, d_, e_, f_, g_?) {
-  let children = (typeof a_ === "number" || isNode(a_))
-    ? [a_, b_, c_, d_, e_, f_]
-    : [b_, c_, d_, e_, f_, g_];
+export function compress(atkMs, relMs, threshold, ratio, sidechain, xn) {
 
-  const [atkMs, relMs, threshold, ratio, sidechain, xn] = children;
   const env = el.env(
     el.tau2pole(el.mul(0.001, atkMs)),
     el.tau2pole(el.mul(0.001, relMs)),
@@ -102,12 +98,7 @@ export function skcompress(
   xn: ElemNode,
 ): NodeRepr_t;
 
-export function skcompress(a_, b_, c_, d_, e_, f_, g_, h_?) {
-  let children = (typeof a_ === "number" || isNode(a_))
-    ? [a_, b_, c_, d_, e_, f_, h_]
-    : [b_, c_, d_, e_, f_, g_, h_];
-
-  const [atkMs, relMs, threshold, ratio, kneeWidth, sidechain, xn] = children;
+export function skcompress(atkMs, relMs, threshold, ratio, kneeWidth, sidechain, xn) {
   const env = el.env(
     el.tau2pole(el.mul(0.001, atkMs)),
     el.tau2pole(el.mul(0.001, relMs)),

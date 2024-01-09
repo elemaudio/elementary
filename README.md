@@ -5,7 +5,6 @@
   [![CI Status](https://github.com/elemaudio/elementary/actions/workflows/main.yml/badge.svg)](https://github.com/elemaudio/elementary/actions)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/elemaudio/elementary/blob/main/LICENSE.md)
   [![Discord Community](https://img.shields.io/discord/826071713426178078?label=Discord)](https://discord.gg/xSu9JjHwYc)
-  [![npm installs](https://img.shields.io/npm/dt/%40elemaudio/core?label=npm%20installs&color=%23f472b6)](https://www.npmjs.com/package/@elemaudio/core)
 
 </div>
 
