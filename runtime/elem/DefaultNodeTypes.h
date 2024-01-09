@@ -56,6 +56,7 @@ namespace elem
             callback("log2",      GenericNodeFactory<UnaryOperationNode<FloatType, std::log2>>());
             callback("ceil",      GenericNodeFactory<UnaryOperationNode<FloatType, std::ceil>>());
             callback("floor",     GenericNodeFactory<UnaryOperationNode<FloatType, std::floor>>());
+            callback("round",     GenericNodeFactory<UnaryOperationNode<FloatType, std::round>>());
             callback("sqrt",      GenericNodeFactory<UnaryOperationNode<FloatType, std::sqrt>>());
             callback("exp",       GenericNodeFactory<UnaryOperationNode<FloatType, std::exp>>());
             callback("abs",       GenericNodeFactory<UnaryOperationNode<FloatType, std::abs>>());

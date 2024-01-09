@@ -108,6 +108,14 @@ export function floor(a, b?) {
     : createNode("floor", a, [resolve(b)]);
 }
 
+export function round(x: ElemNode): NodeRepr_t;
+export function round(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
+export function round(a, b?) {
+  return (typeof a === "number" || isNode(a))
+    ? createNode("round", {}, [resolve(a)])
+    : createNode("round", a, [resolve(b)]);
+}
+
 export function sqrt(x: ElemNode): NodeRepr_t;
 export function sqrt(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
 export function sqrt(a, b?) {
