@@ -221,7 +221,11 @@ namespace elem
                 readers[activeReader].disengage();
                 activeReader = (activeReader + 1) & (readers.size() - 1);
 
-                readers[activeReader].engage(prevEvent->first);
+                // Here a value of 1.0 is considered an onset, and anything else
+                // considered an offset.
+                if (detail::fpEqual(prevEvent->second, FloatType(1.0))) {
+                    readers[activeReader].engage(prevEvent->first);
+                }
             }
         }
 
