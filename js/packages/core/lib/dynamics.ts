@@ -71,7 +71,7 @@ export function compress(atkMs, relMs, threshold, ratio, sidechain, xn) {
 
 
 /* A simple softknee compressor with parameterized attack and release times,
- * threshold, compression ratio and knee width. 
+ * threshold, compression ratio and knee width.
  *
  * Functions like regular el.compress when kneeWidth is 0.
  *
@@ -88,7 +88,6 @@ export function compress(atkMs, relMs, threshold, ratio, sidechain, xn) {
  * @param {Node} xn – input signal to filter
  */
 export function skcompress(
-  props: OptionalKeyProps,
   attackMs: ElemNode,
   releaseMs: ElemNode,
   threshold: ElemNode,
@@ -120,12 +119,12 @@ export function skcompress(atkMs, relMs, threshold, ratio, kneeWidth, sidechain,
   // Calculate gain multiplier from the ratio (1 - 1/ratio)
   const adjustedRatio = el.sub(1, el.div(1, ratio));
 
-  /* Gain calculation
-  * When in soft knee range, do : 
-  * 0.5 * adjustedRatio * ((envDecibels - lowerKneeBound) / kneeWidth) * (lowerKneeBound - envDecibels)
-  * Else do :
-  * adjustedRatio * (threshold - envDecibels)
-  */
+  // Gain calculation
+  // When in soft knee range, do:
+  //   0.5 * adjustedRatio * ((envDecibels - lowerKneeBound) / kneeWidth) * (lowerKneeBound - envDecibels)
+  // Else do:
+  //   adjustedRatio * (threshold - envDecibels)
+  //
   const gain = el.select(
     isInSoftKneeRange,
     el.mul(
