@@ -18,7 +18,7 @@ target_compile_features(${TargetName} PRIVATE
   cxx_std_17)
 
 target_link_libraries(${TargetName} PRIVATE
-  runtime)
+  elem::runtime)
 
 # We use these flags for compiling our wasm bundle such that the exported Module
 # factory function asynchronously initializes the module. It's important for the browser

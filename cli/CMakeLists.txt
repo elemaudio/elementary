@@ -12,7 +12,7 @@ target_compile_features(elemcli_core PUBLIC
   cxx_std_17)
 
 target_link_libraries(elemcli_core PUBLIC
-  runtime)
+  elem::runtime)
 
 if(MSVC)
   target_compile_options(elemcli_core PRIVATE /W4)

@@ -14,6 +14,7 @@
 #include "builtins/Math.h"
 #include "builtins/Noise.h"
 #include "builtins/Sample.h"
+#include "builtins/SampleSeq.h"
 #include "builtins/Seq2.h"
 #include "builtins/SparSeq.h"
 #include "builtins/SparSeq2.h"
@@ -55,6 +56,7 @@ namespace elem
             callback("log2",      GenericNodeFactory<UnaryOperationNode<FloatType, std::log2>>());
             callback("ceil",      GenericNodeFactory<UnaryOperationNode<FloatType, std::ceil>>());
             callback("floor",     GenericNodeFactory<UnaryOperationNode<FloatType, std::floor>>());
+            callback("round",     GenericNodeFactory<UnaryOperationNode<FloatType, std::round>>());
             callback("sqrt",      GenericNodeFactory<UnaryOperationNode<FloatType, std::sqrt>>());
             callback("exp",       GenericNodeFactory<UnaryOperationNode<FloatType, std::exp>>());
             callback("abs",       GenericNodeFactory<UnaryOperationNode<FloatType, std::abs>>());
@@ -115,6 +117,7 @@ namespace elem
 
             // Sample/Buffer nodes
             callback("sample",    GenericNodeFactory<SampleNode<FloatType>>());
+            callback("sampleseq", GenericNodeFactory<SampleSeqNode<FloatType>>());
             callback("table",     GenericNodeFactory<TableNode<FloatType>>());
 
             // Analyzer nodes

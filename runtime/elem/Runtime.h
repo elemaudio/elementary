@@ -87,6 +87,7 @@ namespace elem
         // Intentionally, this does not provide access to the values in the map.
         typename SharedResourceMap<FloatType>::KeyViewType getSharedResourceMapKeys();
 
+        //==============================================================================
         // For registering custom GraphNode factory functions.
         //
         // New node types must inherit GraphNode, and the factory function must produce a shared
@@ -97,6 +98,10 @@ namespace elem
         // from, e.g., `core.render(createNode("myNewNodeType", props, [children]))`
         using NodeFactoryFn = std::function<std::shared_ptr<GraphNode<FloatType>>(NodeId const id, double sampleRate, int const blockSize)>;
         int registerNodeType (std::string const& type, NodeFactoryFn && fn);
+
+        //==============================================================================
+        // Returns a copy of the internal graph state representing all known nodes and properties
+        js::Object snapshot();
 
     private:
         //==============================================================================
@@ -417,6 +422,18 @@ namespace elem
 
         nodeFactory.emplace(type, std::move(fn));
         return ReturnCode::Ok();
+    }
+
+    template <typename FloatType>
+    js::Object Runtime<FloatType>::snapshot()
+    {
+        js::Object ret;
+
+        for (auto& [nodeId, node] : nodeTable) {
+            ret.insert({nodeIdToHex(nodeId), node->getProperties()});
+        }
+
+        return ret;
     }
 
     //==============================================================================

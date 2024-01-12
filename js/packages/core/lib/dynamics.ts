@@ -3,7 +3,7 @@ import {
   isNode,
 } from '../nodeUtils';
 
-import type {ElemNode, NodeRepr_t} from '../nodeUtils';
+import type { ElemNode, NodeRepr_t } from '../nodeUtils';
 
 import * as co from './core';
 import * as ma from './math';
@@ -21,7 +21,7 @@ const el = {
   ...si,
 };
 
-/* A simple hard-knee compressor with parameterized attack and release times,
+/* A simple hard knee compressor with parameterized attack and release times,
  * threshold, and compression ratio.
  *
  * Users may drive the compressor with an optional sidechain signal, or send the
@@ -44,22 +44,8 @@ export function compress(
   xn: ElemNode,
 ): NodeRepr_t;
 
-export function compress(
-  props: OptionalKeyProps,
-  attackMs: ElemNode,
-  releaseMs: ElemNode,
-  threshold: ElemNode,
-  ratio: ElemNode,
-  sidechain: ElemNode,
-  xn: ElemNode,
-): NodeRepr_t;
+export function compress(atkMs, relMs, threshold, ratio, sidechain, xn) {
 
-export function compress(a_, b_, c_, d_, e_, f_, g_?) {
-  let children = (typeof a_ === "number" || isNode(a_))
-    ? [a_, b_, c_, d_, e_, f_]
-    : [b_, c_, d_, e_, f_, g_];
-
-  const [atkMs, relMs, threshold, ratio, sidechain, xn] = children;
   const env = el.env(
     el.tau2pole(el.mul(0.001, atkMs)),
     el.tau2pole(el.mul(0.001, relMs)),
@@ -68,31 +54,97 @@ export function compress(a_, b_, c_, d_, e_, f_, g_?) {
 
   const envDecibels = el.gain2db(env);
 
-  // Strength here is on the range [0, 1] where 0 = 1:1, 1 = infinity:1.
+  // Calculate gain multiplier from the ratio (1 - 1/ratio)
+  const adjustedRatio = el.sub(1, el.div(1, ratio));
+
+  // Calculate gain reduction in dB
+  const gain = el.mul(adjustedRatio, el.sub(threshold, envDecibels)) // adjustedRatio * (threshold - envDecibels);
+
+  // Ensuring gain is not positive
+  const cleanGain = el.min(0, gain);
+
+  // Convert the gain reduction in dB to a gain factor
+  const compressedGain = el.db2gain(cleanGain);
+
+  return el.mul(xn, compressedGain);
+}
+
+
+/* A simple softknee compressor with parameterized attack and release times,
+ * threshold, compression ratio and knee width.
+ *
+ * Functions like regular el.compress when kneeWidth is 0.
+ *
+ * Users may drive the compressor with an optional sidechain signal, or send the
+ * same input both as the input to be compressed and as the sidechain signal itself
+ * for standard compressor behavior.
+ *
+ * @param {Node | number} atkMs – attack time in milliseconds
+ * @param {Node | number} relMs – release time in millseconds
+ * @param {Node | number} threshold – decibel value above which the comp kicks in
+ * @param {Node | number} ratio – ratio by which we squash signal above the threshold
+ * @param {Node | number} kneeWidth – width of the knee in decibels, 0 for hard knee
+ * @param {Node} sidechain – sidechain signal to drive the compressor
+ * @param {Node} xn – input signal to filter
+ */
+export function skcompress(
+  attackMs: ElemNode,
+  releaseMs: ElemNode,
+  threshold: ElemNode,
+  ratio: ElemNode,
+  kneeWidth: ElemNode,
+  sidechain: ElemNode,
+  xn: ElemNode,
+): NodeRepr_t;
+
+export function skcompress(atkMs, relMs, threshold, ratio, kneeWidth, sidechain, xn) {
+  const env = el.env(
+    el.tau2pole(el.mul(0.001, atkMs)),
+    el.tau2pole(el.mul(0.001, relMs)),
+    sidechain,
+  );
+
+  const envDecibels = el.gain2db(env);
+
+  // Calculate the soft knee bounds around the threshold
+  const lowerKneeBound = el.sub(threshold, el.div(kneeWidth, 2)); // threshold - kneeWidth/2
+  const upperKneeBound = el.add(threshold, el.div(kneeWidth, 2)); // threshold + kneeWidth/2
+
+  // Check if the envelope is in the soft knee range
+  const isInSoftKneeRange = el.and(
+    el.geq(envDecibels, lowerKneeBound), // envDecibels >= lowerKneeBound
+    el.leq(envDecibels, upperKneeBound), // envDecibels <= upperKneeBound
+  );
+
+  // Calculate gain multiplier from the ratio (1 - 1/ratio)
+  const adjustedRatio = el.sub(1, el.div(1, ratio));
+
+  // Gain calculation
+  // When in soft knee range, do:
+  //   0.5 * adjustedRatio * ((envDecibels - lowerKneeBound) / kneeWidth) * (lowerKneeBound - envDecibels)
+  // Else do:
+  //   adjustedRatio * (threshold - envDecibels)
   //
-  // We therefore need to map [1, infinity] onto [0, 1] for the standard "ratio" idea,
-  // which is done here. We do so by basically arbitrarily saying any ratio value 50:1 or
-  // greater is considered inf:1.
-  const strength = el.select(
-    el.leq(ratio, 1),
-    0,
-    el.select(
-      el.geq(ratio, 50),
-      1,
-      el.div(1, ratio),
-    ),
-  );
-
   const gain = el.select(
-    el.ge(envDecibels, threshold),
-    el.db2gain(
+    isInSoftKneeRange,
+    el.mul(
+      el.div(adjustedRatio, 2),
       el.mul(
-        el.sub(threshold, envDecibels),
-        strength,
-      ),
+        el.div(el.sub(envDecibels, lowerKneeBound), kneeWidth),
+        el.sub(lowerKneeBound, envDecibels)
+      )
     ),
-    1,
+    el.mul(
+      adjustedRatio,
+      el.sub(threshold, envDecibels)
+    )
   );
 
-  return el.mul(xn, gain);
+  // Ensuring gain is not positive
+  const cleanGain = el.min(0, gain);
+
+  // Convert the gain reduction in dB to a gain factor
+  const compressedGain = el.db2gain(cleanGain);
+
+  return el.mul(xn, compressedGain);
 }
