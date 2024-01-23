@@ -13,7 +13,7 @@ namespace elem
     struct CaptureNode : public GraphNode<FloatType> {
         CaptureNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize),
-              ringBuffer(1, static_cast<size_t>(sr))
+              ringBuffer(1, juce::nextPowerOfTwo(static_cast<size_t>(sr)))
         {
         }
 
