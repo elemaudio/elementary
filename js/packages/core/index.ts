@@ -58,9 +58,10 @@ class Delegate {
   private currentActiveRoots: Set<number>;
   private batch: any;
 
-  constructor() {
+  constructor(terminalGeneration = 8) {
     this.nodeMap = new Map();
     this.currentActiveRoots = new Set();
+    this.terminalGeneration = terminalGeneration;
 
     this.clear();
   }
@@ -82,7 +83,7 @@ class Delegate {
   }
 
   getNodeMap() { return this.nodeMap; }
-  getTerminalGeneration() { return 4; }
+  getTerminalGeneration() { return this.terminalGeneration; }
 
   createNode(hash, type) {
     this.nodesAdded++;
@@ -157,8 +158,8 @@ class Renderer {
   private _sendMessage: Function;
   private _nextRefId: number;
 
-  constructor(sendMessage) {
-    this._delegate = new Delegate();
+  constructor(sendMessage, gcTerminalGeneration = 8) {
+    this._delegate = new Delegate(gcTerminalGeneration);
     this._sendMessage = sendMessage;
     this._nextRefId = 0;
   }
