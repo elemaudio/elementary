@@ -56,6 +56,7 @@ class Delegate {
   public nodeMap: Map<number, any>;
 
   private currentActiveRoots: Set<number>;
+  private terminalGeneration: number;
   private batch: any;
 
   constructor(terminalGeneration = 8) {
