@@ -151,14 +151,9 @@ export function blepsaw(rate: ElemNode): NodeRepr_t;
 export function blepsaw(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function blepsaw(a, b?) {
   let hasProps = !(typeof a === "number" || isNode(a));
-  let props = hasProps ? a : {};
   let rate = hasProps ? b : a;
 
-  let phase = el.phasor(props, rate, 0);
-  let naive = el.sub(el.mul(2, phase), 1);
-  let step = el.div(rate, el.sr());
-
-  return el.sub(naive, polyblep(step, phase));
+  return createNode("blepsaw", {}, [rate]);
 }
 
 /**
@@ -174,18 +169,9 @@ export function blepsquare(rate: ElemNode): NodeRepr_t;
 export function blepsquare(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function blepsquare(a, b?) {
   let hasProps = !(typeof a === "number" || isNode(a));
-  let props = hasProps ? a : {};
   let rate = hasProps ? b : a;
 
-  let phase = el.phasor(props, rate, 0);
-  let trn = el.le(phase, 0.5);
-  let naive = el.sub(el.mul(2, trn), 1);
-  let step = el.div(rate, el.sr());
-
-  let blep1 = polyblep(step, phase);
-  let blep2 = polyblep(step, el.mod(el.add(phase, 0.5), 1));
-
-  return el.sub(el.add(naive, blep1), blep2);
+  return createNode("blepsquare", {}, [rate]);
 }
 
 /**
@@ -211,12 +197,9 @@ export function bleptriangle(rate: ElemNode): NodeRepr_t;
 export function bleptriangle(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
 export function bleptriangle(a, b?) {
   let hasProps = !(typeof a === "number" || isNode(a));
-  let props = hasProps ? a : {};
   let rate = hasProps ? b : a;
 
-  // Gain normalization after integrating the square below
-  let gain = el.div(el.mul(4, rate), el.sr());
-  return el.mul(gain, el.pole(0.995, blepsquare(props, rate)));
+  return createNode("bleptriangle", {}, [rate]);
 }
 
 // Noise
