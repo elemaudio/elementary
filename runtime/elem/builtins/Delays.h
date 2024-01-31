@@ -5,31 +5,11 @@
 
 #include "helpers/Change.h"
 #include "helpers/RefCountedPool.h"
+#include "helpers/BitUtils.h"
 
 
 namespace elem
 {
-
-    namespace detail
-    {
-
-        // Returns the next largest power of two for a given integer.
-        //
-        // If the provided integer is a power of two, returns its input.
-        inline int bitciel (int n) {
-            if ((n & (n - 1)) == 0)
-                return n;
-
-            int o = 1;
-
-            while (o < n) {
-                o = o << 1;
-            }
-
-            return o;
-        }
-
-    }
 
     // A single sample delay node.
     template <typename FloatType>
@@ -215,7 +195,7 @@ namespace elem
                 // we round up to the next power of two for bit masking tricks around
                 // the delay line length.
                 auto const len = static_cast<int>((js::Number) val);
-                auto const size = detail::bitciel(len + blockSize);
+                auto const size = elem::bitceil(len + blockSize);
                 auto data = bufferPool.allocate();
 
                 // The buffer that we get from the pool may have been
