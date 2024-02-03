@@ -4,7 +4,6 @@
 #include "../SingleWriterSingleReaderQueue.h"
 #include "../Types.h"
 
-#include "helpers/Change.h"
 #include "helpers/RefCountedPool.h"
 
 #include <map>
@@ -23,7 +22,7 @@ namespace elem
 
         template <typename FloatType>
         FloatType fpEqual (FloatType x, FloatType y) {
-            return std::abs(x - y) < FloatType(1e-9);
+            return std::abs(x - y) <= FloatType(1e-6);
         }
 
         template <typename FloatType>
@@ -33,10 +32,11 @@ namespace elem
             void setTargetGain (FloatType g) {
                 targetGain = g;
 
-                if (targetGain < currentGain)
+                if (targetGain < currentGain) {
                     step = FloatType(-1) * std::abs(step);
-                else
+                } else {
                     step = std::abs(step);
+                }
             }
 
             FloatType operator() (FloatType x) {
@@ -72,31 +72,24 @@ namespace elem
             BufferReader() = default;
 
             void engage (double start) {
-                allocated = true;
                 startTime = start;
                 fade.setTargetGain(FloatType(1));
             }
 
             void disengage() {
-                allocated = false;
                 fade.setTargetGain(FloatType(0));
             }
 
             FloatType read (FloatType const* buffer, size_t size, double t)
             {
-                if (!allocated || sampleDuration <= FloatType(0))
+                if (fade.silent() || sampleDuration <= FloatType(0))
                     return FloatType(0);
-
-                if (fade.silent()) {
-                    allocated = false;
-                    return FloatType(0);
-                }
 
                 // An allocated but inactive reader is currently fading out at the point in time
                 // from which we jumped to allocate a new reader
                 double const pos = fade.on()
                     ? (t - startTime) / sampleDuration
-                    : stepStopTime() / sampleDuration;
+                    : (stepStopTime() - startTime) / sampleDuration;
 
                 // While we're still active, track last position so that we can stop effectively
                 if (fade.on()) {
@@ -106,7 +99,7 @@ namespace elem
 
                 // Deallocate if we've run out of bounds
                 if (pos < 0.0 || pos >= 1.0) {
-                    allocated = false;
+                    disengage();
                     return FloatType(0);
                 }
 
@@ -125,7 +118,6 @@ namespace elem
             }
 
             void reset (double sampleDur) {
-                allocated = false;
                 fade.reset();
 
                 sampleDuration = sampleDur;
@@ -133,7 +125,6 @@ namespace elem
                 dt = 0.0;
             }
 
-            bool allocated = false;
             GainFade<FloatType> fade;
 
             double sampleDuration = 0;
@@ -278,7 +269,6 @@ namespace elem
 
             for (size_t i = 0; i < numSamples; ++i) {
                 auto const t = static_cast<double>(inputData[0][i]);
-                auto const dt = (change(t) / sampleDur) * (double) activeBuffer->size();
 
                 // We update our event boundaries if we just took a new sequence, if we've stepped
                 // forwards or backwards over the next event time, or if our time step is larger
@@ -286,8 +276,7 @@ namespace elem
                 // to avoid a discontinuity).
                 auto const shouldUpdateBounds = (prevEvent == seqEnd && nextEvent == seqEnd)
                     || (prevEvent != seqEnd && before(t, prevEvent->first))
-                    || (nextEvent != seqEnd && after(t, nextEvent->first))
-                    || (std::abs(dt) > 16.0);
+                    || (nextEvent != seqEnd && after(t, nextEvent->first));
 
                 if (shouldUpdateBounds) {
                     updateEventBoundaries(t);
@@ -313,7 +302,6 @@ namespace elem
         std::array<detail::BufferReader<FloatType>, 2> readers;
         size_t activeReader = 0;
 
-        Change<double> change;
         std::atomic<double> sampleDuration = 0;
         double rtSampleDuration = 0;
     };
