@@ -64,9 +64,7 @@ export default class OfflineRenderer extends EventEmitter {
     }
 
     this._renderer = new Renderer((batch) => {
-      this._native.postMessageBatch(batch, (type, message) => {
-        this.emit('error', new Error(`${type}: ${message}`));
-      });
+      return this._native.postMessageBatch(batch);
     });
   }
 

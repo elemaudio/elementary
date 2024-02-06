@@ -15,8 +15,7 @@ test('std lib should have sparseq2', async function() {
   });
 
   node.connect(audioContext.destination);
-  let stats = core.render(el.sparseq2({seq: [{ value: 0, time: 0 }]}, 1));
-  console.log(stats);
+  let stats = await core.render(el.sparseq2({seq: [{ value: 0, time: 0 }]}, 1));
 
   expect(stats.nodesAdded).toEqual(3); // root, sparseq, const
   expect(stats.edgesAdded).toEqual(2);

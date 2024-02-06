@@ -80,21 +80,24 @@ public:
 
     //==============================================================================
     /** Message batch handling. */
-    void postMessageBatch (val payload, val errorCallback)
+    val postMessageBatch (val payload)
     {
         auto v = emValToValue(payload);
 
         if (!v.isArray()) {
-            errorCallback(val("error"), val("Malformed message batch."));
-            return;
+            return valueToEmVal(elem::js::Object {
+                {"success", false},
+                {"message", "Malformed message batch"},
+            });
         }
 
         auto const& batch = v.getArray();
         auto const rc = runtime->applyInstructions(batch);
 
-        if (rc != elem::ReturnCode::Ok()) {
-            errorCallback(val("error"), val(elem::ReturnCode::describe(rc)));
-        }
+        return valueToEmVal(elem::js::Object {
+            {"success", rc == elem::ReturnCode::Ok()},
+            {"message", elem::ReturnCode::describe(rc)},
+        });
     }
 
     void reset()

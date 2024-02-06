@@ -196,7 +196,16 @@ class Renderer {
       updateNodeProps(this._delegate, node.hash, nodeMapCopy.props, newProps);
       this._delegate.commitUpdates();
 
-      this._sendMessage(this._delegate.getPackedInstructions());
+      // Invoke message passing
+      const instructions = this._delegate.getPackedInstructions();
+
+      return Promise.resolve(this._sendMessage(instructions)).then((result) => {
+        if (result.success) {
+          return Promise.resolve(result);
+        }
+
+        return Promise.reject(result);
+      });
     };
 
     return [node, setter];
@@ -211,15 +220,21 @@ class Renderer {
     const t1 = now();
 
     // Invoke message passing
-    this._sendMessage(this._delegate.getPackedInstructions());
+    const instructions = this._delegate.getPackedInstructions();
+    return Promise.resolve(this._sendMessage(instructions)).then((result) => {
+      if (result.success) {
+        // Pack render stats with result object
+        return Promise.resolve({
+          ...result,
+          nodesAdded: this._delegate.nodesAdded,
+          edgesAdded: this._delegate.edgesAdded,
+          propsWritten: this._delegate.propsWritten,
+          elapsedTimeMs: t1 - t0,
+        });
+      }
 
-    // Return render stats
-    return {
-      nodesAdded: this._delegate.nodesAdded,
-      edgesAdded: this._delegate.edgesAdded,
-      propsWritten: this._delegate.propsWritten,
-      elapsedTimeMs: t1 - t0,
-    };
+      return Promise.reject(result);
+    });
   }
 }
 
