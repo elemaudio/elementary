@@ -21,7 +21,7 @@ import * as os from './lib/oscillators';
 import * as si from './lib/signals';
 
 export type { ElemNode, NodeRepr_t } from './nodeUtils';
-export { EventEmitter } from './src/Events';
+export { default as EventEmitter } from './src/Events';
 
 const stdlib = {
   ...co,
