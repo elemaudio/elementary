@@ -118,6 +118,16 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
             requestId,
             result: this._native.listSharedResourceMap(),
           }]);
+        case 'setCurrentTime':
+          return this.port.postMessage(['reply', {
+            requestId,
+            result: this._native.setCurrentTime(payload.time),
+          }]);
+        case 'setCurrentTimeMs':
+          return this.port.postMessage(['reply', {
+            requestId,
+            result: this._native.setCurrentTimeMs(payload.time),
+          }]);
         default:
           break;
       }

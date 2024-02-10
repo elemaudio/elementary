@@ -27,8 +27,10 @@ public:
 
     //==============================================================================
     /** Called before processing starts. */
-    void prepare (double sampleRate, unsigned int maxBlockSize)
+    void prepare (double sr, unsigned int maxBlockSize)
     {
+        sampleRate = sr;
+
         scratchBuffers.clear();
         scratchPointers.clear();
 
@@ -182,6 +184,17 @@ public:
         callback(valueToEmVal(batch));
     }
 
+    void setCurrentTime(int const timeInSamples)
+    {
+        sampleTime = timeInSamples;
+    }
+
+    void setCurrentTimeMs(double const timeInMs)
+    {
+        double const timeInSeconds = timeInMs / 1000.0;
+        sampleTime = static_cast<int64_t>(timeInSeconds * sampleRate);
+    }
+
 private:
     //==============================================================================
     std::optional<std::vector<float>> arrayToFloatVector (elem::js::Array const& ar)
@@ -321,6 +334,7 @@ private:
     std::vector<float*> scratchPointers;
 
     int64_t sampleTime = 0;
+    double sampleRate = 0;
 
     size_t numInputChannels = 0;
     size_t numOutputChannels = 2;
@@ -338,5 +352,7 @@ EMSCRIPTEN_BINDINGS(Elementary) {
         .function("pruneSharedResourceMap", &ElementaryAudioProcessor::pruneSharedResourceMap)
         .function("listSharedResourceMap", &ElementaryAudioProcessor::listSharedResourceMap)
         .function("process", &ElementaryAudioProcessor::process)
-        .function("processQueuedEvents", &ElementaryAudioProcessor::processQueuedEvents);
+        .function("processQueuedEvents", &ElementaryAudioProcessor::processQueuedEvents)
+        .function("setCurrentTime", &ElementaryAudioProcessor::setCurrentTime)
+        .function("setCurrentTimeMs", &ElementaryAudioProcessor::setCurrentTimeMs);
 };

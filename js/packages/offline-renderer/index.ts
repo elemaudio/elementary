@@ -154,4 +154,12 @@ export default class OfflineRenderer extends EventEmitter {
   reset() {
     this._native.reset();
   }
+
+  setCurrentTime(t) {
+    this._native.setCurrentTime(t);
+  }
+
+  setCurrentTimeMs(t) {
+    this._native.setCurrentTimeMs(t);
+  }
 }
