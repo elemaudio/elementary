@@ -4,3 +4,6 @@
 [submodule "choc"]
 	path = cli/choc
 	url = https://github.com/nick-thompson/choc.git
+[submodule "runtime/elem/third-party/signalsmith-stretch"]
+	path = runtime/elem/third-party/signalsmith-stretch
+	url = https://github.com/Signalsmith-Audio/signalsmith-stretch.git
