@@ -5,6 +5,7 @@
 #include "../Types.h"
 
 #include "helpers/RefCountedPool.h"
+#include "../third-party/signalsmith-stretch/signalsmith-stretch.h"
 
 #include <map>
 #include <iostream>
@@ -41,7 +42,7 @@ namespace elem
 
             FloatType operator() (FloatType x) {
                 if (currentGain == targetGain)
-                    return x;
+                    return (currentGain * x);
 
                 auto y = x * currentGain;
                 currentGain = std::clamp(currentGain + step, FloatType(0), FloatType(1));
@@ -71,13 +72,24 @@ namespace elem
         struct BufferReader {
             BufferReader() = default;
 
-            void engage (double start) {
+            void engage (double start, double currentTime, FloatType* _buffer, size_t _size) {
                 startTime = start;
+                buffer = _buffer;
+                bufferSize = _size;
                 fade.setTargetGain(FloatType(1));
+
+                position = static_cast<size_t>(((currentTime - startTime) / sampleDuration) * (double) (bufferSize - 1u));
+                position = std::clamp<size_t>(position, 0, bufferSize);
             }
 
             void disengage() {
                 fade.setTargetGain(FloatType(0));
+            }
+
+            void readAdding(FloatType* outputData, size_t numSamples) {
+                for (size_t i = 0; (i < numSamples) && (position < bufferSize); ++i) {
+                    outputData[i] += fade(buffer[position++]);
+                }
             }
 
             FloatType read (FloatType const* buffer, size_t size, double t)
@@ -126,6 +138,9 @@ namespace elem
             }
 
             GainFade<FloatType> fade;
+            FloatType* buffer = nullptr;
+            size_t bufferSize = 0;
+            size_t position = 0;
 
             double sampleDuration = 0;
             double startTime = 0;
@@ -136,10 +151,36 @@ namespace elem
 
     template <typename FloatType>
     struct SampleSeqNode : public GraphNode<FloatType> {
-        using GraphNode<FloatType>::GraphNode;
+        SampleSeqNode(NodeId id, FloatType const sr, int const blockSize)
+            : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
+        {
+            stretch.presetDefault(1, sr);
+            scratchBuffer.reserve(blockSize * 4);
+        }
+
 
         int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
         {
+            if (key == "shift") {
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                auto shift = (js::Number) val;
+                stretch.setTransposeSemitones(shift);
+            }
+
+            if (key == "stretch") {
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                auto _stretchFactor = (js::Number) val;
+
+                if (_stretchFactor < 0.25 || _stretchFactor > 4.0)
+                    return ReturnCode::InvalidPropertyValue();
+
+                stretchFactor.store(_stretchFactor);
+            }
+
             if (key == "duration") {
                 if (!val.isNumber())
                     return ReturnCode::InvalidPropertyType();
@@ -215,7 +256,7 @@ namespace elem
                 // Here a value of 1.0 is considered an onset, and anything else
                 // considered an offset.
                 if (detail::fpEqual(prevEvent->second, FloatType(1.0))) {
-                    readers[activeReader].engage(prevEvent->first);
+                    readers[activeReader].engage(prevEvent->first, t, const_cast<FloatType*>(activeBuffer->data()), activeBuffer->size());
                 }
             }
         }
@@ -262,29 +303,45 @@ namespace elem
 
             // We reference this a lot
             auto const seqEnd = activeSeq->end();
+            auto* scratchData = scratchBuffer.data();
 
             // Helpers to add some tolerance to the time checks
-            auto const before = [](double t1, double t2) { return t1 <= (t2 + 1e-9); };
-            auto const after = [](double t1, double t2) { return t1 >= (t2 - 1e-9); };
+            auto const before = [](double t1, double t2) { return t1 <= (t2 + 1e-6); };
+            auto const after = [](double t1, double t2) { return t1 >= (t2 - 1e-6); };
 
-            for (size_t i = 0; i < numSamples; ++i) {
-                auto const t = static_cast<double>(inputData[0][i]);
+            // Downsampling from a-rate to k-rate
+            auto const t = static_cast<double>(inputData[0][0]);
 
-                // We update our event boundaries if we just took a new sequence, if we've stepped
-                // forwards or backwards over the next event time, or if our time step is larger
-                // than 16 samples (in which case we treat it as needing to allocate the next reader
-                // to avoid a discontinuity).
-                auto const shouldUpdateBounds = (prevEvent == seqEnd && nextEvent == seqEnd)
-                    || (prevEvent != seqEnd && before(t, prevEvent->first))
-                    || (nextEvent != seqEnd && after(t, nextEvent->first));
+            // Time check
+            double const timeUnitsPerSample = sampleDur / (double) activeBuffer->size();
+            int64_t const sampleTime = t / timeUnitsPerSample;
+            bool const significantTimeChange = std::abs(sampleTime - nextExpectedBlockStart) > 16;
+            nextExpectedBlockStart = sampleTime + numSamples;
 
-                if (shouldUpdateBounds) {
-                    updateEventBoundaries(t);
-                }
+            // TODO: Account for fractional samples here by running an accumulator
+            auto const numSourceSamples = static_cast<size_t>((double) numSamples / stretchFactor.load());
 
-                auto const out = readers[0].read(activeBuffer->data(), activeBuffer->size(), t) + readers[1].read(activeBuffer->data(), activeBuffer->size(), t);
-                outputData[i] = out;
+            // We update our event boundaries if we just took a new sequence, if we've stepped
+            // forwards or backwards over the next event time, or if the incoming time step differs
+            // excessively from what we expected
+            auto const shouldUpdateBounds = (prevEvent == seqEnd && nextEvent == seqEnd)
+                || (prevEvent != seqEnd && before(t, prevEvent->first))
+                || (nextEvent != seqEnd && after(t, nextEvent->first));
+
+            // TODO: if the input time has changed significantly, need to address the input latency of
+            // the phase vocoder by resetting it and then pushing stretch.inputLatency * stretchFactor
+            // samples ahead of `timeInSamples(t)`
+            if (shouldUpdateBounds || significantTimeChange) {
+                updateEventBoundaries(t);
             }
+
+            // Clear and read
+            std::fill_n(scratchData, numSourceSamples, FloatType(0));
+
+            readers[0].readAdding(scratchData, numSourceSamples);
+            readers[1].readAdding(scratchData, numSourceSamples);
+
+            stretch.process(&scratchData, numSourceSamples, &outputData, numSamples);
         }
 
         using Sequence = std::map<double, FloatType, std::less<double>>;
@@ -301,9 +358,14 @@ namespace elem
 
         std::array<detail::BufferReader<FloatType>, 2> readers;
         size_t activeReader = 0;
+        int64_t nextExpectedBlockStart = 0;
 
         std::atomic<double> sampleDuration = 0;
         double rtSampleDuration = 0;
+
+        signalsmith::stretch::SignalsmithStretch<FloatType> stretch;
+        std::atomic<double> stretchFactor = 1.0;
+        std::vector<FloatType> scratchBuffer;
     };
 
 } // namespace elem
