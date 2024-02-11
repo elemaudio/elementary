@@ -127,7 +127,13 @@ export default class WebAudioRenderer extends EventEmitter {
   }
 
   async render(...args) {
-    return await this._renderer.render(...args);
+    const {result, ...stats} = await this._renderer.render(...args);
+
+    if (!result.success) {
+      return Promise.reject(result);
+    }
+
+    return Promise.resolve(stats);
   }
 
   async updateVirtualFileSystem(vfs) {

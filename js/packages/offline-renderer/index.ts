@@ -68,8 +68,14 @@ export default class OfflineRenderer extends EventEmitter {
     });
   }
 
-  render(...args) {
-    return this._renderer.render(...args);
+  async render(...args) {
+    const {result, ...stats} = await this._renderer.render(...args);
+
+    if (!result.success) {
+      return Promise.reject(result);
+    }
+
+    return Promise.resolve(stats);
   }
 
   createRef(kind, props, children) {

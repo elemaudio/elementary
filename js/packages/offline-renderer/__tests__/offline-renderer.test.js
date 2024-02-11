@@ -106,8 +106,6 @@ test('render stats', async function() {
   let stats = await core.render(el.mul(2, 3));
 
   expect(stats).toMatchObject({
-    success: true,
-    message: "Ok",
     edgesAdded: 3,
     nodesAdded: 4,
     propsWritten: 3,
