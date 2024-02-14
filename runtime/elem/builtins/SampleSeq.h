@@ -380,4 +380,7 @@ namespace elem
         std::vector<FloatType> scratchBuffer;
     };
 
+    template <typename FloatType>
+    using SampleSeqWithStretchNode = SampleSeqNode<FloatType, true>;
+
 } // namespace elem

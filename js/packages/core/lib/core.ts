@@ -244,6 +244,20 @@ export function sampleseq(props: SampleSeqNodeProps, time: ElemNode): NodeRepr_t
   return createNode("sampleseq", props, [resolve(time)]);
 }
 
+// Sampleseq2 node
+type SampleSeq2NodeProps = {
+  key?: string,
+  seq?: Array<{value: number, time: number}>,
+  duration: number,
+  path: string,
+  stretch?: number,
+  shift?: number,
+};
+
+export function sampleseq2(props: SampleSeq2NodeProps, time: ElemNode): NodeRepr_t {
+  return createNode("sampleseq2", props, [resolve(time)]);
+}
+
 // Pole node
 export function pole(p: ElemNode, x: ElemNode): NodeRepr_t;
 export function pole(props: OptionalKeyProps, p: ElemNode, x: ElemNode): NodeRepr_t;

@@ -119,6 +119,7 @@ namespace elem
             // Sample/Buffer nodes
             callback("sample",          GenericNodeFactory<SampleNode<FloatType>>());
             callback("sampleseq",       GenericNodeFactory<SampleSeqNode<FloatType>>());
+            callback("sampleseq2",      GenericNodeFactory<SampleSeqWithStretchNode<FloatType>>());
             callback("table",           GenericNodeFactory<TableNode<FloatType>>());
 
             // Oscillator nodes
