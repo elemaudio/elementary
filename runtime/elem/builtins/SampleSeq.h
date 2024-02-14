@@ -149,36 +149,40 @@ namespace elem
         };
     }
 
-    template <typename FloatType>
+    template <typename FloatType, bool WithStretch = false>
     struct SampleSeqNode : public GraphNode<FloatType> {
         SampleSeqNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
         {
-            stretch.presetDefault(1, sr);
-            scratchBuffer.reserve(blockSize * 4);
+            if constexpr (WithStretch) {
+                stretch.presetDefault(1, sr);
+                scratchBuffer.reserve(blockSize * 4);
+            }
         }
 
 
         int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
         {
-            if (key == "shift") {
-                if (!val.isNumber())
-                    return ReturnCode::InvalidPropertyType();
+            if constexpr (WithStretch) {
+                if (key == "shift") {
+                    if (!val.isNumber())
+                        return ReturnCode::InvalidPropertyType();
 
-                auto shift = (js::Number) val;
-                stretch.setTransposeSemitones(shift);
-            }
+                    auto shift = (js::Number) val;
+                    stretch.setTransposeSemitones(shift);
+                }
 
-            if (key == "stretch") {
-                if (!val.isNumber())
-                    return ReturnCode::InvalidPropertyType();
+                if (key == "stretch") {
+                    if (!val.isNumber())
+                        return ReturnCode::InvalidPropertyType();
 
-                auto _stretchFactor = (js::Number) val;
+                    auto _stretchFactor = (js::Number) val;
 
-                if (_stretchFactor < 0.25 || _stretchFactor > 4.0)
-                    return ReturnCode::InvalidPropertyValue();
+                    if (_stretchFactor < 0.25 || _stretchFactor > 4.0)
+                        return ReturnCode::InvalidPropertyValue();
 
-                stretchFactor.store(_stretchFactor);
+                    stretchFactor.store(_stretchFactor);
+                }
             }
 
             if (key == "duration") {
@@ -318,9 +322,6 @@ namespace elem
             bool const significantTimeChange = std::abs(sampleTime - nextExpectedBlockStart) > 16;
             nextExpectedBlockStart = sampleTime + numSamples;
 
-            // TODO: Account for fractional samples here by running an accumulator
-            auto const numSourceSamples = static_cast<size_t>((double) numSamples / stretchFactor.load());
-
             // We update our event boundaries if we just took a new sequence, if we've stepped
             // forwards or backwards over the next event time, or if the incoming time step differs
             // excessively from what we expected
@@ -335,13 +336,24 @@ namespace elem
                 updateEventBoundaries(t);
             }
 
-            // Clear and read
-            std::fill_n(scratchData, numSourceSamples, FloatType(0));
+            if constexpr (WithStretch) {
+                // TODO: Account for fractional samples here by running an accumulator
+                auto const numSourceSamples = static_cast<size_t>((double) numSamples / stretchFactor.load());
 
-            readers[0].readAdding(scratchData, numSourceSamples);
-            readers[1].readAdding(scratchData, numSourceSamples);
+                // Clear and read
+                std::fill_n(scratchData, numSourceSamples, FloatType(0));
 
-            stretch.process(&scratchData, numSourceSamples, &outputData, numSamples);
+                readers[0].readAdding(scratchData, numSourceSamples);
+                readers[1].readAdding(scratchData, numSourceSamples);
+
+                stretch.process(&scratchData, numSourceSamples, &outputData, numSamples);
+            } else {
+                // Clear and read
+                std::fill_n(outputData, numSamples, FloatType(0));
+
+                readers[0].readAdding(outputData, numSamples);
+                readers[1].readAdding(outputData, numSamples);
+            }
         }
 
         using Sequence = std::map<double, FloatType, std::less<double>>;

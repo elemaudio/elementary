@@ -8,6 +8,7 @@ test('sampleseq basics', async function() {
   await core.initialize({
     numInputChannels: 0,
     numOutputChannels: 1,
+    blockSize: 32,
     virtualFileSystem: {
       '/v/ones': Float32Array.from(Array.from({length: 128}).fill(1)),
     },
@@ -51,9 +52,15 @@ test('sampleseq basics', async function() {
     expect(outs[0][i]).toBeGreaterThan(outs[0][i - 1]);
   }
 
-  // Spin for a few blocks and we should see the fade resolve and
-  // emit constant ones
-  for (let i = 0; i < 100; ++i) {
+  // Spin for a few blocks, incrementing time, and we should see
+  // the fade resolve and emit constant ones
+  //
+  // If we don't increment time, the sampleseq node will repeatedly
+  // see an input time different from what it expects, and continue
+  // re-allocating the readers, so the fade that we're observing would
+  // lock in between 0 and 1
+  for (let i = 0; i < 2; ++i) {
+    setTimeProps({value: 129 + (i + 1) * 32})
     core.process(inps, outs);
   }
 
@@ -70,7 +77,7 @@ test('sampleseq basics', async function() {
   }
 
   // Spin for a few blocks and we should see the fade resolve and
-  // emit constant ones
+  // emit constant zeros
   for (let i = 0; i < 10; ++i) {
     core.process(inps, outs);
   }
@@ -88,7 +95,8 @@ test('sampleseq basics', async function() {
 
   // Spin for a few blocks and we should see the fade resolve and
   // emit constant ones
-  for (let i = 0; i < 10; ++i) {
+  for (let i = 0; i < 2; ++i) {
+    setTimeProps({value: 520 + (i + 1) * 32})
     core.process(inps, outs);
   }
 
