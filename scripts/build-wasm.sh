@@ -3,7 +3,8 @@
 set -x
 set -e
 
-ROOT_DIR="$(git rev-parse --show-toplevel)"
+SCRIPT_DIR="$PWD/$(dirname "$0")"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
 
 el__build() {
