@@ -26,7 +26,7 @@
   "scripts": {
     "wasm": "./scripts/prebuild.sh",
     "build": "rollup -c rollup.config.js",
-    "test": "vitest test --config=./test/vite.config.js"
+    "test": "vitest run test --config=./test/vite.config.js"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.2",
