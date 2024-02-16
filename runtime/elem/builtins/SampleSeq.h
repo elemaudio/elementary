@@ -156,7 +156,7 @@ namespace elem
         {
             if constexpr (WithStretch) {
                 stretch.presetDefault(1, sr);
-                scratchBuffer.reserve(blockSize * 4);
+                scratchBuffer.resize(blockSize * 4);
             }
         }
 
@@ -338,7 +338,7 @@ namespace elem
 
             if constexpr (WithStretch) {
                 // TODO: Account for fractional samples here by running an accumulator
-                auto const numSourceSamples = static_cast<size_t>((double) numSamples / stretchFactor.load());
+                auto const numSourceSamples = std::clamp(static_cast<size_t>((double) numSamples / stretchFactor.load()), (size_t) 0, scratchBuffer.size());
 
                 // Clear and read
                 std::fill_n(scratchData, numSourceSamples, FloatType(0));
