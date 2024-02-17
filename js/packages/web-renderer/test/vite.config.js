@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     browser: {
       enabled: true,
-      name: 'chrome',
+      name: 'firefox', // There's a bug with webdriver downloading chrome right now
       headless: true,
     },
   },
