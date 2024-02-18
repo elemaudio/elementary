@@ -1,6 +1,6 @@
 {
   "name": "@elemaudio/core",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "type": "module",
   "description": "Official Elementary Audio core package",
   "keywords": [
