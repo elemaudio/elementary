@@ -6,11 +6,12 @@ impl Runtime {}
 mod ffi {
     unsafe extern "C++" {
         include!("elementary/src/include/Runtime.h");
-    }
-}
+        include!("elementary/src/include/RuntimeShim.h");
 
-pub fn say_name() -> String {
-    "Elementary".to_string()
+        type Runtime;
+
+        fn runtime_new(sampleRate: f64, blockSize: usize) -> UniquePtr<Runtime>;
+    }
 }
 
 #[cfg(test)]
@@ -18,8 +19,12 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_works() {
-        let result = say_name();
-        assert_eq!(result, "Elementary");
+    fn instantiates_runtime() {
+        let runtime = ffi::runtime_new(44100.0, 512);
     }
+}
+
+// TODO Remove once integrated with CLI
+pub fn say_name() -> String {
+    "Elementary".to_string()
 }
