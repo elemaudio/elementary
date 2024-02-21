@@ -1,6 +1,21 @@
-pub struct Runtime {}
+use cxx::UniquePtr;
 
-impl Runtime {}
+pub struct Runtime {
+    runtime: UniquePtr<ffi::Runtime>,
+}
+
+impl Runtime {
+    fn new(sample_rate: f64, block_size: usize) -> Self {
+        Self {
+            runtime: ffi::runtime_new(sample_rate, block_size),
+        }
+    }
+
+    // TODO: ffi::updateSharedResourceMap not exposed from module?
+    // fn update_shared_resource_map(&self, name: String, data: f64, size: usize) -> bool {
+    //     unsafe { ffi::updateSharedResourceMap(self, name, data, size) }
+    // }
+}
 
 #[cxx::bridge]
 mod ffi {
@@ -11,6 +26,13 @@ mod ffi {
         type Runtime;
 
         fn runtime_new(sampleRate: f64, blockSize: usize) -> UniquePtr<Runtime>;
+
+        unsafe fn updateSharedResourceMap(
+            self: Pin<&mut Runtime>,
+            name: &CxxString,
+            data: *const f64,
+            size: usize,
+        ) -> bool;
     }
 }
 
@@ -20,7 +42,7 @@ mod tests {
 
     #[test]
     fn instantiates_runtime() {
-        let runtime = ffi::runtime_new(44100.0, 512);
+        let runtime = Runtime::new(44100.0, 512);
     }
 }
 
