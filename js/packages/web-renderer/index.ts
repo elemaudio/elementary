@@ -82,8 +82,8 @@ export default class WebAudioRenderer extends EventEmitter {
         }
 
         if (type === 'events') {
-          return payload.batch.forEach(({eventType, data}) => {
-            this.emit(eventType, data);
+          return payload.forEach((e) => {
+            this.emit(e.type, e.event);
           });
         }
 

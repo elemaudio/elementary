@@ -78,7 +78,7 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
           this._native.processQueuedEvents((evtBatch) => {
             if (evtBatch.length > 0) {
               let transferables = findTransferables(evtBatch);
-              this.port.postMessage(['eventBatch', evtBatch], transferables);
+              this.port.postMessage(['events', evtBatch], transferables);
             }
           });
 
