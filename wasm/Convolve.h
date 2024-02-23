@@ -31,7 +31,7 @@ namespace elem
             }
         }
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>& resources) override
         {
             if (key == "path") {
                 if (!val.isString())
@@ -44,11 +44,7 @@ namespace elem
                 auto co = std::make_shared<fftconvolver::TwoStageFFTConvolver>();
 
                 co->reset();
-
-                // TODO!!!
-                // This can just be re-enabled by default once we get to the new shared
-                // resource format
-                // co->init(512, 4096, ref->data(), ref->size());
+                co->init(512, 4096, ref->data(), ref->size());
 
                 convolverQueue.push(std::move(co));
             }

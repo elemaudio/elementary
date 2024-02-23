@@ -6,6 +6,7 @@
 #include "../SingleWriterSingleReaderQueue.h"
 
 #include "helpers/RefCountedPool.h"
+#include "helpers/BufferUtils.h"
 
 
 namespace elem
@@ -19,7 +20,7 @@ namespace elem
     struct TapInNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>& resources) override
         {
             if (key == "name") {
                 if (!val.isString())
@@ -46,8 +47,8 @@ namespace elem
             std::copy_n(activeBuffer->data(), numSamples, outputData);
         }
 
-        SingleWriterSingleReaderQueue<MutableSharedResourceBuffer<FloatType>> bufferQueue;
-        MutableSharedResourceBuffer<FloatType> activeBuffer;
+        SingleWriterSingleReaderQueue<MutableSharedResourceBuffer<float>> bufferQueue;
+        MutableSharedResourceBuffer<float> activeBuffer;
     };
 
     // A special graph node type for producing feedback from within the graph.
@@ -65,7 +66,7 @@ namespace elem
             std::fill_n(delayBuffer.data(), blockSize, FloatType(0));
         }
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>& resources) override
         {
             if (key == "name") {
                 if (!val.isString())
@@ -111,13 +112,13 @@ namespace elem
             // Else, we write to our delay line and pass through our input
             auto* delayData = delayBuffer.data();
 
-            std::copy_n(inputData[0], numSamples, delayData);
+            elem::util::copy_cast_n(inputData[0], numSamples, delayData);
             std::copy_n(inputData[0], numSamples, outputData);
         }
 
         std::vector<FloatType> delayBuffer;
-        SingleWriterSingleReaderQueue<MutableSharedResourceBuffer<FloatType>> tapBufferQueue;
-        MutableSharedResourceBuffer<FloatType> activeTapBuffer;
+        SingleWriterSingleReaderQueue<MutableSharedResourceBuffer<float>> tapBufferQueue;
+        MutableSharedResourceBuffer<float> activeTapBuffer;
     };
 
 } // namespace elem

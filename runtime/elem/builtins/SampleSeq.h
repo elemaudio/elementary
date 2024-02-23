@@ -86,9 +86,10 @@ namespace elem
                 fade.setTargetGain(FloatType(0));
             }
 
-            void readAdding(FloatType* outputData, size_t numSamples) {
+            template <typename DestType>
+            void readAdding(DestType* outputData, size_t numSamples) {
                 for (size_t i = 0; (i < numSamples) && (position < bufferSize); ++i) {
-                    outputData[i] += fade(buffer[position++]);
+                    outputData[i] += static_cast<DestType>(fade(buffer[position++]));
                 }
             }
 
@@ -161,7 +162,7 @@ namespace elem
         }
 
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>& resources) override
         {
             if constexpr (WithStretch) {
                 if (key == "shift") {
@@ -260,7 +261,7 @@ namespace elem
                 // Here a value of 1.0 is considered an onset, and anything else
                 // considered an offset.
                 if (detail::fpEqual(prevEvent->second, FloatType(1.0))) {
-                    readers[activeReader].engage(prevEvent->first, t, const_cast<FloatType*>(activeBuffer->data()), activeBuffer->size());
+                    readers[activeReader].engage(prevEvent->first, t, const_cast<float*>(activeBuffer->data()), activeBuffer->size());
                 }
             }
         }
@@ -365,10 +366,10 @@ namespace elem
         typename Sequence::iterator prevEvent;
         typename Sequence::iterator nextEvent;
 
-        SingleWriterSingleReaderQueue<SharedResourceBuffer<FloatType>> bufferQueue;
-        SharedResourceBuffer<FloatType> activeBuffer;
+        SingleWriterSingleReaderQueue<SharedResourceBuffer<float>> bufferQueue;
+        SharedResourceBuffer<float> activeBuffer;
 
-        std::array<detail::BufferReader<FloatType>, 2> readers;
+        std::array<detail::BufferReader<float>, 2> readers;
         size_t activeReader = 0;
         int64_t nextExpectedBlockStart = 0;
 

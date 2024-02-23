@@ -17,7 +17,7 @@ namespace elem
     struct TableNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>& resources) override
         {
             if (key == "path") {
                 if (!val.isString())
@@ -70,8 +70,8 @@ namespace elem
             }
         }
 
-        SingleWriterSingleReaderQueue<SharedResourceBuffer<FloatType>> bufferQueue;
-        SharedResourceBuffer<FloatType> activeBuffer;
+        SingleWriterSingleReaderQueue<SharedResourceBuffer<float>> bufferQueue;
+        SharedResourceBuffer<float> activeBuffer;
     };
 
 } // namespace elem

@@ -47,7 +47,7 @@ namespace elem
         // Thread safety must be managed by the user. This method will be called on
         // a non-realtime thread.
         virtual int setProperty(std::string const& key, js::Value const& val);
-        virtual int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources);
+        virtual int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>& resources);
 
         // Retreives a property from the Node's props, falling back to the provided
         // default value if no property exists by the given name.
@@ -111,7 +111,7 @@ namespace elem
     }
 
     template <typename FloatType>
-    int GraphNode<FloatType>::setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>&) {
+    int GraphNode<FloatType>::setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>&) {
         return setProperty(key, val);
     }
 

@@ -127,9 +127,7 @@ public:
         }
 
         auto& f32vec = buf.getFloat32Array();
-        // Missing piece here
-        // auto result = runtime->updateSharedResourceMap((elem::js::String) n, f32vec.data(), f32vec.size());
-        auto result = false;
+        auto result = runtime->updateSharedResourceMap((elem::js::String) n, f32vec.data(), f32vec.size());
 
         return valueToEmVal(elem::js::Object {
             {"success", result},

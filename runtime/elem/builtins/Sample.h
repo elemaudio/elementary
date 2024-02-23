@@ -18,11 +18,11 @@ namespace elem
     // The sample file is loaded from disk or from virtual memory with a path set by the `path` property.
     // The sample is then triggered on the rising edge of an incoming pulse train, so
     // this node expects a single child node delivering that train.
-    template <typename FloatType, typename ReaderType = VariablePitchLerpReader<FloatType>>
+    template <typename FloatType, typename ReaderType = VariablePitchLerpReader<float>>
     struct SampleNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>& resources) override
         {
             if (key == "path") {
                 if (!val.isString())
@@ -133,8 +133,8 @@ namespace elem
             }
         }
 
-        SingleWriterSingleReaderQueue<SharedResourceBuffer<FloatType>> bufferQueue;
-        SharedResourceBuffer<FloatType> activeBuffer;
+        SingleWriterSingleReaderQueue<SharedResourceBuffer<float>> bufferQueue;
+        SharedResourceBuffer<float> activeBuffer;
 
         Change<FloatType> change;
         std::array<ReaderType, 2> readers;
@@ -220,7 +220,7 @@ namespace elem
             return out;
         }
 
-        SharedResourceBuffer<FloatType> sourceBuffer;
+        SharedResourceBuffer<float> sourceBuffer;
 
         FloatType sampleRate = 0;
         FloatType gainSmoothAlpha = 0;

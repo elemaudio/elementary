@@ -74,7 +74,7 @@ namespace elem
         //
         // This method populates an internal map from which any GraphNode can request a
         // shared pointer to the data.
-        bool updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size);
+        bool updateSharedResourceMap(std::string const& name, float const* data, size_t size);
 
         // Removes unused resources from the map
         //
@@ -85,7 +85,7 @@ namespace elem
         // Returns an iterator through the names of the entries in the shared resoure map.
         //
         // Intentionally, this does not provide access to the values in the map.
-        typename SharedResourceMap<FloatType>::KeyViewType getSharedResourceMapKeys();
+        typename SharedResourceMap<float>::KeyViewType getSharedResourceMapKeys();
 
         //==============================================================================
         // For registering custom GraphNode factory functions.
@@ -137,7 +137,7 @@ namespace elem
         std::set<NodeId> currentRoots;
         RefCountedPool<GraphRenderSequence<FloatType>> renderSeqPool;
 
-        SharedResourceMap<FloatType> sharedResourceMap;
+        SharedResourceMap<float> sharedResourceMap;
 
         double sampleRate;
         int blockSize;
@@ -394,11 +394,11 @@ namespace elem
 
     //==============================================================================
     template <typename FloatType>
-    bool Runtime<FloatType>::updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size)
+    bool Runtime<FloatType>::updateSharedResourceMap(std::string const& name, float const* data, size_t size)
     {
         return sharedResourceMap.insert(
             name,
-            std::make_shared<typename SharedResourceBuffer<FloatType>::element_type>(data, data + size)
+            std::make_shared<typename SharedResourceBuffer<float>::element_type>(data, data + size)
         );
     }
 
@@ -409,7 +409,7 @@ namespace elem
     }
 
     template <typename FloatType>
-    typename SharedResourceMap<FloatType>::KeyViewType Runtime<FloatType>::getSharedResourceMapKeys()
+    typename SharedResourceMap<float>::KeyViewType Runtime<FloatType>::getSharedResourceMapKeys()
     {
         return sharedResourceMap.keys();
     }
