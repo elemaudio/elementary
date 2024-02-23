@@ -57,9 +57,11 @@ export default class OfflineRenderer extends EventEmitter {
 
     if (validVFS) {
       for (let [key, val] of Object.entries(virtualFileSystem)) {
-        this._native.updateSharedResourceMap(key, val, (message) => {
-          this.emit('error', new Error(message));
-        });
+        let result = this._native.addSharedResource(key, val);
+
+        if (!result.success) {
+          this.emit('error', new Error(result.message));
+        }
       }
     }
 
@@ -143,18 +145,25 @@ export default class OfflineRenderer extends EventEmitter {
     });
 
     for (let [key, val] of Object.entries(vfs)) {
-      this._native.updateSharedResourceMap(key, val, (message) => {
-        this.emit('error', new Error(message));
-      });
+      let result = this._native.addSharedResource(key, val);
+
+      if (!result.success) {
+        return result;
+      }
     }
+
+    return {
+      success: true,
+      message: 'Ok',
+    };
   }
 
   pruneVirtualFileSystem() {
-    this._native.pruneSharedResourceMap();
+    this._native.pruneSharedResources();
   }
 
   listVirtualFileSystem() {
-    return this._native.listSharedResourceMap();
+    return this._native.listSharedResources();
   }
 
   reset() {
