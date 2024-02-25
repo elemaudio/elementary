@@ -4,5 +4,6 @@ fn main() {
         .compile("elementary");
 
     println!("cargo:rerun-if-changed=src/lib.rs");
+    println!("cargo:rerun-if-changed=src/include/Main.cpp");
     println!("cargo:rerun-if-changed=src/include/Runtime.h");
 }
