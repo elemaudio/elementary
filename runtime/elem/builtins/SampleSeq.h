@@ -348,8 +348,21 @@ namespace elem
             }
 
             if constexpr (WithStretch) {
-                // TODO: Account for fractional samples here by running an accumulator
-                auto const numSourceSamples = std::clamp(static_cast<size_t>((double) numSamples / stretchFactor.load()), (size_t) 0, scratchBuffer.size());
+                // Some fractional sample counting here. Every time we calculate the number of
+                // source samples, we inevitably leave a little rounding error. To ensure we
+                // average out correctly over time, we accumulate that rounding error and nudge
+                // our numSourceSamples once the accumulated error exceeds a full sample.
+                double const trueSourceSamples = (double) numSamples / stretchFactor.load();
+                size_t numSourceSamples = static_cast<size_t>(trueSourceSamples);
+
+                accFracSamples += (trueSourceSamples - (double) numSourceSamples);
+
+                if (accFracSamples >= 1.0) {
+                    accFracSamples -= 1.0;
+                    numSourceSamples++;
+                }
+
+                numSourceSamples = std::clamp(numSourceSamples, static_cast<size_t>(0), scratchBuffer.size());
 
                 // Clear and read
                 std::fill_n(scratchData, numSourceSamples, FloatType(0));
@@ -387,6 +400,7 @@ namespace elem
         double rtSampleDuration = 0;
 
         signalsmith::stretch::SignalsmithStretch<FloatType> stretch;
+        double accFracSamples = 0;
         std::atomic<double> stretchFactor = 1.0;
         std::vector<FloatType> scratchBuffer;
     };
