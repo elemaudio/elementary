@@ -86,6 +86,22 @@ namespace elem
                 fade.setTargetGain(FloatType(0));
             }
 
+            // Does the incoming time match what this reader is expecting?
+            //
+            // If we're not engaged, we don't have any expectations so we just say sure.
+            // If we are engaged, we try to map the incoming time onto a position in the
+            // buffer and see if that's far off from where we currently are.
+            bool isAlignedWithTime(double t) {
+                if (!fade.on())
+                    return true;
+
+                size_t newPos = static_cast<size_t>(((t - startTime) / sampleDuration) * (double) (bufferSize - 1u));
+                int delta = static_cast<int>(position) - static_cast<int>(newPos);
+                bool aligned = std::abs(delta) < 16;
+
+                return aligned;
+            }
+
             template <typename DestType>
             void readAdding(DestType* outputData, size_t numSamples) {
                 for (size_t i = 0; (i < numSamples) && (position < bufferSize); ++i) {
@@ -317,12 +333,6 @@ namespace elem
             // Downsampling from a-rate to k-rate
             auto const t = static_cast<double>(inputData[0][0]);
 
-            // Time check
-            double const timeUnitsPerSample = sampleDur / (double) activeBuffer->size();
-            int64_t const sampleTime = t / timeUnitsPerSample;
-            bool const significantTimeChange = std::abs(sampleTime - nextExpectedBlockStart) > 16;
-            nextExpectedBlockStart = sampleTime + numSamples;
-
             // We update our event boundaries if we just took a new sequence, if we've stepped
             // forwards or backwards over the next event time, or if the incoming time step differs
             // excessively from what we expected
@@ -333,7 +343,7 @@ namespace elem
             // TODO: if the input time has changed significantly, need to address the input latency of
             // the phase vocoder by resetting it and then pushing stretch.inputLatency * stretchFactor
             // samples ahead of `timeInSamples(t)`
-            if (shouldUpdateBounds || significantTimeChange) {
+            if (shouldUpdateBounds || !readers[activeReader].isAlignedWithTime(t)) {
                 updateEventBoundaries(t);
             }
 
