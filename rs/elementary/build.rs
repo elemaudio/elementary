@@ -6,4 +6,5 @@ fn main() {
     println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=src/include/Main.cpp");
     println!("cargo:rerun-if-changed=src/include/Runtime.h");
+    println!("cargo:rerun-if-changed=src/include/cxx.h");
 }

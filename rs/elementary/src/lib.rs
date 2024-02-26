@@ -4,6 +4,8 @@ pub struct Runtime {
     runtime: SharedPtr<ffi::FloatRuntime>,
 }
 
+// TODO Remove unused once using in CLI example
+#[allow(unused)]
 impl Runtime {
     fn new(sample_rate: f64, block_size: usize) -> Self {
         Self {
@@ -23,6 +25,10 @@ impl Runtime {
             )
         }
     }
+
+    fn get_shared_resources_map_keys(self) -> Vec<String> {
+        ffi::get_shared_resource_map_keys_float(self.runtime.clone())
+    }
 }
 
 #[cxx::bridge]
@@ -40,6 +46,8 @@ mod ffi {
             data: *const f32,
             size: usize,
         ) -> bool;
+
+        fn get_shared_resource_map_keys_float(runtime: SharedPtr<FloatRuntime>) -> Vec<String>;
     }
 }
 
@@ -50,12 +58,16 @@ mod tests {
     #[test]
     fn instantiates_runtime() {
         let runtime = Runtime::new(44100.0, 512);
-        let result = runtime
+        let stored = runtime
             .update_shared_resource_map("test".to_string(), Box::new(vec![0.0, 1.0, 0.0, 1.0]));
 
-        println!("Stored to shared resource map: {result}");
+        println!("Stored to shared resource map: {stored}");
+        assert!(stored);
 
-        assert!(result);
+        let keys = runtime.get_shared_resources_map_keys();
+
+        println!("Keys from shared resource map: {keys:?}");
+        assert!(keys.contains(&"test".to_string()));
     }
 }
 

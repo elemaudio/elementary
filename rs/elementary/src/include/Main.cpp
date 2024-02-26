@@ -1,5 +1,5 @@
 #include "Runtime.h"
-#include <memory>
+#include "cxx.h"
 
 typedef elem::Runtime<float> FloatRuntime;
 
@@ -12,4 +12,17 @@ bool update_shared_resource_map_float(std::shared_ptr<FloatRuntime> runtime,
                                       std::string const &name,
                                       float const *data, size_t size) {
   return runtime->updateSharedResourceMap(name, data, size);
+}
+
+rust::Vec<rust::String>
+get_shared_resource_map_keys_float(std::shared_ptr<FloatRuntime> runtime) {
+  elem::SharedResourceMap<float>::KeyViewType map =
+      runtime->getSharedResourceMapKeys();
+  rust::Vec<rust::String> keys;
+
+  for (auto &key : runtime->getSharedResourceMapKeys()) {
+    keys.push_back(std::string(key));
+  }
+
+  return keys;
 }
