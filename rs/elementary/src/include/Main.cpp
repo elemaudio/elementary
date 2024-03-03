@@ -26,3 +26,7 @@ get_shared_resource_map_keys_float(std::shared_ptr<FloatRuntime> runtime) {
 
   return keys;
 }
+
+void prune_shared_resource_map_float(std::shared_ptr<FloatRuntime> runtime) {
+  runtime->pruneSharedResourceMap();
+}

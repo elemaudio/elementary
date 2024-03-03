@@ -26,8 +26,12 @@ impl Runtime {
         }
     }
 
-    fn get_shared_resources_map_keys(self) -> Vec<String> {
+    fn get_shared_resources_map_keys(&self) -> Vec<String> {
         ffi::get_shared_resource_map_keys_float(self.runtime.clone())
+    }
+
+    fn prune_shared_resource_map(&self) {
+        ffi::prune_shared_resource_map_float(self.runtime.clone())
     }
 }
 
@@ -48,6 +52,8 @@ mod ffi {
         ) -> bool;
 
         fn get_shared_resource_map_keys_float(runtime: SharedPtr<FloatRuntime>) -> Vec<String>;
+
+        fn prune_shared_resource_map_float(runtime: SharedPtr<FloatRuntime>);
     }
 }
 
@@ -56,18 +62,27 @@ mod tests {
     use super::*;
 
     #[test]
-    fn instantiates_runtime() {
+    fn updates_shared_resource_map() {
+        let runtime = Runtime::new(44100.0, 512);
+        let stored = runtime
+            .update_shared_resource_map("test".to_string(), Box::new(vec![0.0, 1.0, 0.0, 1.0]));
+        let keys = runtime.get_shared_resources_map_keys();
+
+        assert!(stored);
+        assert!(keys.contains(&"test".to_string()));
+    }
+
+    #[test]
+    fn prunes_shared_resource_map() {
         let runtime = Runtime::new(44100.0, 512);
         let stored = runtime
             .update_shared_resource_map("test".to_string(), Box::new(vec![0.0, 1.0, 0.0, 1.0]));
 
-        println!("Stored to shared resource map: {stored}");
-        assert!(stored);
-
+        runtime.prune_shared_resource_map();
         let keys = runtime.get_shared_resources_map_keys();
 
-        println!("Keys from shared resource map: {keys:?}");
-        assert!(keys.contains(&"test".to_string()));
+        assert!(stored);
+        assert!(keys.is_empty());
     }
 }
 
