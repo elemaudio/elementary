@@ -332,41 +332,66 @@ namespace elem
         // Populate and activate from the incoming event
         std::set<NodeId> active;
 
-        for (auto const& v : roots) {
+        for (auto const& v : roots)
+        {
             if (!v.isNumber())
+            {
+                ELEM_DBG("[Error] activateRoot - Invalid nodeId format.");
                 return ReturnCode::InvalidInstructionFormat();
+            }
 
-            int32_t nodeId = static_cast<int32_t>((js::Number) v);
+            int32_t nodeId = static_cast<int32_t>((js::Number)v);
             ELEM_DBG("[Native] activateRoot " << nodeIdToHex(nodeId));
 
-            if (nodeTable.find(nodeId) == nodeTable.end())
+            // Using find() method for safe access to nodeTable elements
+            auto it = nodeTable.find(nodeId);
+            if (it == nodeTable.end())
+            {
+                ELEM_DBG("[Error] activateRoot - NodeId not found: " << nodeIdToHex(nodeId));
                 return ReturnCode::NodeNotFound();
+            }
 
-            if (auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(nodeTable.at(nodeId))) {
+            // Attempt to cast the found node to a RootNode type and activate it
+            auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(it->second);
+            if (ptr)
+            {
                 ptr->setProperty("active", true);
                 active.insert(nodeId);
+                ELEM_DBG("[Success] Activated root: " << nodeIdToHex(nodeId));
+            }
+            else
+            {
+                ELEM_DBG("[Error] Failed to cast to RootNode or activate: " << nodeIdToHex(nodeId));
             }
         }
 
-        // Deactivate any prior roots
-        for (auto const& n : currentRoots) {
-            if (auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(nodeTable.at(n))) {
-                // If any current root was not marked active in this event, we deactivate it
-                if (active.count(n) == 0) {
-                    ptr->setProperty("active", false);
-                }
+        // Deactivate any prior roots not included in the incoming active set
+        for (auto const& n : currentRoots)
+        {
+            auto it = nodeTable.find(n);
+            if (it != nodeTable.end())
+            {
+                auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(it->second);
+                if (ptr)
+                {
+                    if (active.count(n) == 0)
+                    {
+                        ptr->setProperty("active", false);
+                        ELEM_DBG("[Success] Deactivated root: " << nodeIdToHex(n));
+                    }
 
-                // And if it's still running, we hang onto it
-                if (ptr->stillRunning()) {
-                    active.insert(n);
+                    if (ptr->stillRunning())
+                    {
+                        active.insert(n);
+                    }
                 }
             }
         }
 
-        // Merge
-        currentRoots = active;
+        currentRoots.swap(active); // More efficient than assignment
         return ReturnCode::Ok();
     }
+
 
     //==============================================================================
     template <typename FloatType>
