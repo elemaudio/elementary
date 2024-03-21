@@ -131,13 +131,13 @@ let renderWithDelegate = (delegate, graphs) => {
 
   visit(delegate, visitSet, roots)
 
+  if (RenderDelegate.getTerminalGeneration(delegate) > 1) {
+    stepGarbageCollector(delegate)
+  }
+
   RenderDelegate.activateRoots(delegate, Belt.List.toArray(Belt.List.map(roots, r => r.hash)))
 
   // TODO: transaction semantics!
   RenderDelegate.commitUpdates(delegate)
-
-  if (RenderDelegate.getTerminalGeneration(delegate) > 1) {
-    stepGarbageCollector(delegate)
-  }
 }
 
