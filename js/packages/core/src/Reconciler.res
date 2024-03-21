@@ -136,8 +136,6 @@ let renderWithDelegate = (delegate, graphs) => {
   // TODO: transaction semantics!
   RenderDelegate.commitUpdates(delegate)
 
-  // Garbage collect after render, 
-  // So we don't delete an inactive node before the audio runtime has a ref to it
   if (RenderDelegate.getTerminalGeneration(delegate) > 1) {
     stepGarbageCollector(delegate)
   }
