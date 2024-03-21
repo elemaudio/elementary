@@ -6,9 +6,9 @@ module Map = {
 
   @send external has: (t<'a, 'b>, 'a) => bool = "has"
   @send external get: (t<'a, 'b>, 'a) => 'b = "get"
-  @send external delete: (t<'a, 'b>, 'a) => () = "delete"
-  @send external set: (t<'a, 'b>, 'a, 'b) => () = "set"
-  @send external values: (t<'a, 'b>) => Js.Array2.array_like<'b> = "values"
+  @send external delete: (t<'a, 'b>, 'a) => unit = "delete"
+  @send external set: (t<'a, 'b>, 'a, 'b) => unit = "set"
+  @send external values: t<'a, 'b> => Js.Array2.array_like<'b> = "values"
 
   let valuesArray = (m: t<'a, 'b>): array<'b> => {
     Js.Array2.from(values(m))
@@ -22,7 +22,7 @@ module Set = {
   @new external make: unit => t<'a> = "Set"
 
   @send external has: (t<'a>, 'a) => bool = "has"
-  @send external add: (t<'a>, 'a) => () = "add"
+  @send external add: (t<'a>, 'a) => unit = "add"
 }
 
 // External interface for the RendererDelegate instance that we receive in renderWithDelegate
@@ -35,12 +35,12 @@ module RenderDelegate = {
   @send external getActiveRoots: t => array<int> = "getActiveRoots"
   @send external getTerminalGeneration: t => int = "getTerminalGeneration"
 
-  @send external createNode: (t, int, string) => () = "createNode"
-  @send external deleteNode: (t, int) => () = "deleteNode"
-  @send external appendChild: (t, int, int) => () = "appendChild"
-  @send external setProperty: (t, int, string, 'a) => () = "setProperty"
-  @send external activateRoots: (t, array<int>) => () = "activateRoots"
-  @send external commitUpdates: t => () = "commitUpdates"
+  @send external createNode: (t, int, string) => unit = "createNode"
+  @send external deleteNode: (t, int) => unit = "deleteNode"
+  @send external appendChild: (t, int, int) => unit = "appendChild"
+  @send external setProperty: (t, int, string, 'a) => unit = "setProperty"
+  @send external activateRoots: (t, array<int>) => unit = "activateRoots"
+  @send external commitUpdates: t => unit = "commitUpdates"
 }
 
 let mount = (delegate: RenderDelegate.t, node: NodeRepr.t) => {
@@ -62,11 +62,7 @@ let mount = (delegate: RenderDelegate.t, node: NodeRepr.t) => {
   }
 }
 
-let rec visit = (
-  delegate: RenderDelegate.t,
-  visitSet: Set.t<int>,
-  ns: list<NodeRepr.t>,
-) => {
+let rec visit = (delegate: RenderDelegate.t, visitSet: Set.t<int>, ns: list<NodeRepr.t>) => {
   let visited = (n: NodeRepr.t) => Set.has(visitSet, n.hash)
   let markVisited = (n: NodeRepr.t) => Set.add(visitSet, n.hash)
 
@@ -89,7 +85,7 @@ let rec visit = (
 }
 
 @genType
-let stepGarbageCollector = (delegate: RenderDelegate.t): () => {
+let stepGarbageCollector = (delegate: RenderDelegate.t): unit => {
   let nodeMap = RenderDelegate.getNodeMap(delegate)
   let term = RenderDelegate.getTerminalGeneration(delegate)
 
@@ -106,19 +102,23 @@ let stepGarbageCollector = (delegate: RenderDelegate.t): () => {
   //
   // Here we accumulate a list of all such nodes ready for removal, issue the instructions,
   // and prune the nodeMap
-  let deleted = Js.Array2.reduce(Map.valuesArray(nodeMap), (acc, n) => {
-    n.generation := n.generation.contents + 1
+  let deleted = Js.Array2.reduce(
+    Map.valuesArray(nodeMap),
+    (acc, n) => {
+      n.generation := n.generation.contents + 1
 
-    if (n.generation.contents >= term) {
-      RenderDelegate.deleteNode(delegate, n.hash)
-      Belt.List.add(acc, n)
-    } else {
-      acc
-    }
-  }, list{});
+      if n.generation.contents >= term {
+        RenderDelegate.deleteNode(delegate, n.hash)
+        Belt.List.add(acc, n)
+      } else {
+        acc
+      }
+    },
+    list{},
+  )
 
-  if (Belt.List.length(deleted) > 0) {
-    Belt.List.forEach(deleted, n => Map.delete(nodeMap, n.hash));
+  if Belt.List.length(deleted) > 0 {
+    Belt.List.forEach(deleted, n => Map.delete(nodeMap, n.hash))
   }
 }
 
@@ -131,13 +131,12 @@ let renderWithDelegate = (delegate, graphs) => {
 
   visit(delegate, visitSet, roots)
 
-  if (RenderDelegate.getTerminalGeneration(delegate) > 1) {
-    stepGarbageCollector(delegate)
-  }
-
   RenderDelegate.activateRoots(delegate, Belt.List.toArray(Belt.List.map(roots, r => r.hash)))
 
   // TODO: transaction semantics!
   RenderDelegate.commitUpdates(delegate)
-}
 
+  if RenderDelegate.getTerminalGeneration(delegate) > 1 {
+    stepGarbageCollector(delegate)
+  }
+}

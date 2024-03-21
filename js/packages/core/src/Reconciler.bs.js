@@ -82,13 +82,14 @@ function renderWithDelegate(delegate, graphs) {
                     }, [g]);
         }));
   visit(delegate, visitSet, roots);
-  if (delegate.getTerminalGeneration() > 1) {
-    stepGarbageCollector(delegate);
-  }
   delegate.activateRoots(Belt_List.toArray(Belt_List.map(roots, (function (r) {
                   return r.hash;
                 }))));
   delegate.commitUpdates();
+  if (delegate.getTerminalGeneration() > 1) {
+    return stepGarbageCollector(delegate);
+  }
+  
 }
 
 export {
