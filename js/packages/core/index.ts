@@ -57,7 +57,7 @@ class Delegate {
 
   private currentActiveRoots: Set<number>;
   private terminalGeneration: number;
-  private batch: any;
+  private batch: any[];
 
   constructor(terminalGeneration = 8) {
     this.nodeMap = new Map();
@@ -73,14 +73,7 @@ class Delegate {
     this.edgesAdded = 0;
     this.propsWritten = 0;
 
-    this.batch = {
-      createNode: [],
-      deleteNode: [],
-      appendChild: [],
-      setProperty: [],
-      activateRoots: [],
-      commitUpdates: [],
-    };
+    this.batch = []
   }
 
   getNodeMap() { return this.nodeMap; }
@@ -88,22 +81,22 @@ class Delegate {
 
   createNode(hash, type) {
     this.nodesAdded++;
-    this.batch.createNode.push([InstructionTypes.CREATE_NODE, hash, type]);
+    this.batch.push([InstructionTypes.CREATE_NODE, hash, type]);
   }
 
   deleteNode(hash) {
     this.nodesRemoved++;
-    this.batch.deleteNode.push([InstructionTypes.DELETE_NODE, hash]);
+    this.batch.push([InstructionTypes.DELETE_NODE, hash]);
   }
 
   appendChild(parentHash, childHash) {
     this.edgesAdded++;
-    this.batch.appendChild.push([InstructionTypes.APPEND_CHILD, parentHash, childHash]);
+    this.batch.push([InstructionTypes.APPEND_CHILD, parentHash, childHash]);
   }
 
   setProperty(hash, key, value) {
     this.propsWritten++;
-    this.batch.setProperty.push([InstructionTypes.SET_PROPERTY, hash, key, value]);
+    this.batch.push([InstructionTypes.SET_PROPERTY, hash, key, value]);
   }
 
   activateRoots(roots) {
@@ -116,24 +109,17 @@ class Delegate {
       roots.every((root) => this.currentActiveRoots.has(root));
 
     if (!alreadyActive) {
-      this.batch.activateRoots.push([InstructionTypes.ACTIVATE_ROOTS, roots]);
+      this.batch.push([InstructionTypes.ACTIVATE_ROOTS, roots]);
       this.currentActiveRoots = new Set(roots);
     }
   }
 
   commitUpdates() {
-    this.batch.commitUpdates.push([InstructionTypes.COMMIT_UPDATES]);
+    this.batch.push([InstructionTypes.COMMIT_UPDATES]);
   }
 
   getPackedInstructions() {
-    return [
-      ...this.batch.createNode,
-      ...this.batch.deleteNode,
-      ...this.batch.appendChild,
-      ...this.batch.setProperty,
-      ...this.batch.activateRoots,
-      ...this.batch.commitUpdates,
-    ];
+    return this.batch;
   }
 }
 
