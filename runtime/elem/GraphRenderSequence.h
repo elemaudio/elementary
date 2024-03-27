@@ -92,9 +92,9 @@ namespace elem
 
             // Next we prepare the render operation
             bufferMap.emplace(node->getId(), ba.next());
+            auto* outputData = bufferMap.at(node->getId());
 
-            renderOps.push_back([=, bufferMap = this->bufferMap](HostContext<FloatType>& ctx) {
-                auto* outputData = bufferMap.at(node->getId());
+            renderOps.push_back([=](HostContext<FloatType>& ctx) {
 
                 node->process(BlockContext<FloatType> {
                     ctx.inputData,
@@ -117,18 +117,18 @@ namespace elem
             }
 
             // Next we prepare the render operation
-            bufferMap.emplace(node->getId(), ba.next());
+            auto* outputData = ba.next();
+            bufferMap.emplace(node->getId(), outputData);
 
             // Allocate room for the child pointers here, gets moved into the lambda capture group below
             std::vector<FloatType*> ptrs(children.size());
+            auto const numChildren = children.size();
 
-            renderOps.push_back([=, bufferMap = this->bufferMap, ptrs = std::move(ptrs)](HostContext<FloatType>& ctx) mutable {
-                auto* outputData = bufferMap.at(node->getId());
-                auto const numChildren = children.size();
+            for (size_t j = 0; j < numChildren; ++j) {
+                ptrs[j] = bufferMap.at(children[j]);
+            }
 
-                for (size_t j = 0; j < numChildren; ++j) {
-                    ptrs[j] = bufferMap.at(children[j]);
-                }
+            renderOps.push_back([=, ptrs = std::move(ptrs)](HostContext<FloatType>& ctx) mutable {
 
                 node->process(BlockContext<FloatType> {
                     const_cast<const FloatType**>(ptrs.data()),
