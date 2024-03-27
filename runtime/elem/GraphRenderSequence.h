@@ -117,7 +117,7 @@ namespace elem
             }
 
             // Next we prepare the render operation
-            auto* outputData ba.next();
+            auto* outputData = ba.next();
             bufferMap.emplace(node->getId(), outputData);
 
             // Allocate room for the child pointers here, gets moved into the lambda capture group below
