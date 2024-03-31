@@ -1,4 +1,6 @@
+use ciborium::ser::into_writer;
 use cxx::{let_cxx_string, SharedPtr};
+use std::collections::BTreeMap;
 
 pub struct Runtime {
     runtime: SharedPtr<ffi::FloatRuntime>,
@@ -10,6 +12,20 @@ impl Runtime {
     fn new(sample_rate: f64, block_size: usize) -> Self {
         Self {
             runtime: ffi::make_float_runtime(sample_rate, block_size),
+        }
+    }
+
+    fn apply_instructions_float(&self) -> bool {
+        let value = BTreeMap::from([("key", 1)]);
+        let mut instructions = Vec::new();
+        into_writer(&value, &mut instructions).unwrap();
+
+        unsafe {
+            ffi::apply_instructions_float(
+                self.runtime.clone(),
+                instructions.as_ptr(),
+                instructions.len() as u32,
+            )
         }
     }
 
@@ -43,6 +59,12 @@ mod ffi {
         type FloatRuntime;
 
         fn make_float_runtime(sampleRate: f64, blockSize: usize) -> SharedPtr<FloatRuntime>;
+
+        unsafe fn apply_instructions_float(
+            runtime: SharedPtr<FloatRuntime>,
+            instructions: *const u8,
+            length: u32,
+        ) -> bool;
 
         unsafe fn update_shared_resource_map_float(
             runtime: SharedPtr<FloatRuntime>,
@@ -83,6 +105,17 @@ mod tests {
 
         assert!(stored);
         assert!(keys.is_empty());
+    }
+
+    #[test]
+    fn applies_instructions() {
+        let runtime = Runtime::new(44100.0, 512);
+
+        let applied = runtime.apply_instructions_float();
+
+        println!("Rust reports {} returned from C++", applied);
+
+        assert!(applied);
     }
 }
 

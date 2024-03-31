@@ -19,6 +19,7 @@ bench = false
 doctest = true
 
 [dependencies]
+ciborium = "0.2.2"
 cxx = "1.0"
 
 [build-dependencies]
