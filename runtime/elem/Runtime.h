@@ -356,6 +356,10 @@ namespace elem
             if (ptr)
             {
                 ptr->setProperty("active", true);
+                if (currentRoots.empty())
+                {
+                    ptr->currentGain = FloatType(1);
+                }
                 active.insert(nodeId);
                 ELEM_DBG("[Success] Activated root: " << nodeIdToHex(nodeId));
             }
