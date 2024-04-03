@@ -343,7 +343,7 @@ namespace elem
                 return ReturnCode::NodeNotFound();
 
             if (auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(nodeTable.at(nodeId))) {
-                ptr->setProperty("active", true);
+                ptr->activate(currentRoots.empty() ? FloatType(1), FloatType(0));
                 active.insert(nodeId);
             }
         }
