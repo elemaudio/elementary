@@ -22,7 +22,7 @@ namespace elem
     struct SampleNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources) override
         {
             if (key == "path") {
                 if (!val.isString())
@@ -133,8 +133,8 @@ namespace elem
             }
         }
 
-        SingleWriterSingleReaderQueue<SharedResourceBuffer<float>> bufferQueue;
-        SharedResourceBuffer<float> activeBuffer;
+        SingleWriterSingleReaderQueue<SharedResourcePtr> bufferQueue;
+        SharedResourcePtr activeBuffer;
 
         Change<FloatType> change;
         std::array<ReaderType, 2> readers;
@@ -159,7 +159,7 @@ namespace elem
     {
         VariablePitchLerpReader() = default;
 
-        VariablePitchLerpReader(FloatType _sampleRate, SharedResourceBuffer<FloatType> _sourceBuffer)
+        VariablePitchLerpReader(FloatType _sampleRate, SharedResourcePtr _sourceBuffer)
             : sourceBuffer(_sourceBuffer), sampleRate(_sampleRate), gainSmoothAlpha(1.0 - std::exp(-1.0 / (0.01 * _sampleRate))) {}
 
         VariablePitchLerpReader(VariablePitchLerpReader& other)
@@ -181,8 +181,9 @@ namespace elem
             if (sourceBuffer == nullptr || pos < 0.0 || (gain == FloatType(0) && targetGain == FloatType(0)))
                 return FloatType(0);
 
-            auto* sourceData = sourceBuffer->data();
-            size_t const sourceLength = sourceBuffer->size();
+            auto bufferView = sourceBuffer->getChannelData(0);
+            auto* sourceData = bufferView.data();
+            size_t const sourceLength = bufferView.size();
 
             if (pos >= (double) (sourceLength - stopOffset)) {
                 if (!wantsLoop) {
@@ -220,7 +221,7 @@ namespace elem
             return out;
         }
 
-        SharedResourceBuffer<float> sourceBuffer;
+        SharedResourcePtr sourceBuffer;
 
         FloatType sampleRate = 0;
         FloatType gainSmoothAlpha = 0;

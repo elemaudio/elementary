@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <sstream>
 #include <unordered_map>
 
@@ -80,6 +79,27 @@ namespace elem
     };
 
     //==============================================================================
+    // A std::span-like view over a block of audio data
+    template <typename FloatType>
+    class BufferView {
+    public:
+        BufferView(FloatType* __data, size_t __size)
+            : _data(__data), _size(__size)
+        {}
+
+        FloatType operator[] (size_t i) {
+            return _data[i];
+        }
+
+        FloatType* data() const { return _data; }
+        size_t size() const { return _size; }
+
+    private:
+        FloatType* _data;
+        size_t _size;
+    };
+
+    //==============================================================================
     // A couple of quick helpers to provide an API similar to std::views::keys of C++20.
     //
     // This allows the Runtime to expose the keys of the shared resource map to the end
@@ -101,95 +121,15 @@ namespace elem
 
     template<class MapType>
     struct MapKeyView {
-        public:
-            MapKeyView(MapType& m)
-                : other(m) {}
-
-            auto begin()    { return KeyIterator<MapType>(other.begin()); }
-            auto end()      { return KeyIterator<MapType>(other.end()); }
-
-        private:
-            MapType& other;
-    };
-
-    //==============================================================================
-    template <typename FloatType>
-    using SharedResourceBuffer = std::shared_ptr<std::vector<FloatType> const>;
-
-    template <typename FloatType>
-    using MutableSharedResourceBuffer = std::shared_ptr<std::vector<FloatType>>;
-
-    template <typename FloatType>
-    class SharedResourceMap {
     public:
-        //==============================================================================
-        using KeyViewType = MapKeyView<std::unordered_map<std::string, SharedResourceBuffer<FloatType>>>;
+        MapKeyView(MapType& m)
+            : other(m) {}
 
-        //==============================================================================
-        SharedResourceMap() = default;
-
-        //==============================================================================
-        // Accessor methods for immutable resources
-        bool insert(std::string const& p, SharedResourceBuffer<FloatType>&& srb);
-        bool has(std::string const& p);
-        SharedResourceBuffer<FloatType> const& get(std::string const& p);
-
-        void prune();
-        KeyViewType keys();
-
-        //==============================================================================
-        // Accessor methods for mutable resources
-        MutableSharedResourceBuffer<FloatType> const& getOrCreateMutable(std::string const& p, size_t blockSize);
+        auto begin()    { return KeyIterator<MapType>(other.begin()); }
+        auto end()      { return KeyIterator<MapType>(other.end()); }
 
     private:
-        std::unordered_map<std::string, SharedResourceBuffer<FloatType>> imms;
-        std::unordered_map<std::string, MutableSharedResourceBuffer<FloatType>> muts;
+        MapType& other;
     };
-
-    //==============================================================================
-    // Details...
-    template <typename FloatType>
-    bool SharedResourceMap<FloatType>::insert (std::string const& p, SharedResourceBuffer<FloatType>&& srb) {
-        // We only allow insertions here, not updates. This preserves immutability of existing
-        // entries which we need in case any active graph nodes hold references to those entries.
-        return imms.emplace(p, std::move(srb)).second;
-    }
-
-    template <typename FloatType>
-    bool SharedResourceMap<FloatType>::has (std::string const& p) {
-        return imms.count(p) > 0;
-    }
-
-    template <typename FloatType>
-    SharedResourceBuffer<FloatType> const& SharedResourceMap<FloatType>::get (std::string const& p) {
-        return imms.at(p);
-    }
-
-    template <typename FloatType>
-    void SharedResourceMap<FloatType>::prune() {
-        for (auto it = imms.cbegin(); it != imms.cend(); /* no increment */) {
-            if (it->second.use_count() == 1) {
-                imms.erase(it++);
-            } else {
-                it++;
-            }
-        }
-    }
-
-    template <typename FloatType>
-    typename SharedResourceMap<FloatType>::KeyViewType SharedResourceMap<FloatType>::keys() {
-        return MapKeyView<decltype(imms)>(imms);
-    }
-
-    template <typename FloatType>
-    MutableSharedResourceBuffer<FloatType> const& SharedResourceMap<FloatType>::getOrCreateMutable (std::string const& p, size_t blockSize) {
-        if (muts.count(p) > 0) {
-            return muts.at(p);
-        }
-
-        muts.emplace(p, std::make_shared<std::vector<FloatType>>(blockSize));
-        std::fill_n(muts.at(p)->data(), blockSize, FloatType(0));
-        return muts.at(p);
-    }
 
 } // namespace elem

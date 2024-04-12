@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SharedResource.h"
 #include "Types.h"
 #include "Value.h"
 
@@ -47,7 +48,7 @@ namespace elem
         // Thread safety must be managed by the user. This method will be called on
         // a non-realtime thread.
         virtual int setProperty(std::string const& key, js::Value const& val);
-        virtual int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>& resources);
+        virtual int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources);
 
         // Retreives a property from the Node's props, falling back to the provided
         // default value if no property exists by the given name.
@@ -111,7 +112,7 @@ namespace elem
     }
 
     template <typename FloatType>
-    int GraphNode<FloatType>::setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>&) {
+    int GraphNode<FloatType>::setProperty(std::string const& key, js::Value const& val, SharedResourceMap&) {
         return setProperty(key, val);
     }
 

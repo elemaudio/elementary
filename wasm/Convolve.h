@@ -31,7 +31,7 @@ namespace elem
             }
         }
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources) override
         {
             if (key == "path") {
                 if (!val.isString())
@@ -40,13 +40,16 @@ namespace elem
                 if (!resources.has((js::String) val))
                     return elem::ReturnCode::InvalidPropertyValue();
 
-                auto ref = resources.get((js::String) val);
-                auto co = std::make_shared<fftconvolver::TwoStageFFTConvolver>();
+                if (auto ref = resources.get((js::String) val))
+                {
+                    auto co = std::make_shared<fftconvolver::TwoStageFFTConvolver>();
+                    auto bufferView = ref->getChannelData(0);
 
-                co->reset();
-                co->init(512, 4096, ref->data(), ref->size());
+                    co->reset();
+                    co->init(512, 4096, bufferView.data(), bufferView.size());
 
-                convolverQueue.push(std::move(co));
+                    convolverQueue.push(std::move(co));
+                }
             }
 
             return GraphNode<FloatType>::setProperty(key, val);

@@ -178,7 +178,7 @@ namespace elem
         }
 
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<float>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources) override
         {
             if constexpr (WithStretch) {
                 if (key == "shift") {
@@ -277,7 +277,8 @@ namespace elem
                 // Here a value of 1.0 is considered an onset, and anything else
                 // considered an offset.
                 if (detail::fpEqual(prevEvent->second, FloatType(1.0))) {
-                    readers[activeReader].engage(prevEvent->first, t, const_cast<float*>(activeBuffer->data()), activeBuffer->size());
+                    auto const bufferView = activeBuffer->getChannelData(0);
+                    readers[activeReader].engage(prevEvent->first, t, const_cast<float*>(bufferView.data()), bufferView.size());
                 }
             }
         }
@@ -389,8 +390,8 @@ namespace elem
         typename Sequence::iterator prevEvent;
         typename Sequence::iterator nextEvent;
 
-        SingleWriterSingleReaderQueue<SharedResourceBuffer<float>> bufferQueue;
-        SharedResourceBuffer<float> activeBuffer;
+        SingleWriterSingleReaderQueue<SharedResourcePtr> bufferQueue;
+        SharedResourcePtr activeBuffer;
 
         std::array<detail::BufferReader<float>, 2> readers;
         size_t activeReader = 0;

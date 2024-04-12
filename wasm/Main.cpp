@@ -127,7 +127,7 @@ public:
         }
 
         auto& f32vec = buf.getFloat32Array();
-        auto result = runtime->updateSharedResourceMap((elem::js::String) n, f32vec.data(), f32vec.size());
+        auto result = runtime->addSharedResource((elem::js::String) n, std::make_unique<elem::AudioBufferResource>(f32vec.data(), f32vec.size()));
 
         return valueToEmVal(elem::js::Object {
             {"success", result},
@@ -137,7 +137,7 @@ public:
 
     void pruneSharedResources()
     {
-        runtime->pruneSharedResourceMap();
+        runtime->pruneSharedResources();
     }
 
     val listSharedResources()

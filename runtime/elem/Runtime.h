@@ -70,22 +70,22 @@ namespace elem
         void reset();
 
         //==============================================================================
-        // Loads a shared buffer into memory.
+        // Loads a shared resource into memory, taking ownership of the given pointer.
         //
         // This method populates an internal map from which any GraphNode can request a
-        // shared pointer to the data.
-        bool updateSharedResourceMap(std::string const& name, float const* data, size_t size);
+        // shared pointer to the resource.
+        bool addSharedResource(std::string const& name, std::unique_ptr<SharedResource> resource);
 
         // Removes unused resources from the map
         //
         // This method will retain any resource with references held by an active
         // audio graph.
-        void pruneSharedResourceMap();
+        void pruneSharedResources();
 
         // Returns an iterator through the names of the entries in the shared resoure map.
         //
         // Intentionally, this does not provide access to the values in the map.
-        typename SharedResourceMap<float>::KeyViewType getSharedResourceMapKeys();
+        SharedResourceMap::KeyViewType getSharedResourceMapKeys();
 
         //==============================================================================
         // For registering custom GraphNode factory functions.
@@ -137,7 +137,7 @@ namespace elem
         std::set<NodeId> currentRoots;
         RefCountedPool<GraphRenderSequence<FloatType>> renderSeqPool;
 
-        SharedResourceMap<float> sharedResourceMap;
+        SharedResourceMap sharedResourceMap;
 
         double sampleRate;
         int blockSize;
@@ -420,22 +420,19 @@ namespace elem
 
     //==============================================================================
     template <typename FloatType>
-    bool Runtime<FloatType>::updateSharedResourceMap(std::string const& name, float const* data, size_t size)
+    bool Runtime<FloatType>::addSharedResource(std::string const& name, std::unique_ptr<SharedResource> resource)
     {
-        return sharedResourceMap.insert(
-            name,
-            std::make_shared<typename SharedResourceBuffer<float>::element_type>(data, data + size)
-        );
+        return sharedResourceMap.add(name, std::move(resource));
     }
 
     template <typename FloatType>
-    void Runtime<FloatType>::pruneSharedResourceMap()
+    void Runtime<FloatType>::pruneSharedResources()
     {
         sharedResourceMap.prune();
     }
 
     template <typename FloatType>
-    typename SharedResourceMap<float>::KeyViewType Runtime<FloatType>::getSharedResourceMapKeys()
+    SharedResourceMap::KeyViewType Runtime<FloatType>::getSharedResourceMapKeys()
     {
         return sharedResourceMap.keys();
     }
