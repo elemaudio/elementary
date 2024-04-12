@@ -107,6 +107,18 @@ public:
         runtime->reset();
     }
 
+    val gc()
+    {
+        auto pruned = runtime->gc();
+        auto ret = elem::js::Array();
+
+        for (auto& n : pruned) {
+            ret.push_back(elem::js::Value((double) n));
+        }
+
+        return valueToEmVal(ret);
+    }
+
     val addSharedResource(val name, val buffer)
     {
         auto n = emValToValue(name);
@@ -360,6 +372,7 @@ EMSCRIPTEN_BINDINGS(Elementary) {
         .function("getOutputBufferData", &ElementaryAudioProcessor::getOutputBufferData)
         .function("postMessageBatch", &ElementaryAudioProcessor::postMessageBatch)
         .function("reset", &ElementaryAudioProcessor::reset)
+        .function("gc", &ElementaryAudioProcessor::gc)
         .function("addSharedResource", &ElementaryAudioProcessor::addSharedResource)
         .function("pruneSharedResources", &ElementaryAudioProcessor::pruneSharedResources)
         .function("listSharedResources", &ElementaryAudioProcessor::listSharedResources)

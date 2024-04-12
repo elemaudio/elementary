@@ -34,7 +34,7 @@ namespace elem
             auto const t = targetGain.load();
             auto const c = currentGain.load();
 
-            return (t >= 0.5 || (std::abs(c - t) >= std::numeric_limits<FloatType>::epsilon()));
+            return (t >= 0.5 || (std::abs(c - t) >= 1e-6));
         }
 
         void activate(FloatType initialGain = FloatType(0)) 

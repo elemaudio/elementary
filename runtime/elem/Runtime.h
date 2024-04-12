@@ -69,6 +69,12 @@ namespace elem
         // delay buffers or sample readers.
         void reset();
 
+        // Releases unused graph nodes
+        //
+        // Returns the set of graph nodes that have been cleared, which should be communicated
+        // to the respective Renderer instance on the JavaScript side to ensure matching node maps
+        std::set<NodeId> gc();
+
         //==============================================================================
         // Loads a shared resource into memory, taking ownership of the given pointer.
         //
@@ -108,7 +114,6 @@ namespace elem
         // The rendering interface
         enum class InstructionType {
           CREATE_NODE = 0,
-          DELETE_NODE = 1,
           APPEND_CHILD = 2,
           SET_PROPERTY = 3,
           ACTIVATE_ROOTS = 4,
@@ -116,7 +121,6 @@ namespace elem
         };
 
         int createNode(js::Value const& nodeId, js::Value const& type);
-        int deleteNode(js::Value const& nodeId);
         int setProperty(js::Value const& nodeId, js::Value const& prop, js::Value const& v);
         int appendChild(js::Value const& parentId, js::Value const& childId, js::Value const& childOutputChannel);
         int activateRoots(js::Array const& v);
@@ -132,7 +136,6 @@ namespace elem
         std::unordered_map<std::string, NodeFactoryFn> nodeFactory;
         std::unordered_map<NodeId, std::shared_ptr<GraphNode<FloatType>>> nodeTable;
         std::unordered_map<NodeId, std::vector<std::pair<NodeId, size_t>>> edgeTable;
-        std::unordered_map<NodeId, std::shared_ptr<GraphNode<FloatType>>> garbageTable;
 
         std::set<NodeId> currentRoots;
         RefCountedPool<GraphRenderSequence<FloatType>> renderSeqPool;
@@ -180,9 +183,6 @@ namespace elem
                 case InstructionType::CREATE_NODE:
                     res = createNode(ar[1], ar[2]);
                     break;
-                case InstructionType::DELETE_NODE:
-                    res = deleteNode(ar[1]);
-                    break;
                 case InstructionType::SET_PROPERTY:
                     res = setProperty(ar[1], ar[2], ar[3]);
                     break;
@@ -208,19 +208,36 @@ namespace elem
             }
         }
 
-        // While we're here, we scan the garbageTable to see if we can deallocate
-        // any nodes who are only held by the garbageTable. That means that the realtime
-        // thread has already seen the corresponding DeleteNode events and dropped its references
-        for (auto it = garbageTable.begin(); it != garbageTable.end();) {
+        return ReturnCode::Ok();
+    }
+
+    template <typename FloatType>
+    std::set<NodeId> Runtime<FloatType>::gc()
+    {
+        // First, reset all RenderSeq instances in the pool that are not
+        // currently in use
+        renderSeqPool.forEach([](auto&& rseq) {
+            if (rseq.use_count() == 1) {
+                rseq->reset();
+            }
+        });
+
+        std::set<NodeId> pruned;
+
+        // Now we can be sure that the nodes that are currently involved in the
+        // active graph rendering sequence have multiple references, while those
+        // that are unused are held only by the nodeTable. Those nodes we clean up here.
+        for (auto it = nodeTable.begin(); it != nodeTable.end(); /* skip increment */) {
             if (it->second.use_count() == 1) {
-                ELEM_DBG("[Native] pruneNode " << nodeIdToHex(it->second->getId()));
-                it = garbageTable.erase(it);
+                ELEM_DBG("[Native] gc " << nodeIdToHex(it->second->getId()));
+                pruned.insert(it->first);
+                it = nodeTable.erase(it);
             } else {
                 it++;
             }
         }
 
-        return ReturnCode::Ok();
+        return pruned;
     }
 
     template <typename FloatType>
@@ -261,26 +278,6 @@ namespace elem
         auto node = nodeFactory[type](nodeId, sampleRate, blockSize);
         nodeTable.insert({nodeId, node});
         edgeTable.insert({nodeId, {}});
-
-        return ReturnCode::Ok();
-    }
-
-    template <typename FloatType>
-    int Runtime<FloatType>::deleteNode(js::Value const& a1)
-    {
-        if (!a1.isNumber())
-            return ReturnCode::InvalidInstructionFormat();
-
-        auto const nodeId = static_cast<int32_t>((js::Number) a1);
-        ELEM_DBG("[Native] deleteNode " << nodeIdToHex(nodeId));
-
-        if (nodeTable.find(nodeId) == nodeTable.end() || edgeTable.find(nodeId) == edgeTable.end())
-            return ReturnCode::NodeNotFound();
-
-        // Move the node out of the nodeTable. It will be pruned from the garbageTable
-        // asynchronously after the renderer has dropped its references.
-        garbageTable.insert(nodeTable.extract(nodeId));
-        edgeTable.erase(nodeId);
 
         return ReturnCode::Ok();
     }
