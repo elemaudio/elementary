@@ -93,3 +93,27 @@ test('child limit', async function() {
   // Once this settles, we should see 100s everywhere
   expect(outs[0].slice(512 * 8, 512 * 8 + 32)).toMatchSnapshot();
 });
+
+test('render stats', async function() {
+  let core = new OfflineRenderer();
+
+  await core.initialize({
+    numInputChannels: 0,
+    numOutputChannels: 1,
+  });
+
+  // Render a graph and get some valid stats back
+  let stats = await core.render(el.mul(2, 3));
+
+  expect(stats).toMatchObject({
+    edgesAdded: 3,
+    nodesAdded: 4,
+    propsWritten: 3,
+  });
+
+  // Render with an invalid property and get a failure, rejecting the
+  // promise returned from core.render
+  await expect(core.render(el.const({value: 'hi'}))).rejects.toMatchObject({
+    success: false,
+  });
+});

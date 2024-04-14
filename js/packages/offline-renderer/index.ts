@@ -64,14 +64,18 @@ export default class OfflineRenderer extends EventEmitter {
     }
 
     this._renderer = new Renderer((batch) => {
-      this._native.postMessageBatch(batch, (type, message) => {
-        this.emit('error', new Error(`${type}: ${message}`));
-      });
+      return this._native.postMessageBatch(batch);
     });
   }
 
-  render(...args) {
-    return this._renderer.render(...args);
+  async render(...args) {
+    const {result, ...stats} = await this._renderer.render(...args);
+
+    if (!result.success) {
+      return Promise.reject(result);
+    }
+
+    return Promise.resolve(stats);
   }
 
   createRef(kind, props, children) {
@@ -155,5 +159,13 @@ export default class OfflineRenderer extends EventEmitter {
 
   reset() {
     this._native.reset();
+  }
+
+  setCurrentTime(t) {
+    this._native.setCurrentTime(t);
+  }
+
+  setCurrentTimeMs(t) {
+    this._native.setCurrentTimeMs(t);
   }
 }

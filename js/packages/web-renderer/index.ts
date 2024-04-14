@@ -14,7 +14,7 @@ import WasmModule from './raw/elementary-wasm';
 export default class WebAudioRenderer extends EventEmitter {
   private _worklet: any;
   private _promiseMap: any;
-  private _nextPromiseKey: number;
+  private _nextRequestId: number;
   private _renderer: Renderer;
   private _timer: any;
 
@@ -54,7 +54,7 @@ export default class WebAudioRenderer extends EventEmitter {
     }
 
     this._promiseMap = new Map();
-    this._nextPromiseKey = 0;
+    this._nextRequestId = 0;
 
     this._worklet = new AudioWorkletNode(audioContext, `ElementaryAudioWorkletProcessor@${pkgVersion}`, Object.assign({
       numberOfInputs: 0,
@@ -68,45 +68,57 @@ export default class WebAudioRenderer extends EventEmitter {
     // actually created our Renderer instance here in time.
     return await new Promise((resolve, reject) => {
       this._worklet.port.onmessage = (e) => {
-        const [type, evt] = e.data;
+        const [type, payload] = e.data;
 
         if (type === 'load') {
-          this._renderer = new Renderer((batch) => {
-            this._worklet.port.postMessage({
-              type: 'renderInstructions',
+          this._renderer = new Renderer(async (batch) => {
+            return await this._sendWorkletRequest('renderInstructions', {
               batch,
             });
           });
 
           resolve(this._worklet);
+          return this.emit(type, payload);
         }
 
-        if (type === 'resolvePromise') {
-          const {promiseKey, result} = evt;
-          this._promiseMap.get(promiseKey).resolve(result);
-          this._promiseMap.delete(promiseKey);
-          return;
-        }
-
-        if (type === 'error') {
-          return this.emit(type, new Error(evt));
-        }
-
-        if (type === 'eventBatch') {
-          return evt.forEach(({type, event}) => {
-            this.emit(type, event);
+        if (type === 'events') {
+          return payload.batch.forEach(({eventType, data}) => {
+            this.emit(eventType, data);
           });
         }
 
-        this.emit(type, evt);
+        if (type === 'reply') {
+          const {requestId, result} = payload;
+          const {resolve, reject} = this._promiseMap.get(requestId);
+
+          this._promiseMap.delete(requestId);
+
+          return resolve(result);
+        }
       };
 
       // TODO: Clean up? Unsubscribe option?
       this._timer = window.setInterval(() => {
         this._worklet.port.postMessage({
-          type: 'processQueuedEvents',
+          requestType: 'processQueuedEvents',
         });
       }, eventInterval);
+    });
+  }
+
+  _sendWorkletRequest(requestType, payload) {
+    invariant(this._worklet, 'Can\'t send request before worklet is ready. Have you initialized your WebRenderer instance?');
+
+    let requestId = this._nextRequestId++;
+
+    this._worklet.port.postMessage({
+      requestId,
+      requestType,
+      payload,
+    });
+
+    return new Promise((resolve, reject) => {
+      this._promiseMap.set(requestId, { resolve, reject });
     });
   }
 
@@ -114,11 +126,17 @@ export default class WebAudioRenderer extends EventEmitter {
     return this._renderer.createRef(kind, props, children);
   }
 
-  render(...args) {
-    return this._renderer.render(...args);
+  async render(...args) {
+    const {result, ...stats} = await this._renderer.render(...args);
+
+    if (!result.success) {
+      return Promise.reject(result);
+    }
+
+    return Promise.resolve(stats);
   }
 
-  updateVirtualFileSystem(vfs) {
+  async updateVirtualFileSystem(vfs) {
     const valid = typeof vfs === 'object' && vfs !== null;
 
     invariant(valid, "Virtual file system must be an object mapping string type keys to Array|Float32Array type values");
@@ -130,36 +148,32 @@ export default class WebAudioRenderer extends EventEmitter {
       invariant(validValue, "Virtual file system must be an object mapping string type keys to Array|Float32Array type values");
     });
 
-    this._worklet.port.postMessage({
-      type: 'updateSharedResourceMap',
+    return await this._sendWorkletRequest('updateSharedResourceMap', {
       resources: vfs,
     });
   }
 
-  pruneVirtualFileSystem() {
-    this._worklet.port.postMessage({
-      type: 'pruneVirtualFileSystem',
+  async pruneVirtualFileSystem() {
+    return await this._sendWorkletRequest('pruneVirtualFileSystem', {});
+  }
+
+  async listVirtualFileSystem() {
+    return await this._sendWorkletRequest('listVirtualFileSystem', {});
+  }
+
+  async reset() {
+    return await this._sendWorkletRequest('reset', {});
+  }
+
+  async setCurrentTime(t) {
+    return await this._sendWorkletRequest('setCurrentTime', {
+      time: t
     });
   }
 
-  listVirtualFileSystem() {
-    const promiseKey = this._nextPromiseKey++;
-
-    this._worklet.port.postMessage({
-      type: 'listVirtualFileSystem',
-      promiseKey,
+  async setCurrentTimeMs(t) {
+    return await this._sendWorkletRequest('setCurrentTimeMs', {
+      time: t
     });
-
-    return new Promise((resolve, reject) => {
-      this._promiseMap.set(promiseKey, { resolve, reject });
-    });
-  }
-
-  reset() {
-    if (this._worklet) {
-      this._worklet.port.postMessage({
-        type: 'reset',
-      });
-    }
   }
 }

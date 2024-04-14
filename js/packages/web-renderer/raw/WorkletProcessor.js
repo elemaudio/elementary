@@ -71,15 +71,9 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
     }
 
     this.port.onmessage = (e) => {
-      switch (e.data.type) {
-        case 'renderInstructions':
-          this._native.postMessageBatch(e.data.batch, (type, msg) => {
-            // This callback will only be called in the event of an error, we just relay
-            // it to the renderer frontend.
-            this.port.postMessage([type, msg]);
-          });
+      let {requestId, requestType, payload} = e.data;
 
-          break;
+      switch (requestType) {
         case 'processQueuedEvents':
           this._native.processQueuedEvents((evtBatch) => {
             if (evtBatch.length > 0) {
@@ -89,26 +83,51 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
           });
 
           break;
+        case 'renderInstructions':
+          return this.port.postMessage(['reply', {
+            requestId,
+            result: this._native.postMessageBatch(payload.batch),
+          }]);
         case 'updateSharedResourceMap':
-          for (let [key, val] of Object.entries(e.data.resources)) {
+          for (let [key, val] of Object.entries(payload.resources)) {
             this._native.updateSharedResourceMap(key, val, (message) => {
               this.port.postMessage(['error', message]);
             });
           }
 
-          break;
+          return this.port.postMessage(['reply', {
+            requestId,
+            result: null,
+          }]);
         case 'reset':
           this._native.reset();
-          break;
+
+          return this.port.postMessage(['reply', {
+            requestId,
+            result: null,
+          }]);
         case 'pruneVirtualFileSystem':
           this._native.pruneSharedResourceMap();
-          break;
-        case 'listVirtualFileSystem':
-          let result = this._native.listSharedResourceMap();
-          let promiseKey = e.data.promiseKey;
 
-          this.port.postMessage(['resolvePromise', {promiseKey, result}]);
-          break;
+          return this.port.postMessage(['reply', {
+            requestId,
+            result: null,
+          }]);
+        case 'listVirtualFileSystem':
+          return this.port.postMessage(['reply', {
+            requestId,
+            result: this._native.listSharedResourceMap(),
+          }]);
+        case 'setCurrentTime':
+          return this.port.postMessage(['reply', {
+            requestId,
+            result: this._native.setCurrentTime(payload.time),
+          }]);
+        case 'setCurrentTimeMs':
+          return this.port.postMessage(['reply', {
+            requestId,
+            result: this._native.setCurrentTimeMs(payload.time),
+          }]);
         default:
           break;
       }

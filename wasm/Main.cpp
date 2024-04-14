@@ -27,8 +27,10 @@ public:
 
     //==============================================================================
     /** Called before processing starts. */
-    void prepare (double sampleRate, unsigned int maxBlockSize)
+    void prepare (double sr, unsigned int maxBlockSize)
     {
+        sampleRate = sr;
+
         scratchBuffers.clear();
         scratchPointers.clear();
 
@@ -80,21 +82,24 @@ public:
 
     //==============================================================================
     /** Message batch handling. */
-    void postMessageBatch (val payload, val errorCallback)
+    val postMessageBatch (val payload)
     {
         auto v = emValToValue(payload);
 
         if (!v.isArray()) {
-            errorCallback(val("error"), val("Malformed message batch."));
-            return;
+            return valueToEmVal(elem::js::Object {
+                {"success", false},
+                {"message", "Malformed message batch"},
+            });
         }
 
         auto const& batch = v.getArray();
         auto const rc = runtime->applyInstructions(batch);
 
-        if (rc != elem::ReturnCode::Ok()) {
-            errorCallback(val("error"), val(elem::ReturnCode::describe(rc)));
-        }
+        return valueToEmVal(elem::js::Object {
+            {"success", rc == elem::ReturnCode::Ok()},
+            {"message", elem::ReturnCode::describe(rc)},
+        });
     }
 
     void reset()
@@ -177,6 +182,17 @@ public:
         });
 
         callback(valueToEmVal(batch));
+    }
+
+    void setCurrentTime(int const timeInSamples)
+    {
+        sampleTime = timeInSamples;
+    }
+
+    void setCurrentTimeMs(double const timeInMs)
+    {
+        double const timeInSeconds = timeInMs / 1000.0;
+        sampleTime = static_cast<int64_t>(timeInSeconds * sampleRate);
     }
 
 private:
@@ -318,6 +334,7 @@ private:
     std::vector<float*> scratchPointers;
 
     int64_t sampleTime = 0;
+    double sampleRate = 0;
 
     size_t numInputChannels = 0;
     size_t numOutputChannels = 2;
@@ -335,5 +352,7 @@ EMSCRIPTEN_BINDINGS(Elementary) {
         .function("pruneSharedResourceMap", &ElementaryAudioProcessor::pruneSharedResourceMap)
         .function("listSharedResourceMap", &ElementaryAudioProcessor::listSharedResourceMap)
         .function("process", &ElementaryAudioProcessor::process)
-        .function("processQueuedEvents", &ElementaryAudioProcessor::processQueuedEvents);
+        .function("processQueuedEvents", &ElementaryAudioProcessor::processQueuedEvents)
+        .function("setCurrentTime", &ElementaryAudioProcessor::setCurrentTime)
+        .function("setCurrentTimeMs", &ElementaryAudioProcessor::setCurrentTimeMs);
 };

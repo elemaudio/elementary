@@ -21,7 +21,7 @@ import * as os from './lib/oscillators';
 import * as si from './lib/signals';
 
 export type { ElemNode, NodeRepr_t } from './nodeUtils';
-export { EventEmitter } from './src/Events';
+export { default as EventEmitter } from './src/Events';
 
 const stdlib = {
   ...co,
@@ -56,11 +56,13 @@ class Delegate {
   public nodeMap: Map<number, any>;
 
   private currentActiveRoots: Set<number>;
+  private terminalGeneration: number;
   private batch: any;
 
-  constructor() {
+  constructor(terminalGeneration = 8) {
     this.nodeMap = new Map();
     this.currentActiveRoots = new Set();
+    this.terminalGeneration = terminalGeneration;
 
     this.clear();
   }
@@ -82,7 +84,7 @@ class Delegate {
   }
 
   getNodeMap() { return this.nodeMap; }
-  getTerminalGeneration() { return 4; }
+  getTerminalGeneration() { return this.terminalGeneration; }
 
   createNode(hash, type) {
     this.nodesAdded++;
@@ -157,8 +159,8 @@ class Renderer {
   private _sendMessage: Function;
   private _nextRefId: number;
 
-  constructor(sendMessage) {
-    this._delegate = new Delegate();
+  constructor(sendMessage, gcTerminalGeneration = 8) {
+    this._delegate = new Delegate(gcTerminalGeneration);
     this._sendMessage = sendMessage;
     this._nextRefId = 0;
   }
@@ -194,7 +196,10 @@ class Renderer {
       updateNodeProps(this._delegate, node.hash, nodeMapCopy.props, newProps);
       this._delegate.commitUpdates();
 
-      this._sendMessage(this._delegate.getPackedInstructions());
+      // Invoke message passing
+      const instructions = this._delegate.getPackedInstructions();
+
+      return Promise.resolve(this._sendMessage(instructions));
     };
 
     return [node, setter];
@@ -209,15 +214,18 @@ class Renderer {
     const t1 = now();
 
     // Invoke message passing
-    this._sendMessage(this._delegate.getPackedInstructions());
+    const instructions = this._delegate.getPackedInstructions();
 
-    // Return render stats
-    return {
-      nodesAdded: this._delegate.nodesAdded,
-      edgesAdded: this._delegate.edgesAdded,
-      propsWritten: this._delegate.propsWritten,
-      elapsedTimeMs: t1 - t0,
-    };
+    return Promise.resolve(this._sendMessage(instructions)).then((result) => {
+      // Pack render stats with the result of the message passing
+      return {
+        result,
+        nodesAdded: this._delegate.nodesAdded,
+        edgesAdded: this._delegate.edgesAdded,
+        propsWritten: this._delegate.propsWritten,
+        elapsedTimeMs: t1 - t0,
+      };
+    });
   }
 }
 

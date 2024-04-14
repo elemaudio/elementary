@@ -89,36 +89,20 @@ let rec visit = (
 }
 
 @genType
-let renderWithDelegate = (delegate, graphs) => {
-  let visitSet = Set.make()
-  let roots = Belt.List.mapWithIndex(Belt.List.fromArray(graphs), (i, g) => {
-    NodeRepr.create("root", {"channel": i}, [g])
-  })
-
-  visit(delegate, visitSet, roots)
-
-  RenderDelegate.activateRoots(delegate, Belt.List.toArray(Belt.List.map(roots, r => r.hash)))
-
-  // TODO: stepGarbageCollector right here? Gets tricky maybe given that we should not commit entries
-  // to our node map until we're sure the instruction batch transaction completes
-  //
-  // I think it makes sense; we should gc here and also find a way to defer making any changes
-  // to the nodeMap (whether creating or deleting) until we confirm that the native side has successfully
-  // received the instruction batch
-  RenderDelegate.commitUpdates(delegate)
-}
-
-@genType
 let stepGarbageCollector = (delegate: RenderDelegate.t): () => {
   let nodeMap = RenderDelegate.getNodeMap(delegate)
   let term = RenderDelegate.getTerminalGeneration(delegate)
 
   // The GC pass here is simple: we iterate all known nodes and increment their generation,
-  // meaning, the number of "render" passes through which they've lived.
+  // meaning the number of render passes through which they've lived.
   //
   // During the render pass, any nodes actively referenced in the requested graph will
   // reset their generation back to 0. Nodes which are not revisited there will then get
   // older and older until they exceed the threshold, at which point we remove them.
+  //
+  // After the very first render, every node will have a generation of 1. After every subsequent
+  // render, any active node in the graph will still have a generation of 1, while nodes which
+  // are no longer used will grow older and older.
   //
   // Here we accumulate a list of all such nodes ready for removal, issue the instructions,
   // and prune the nodeMap
@@ -134,7 +118,26 @@ let stepGarbageCollector = (delegate: RenderDelegate.t): () => {
   }, list{});
 
   if (Belt.List.length(deleted) > 0) {
-    RenderDelegate.commitUpdates(delegate)
     Belt.List.forEach(deleted, n => Map.delete(nodeMap, n.hash));
   }
 }
+
+@genType
+let renderWithDelegate = (delegate, graphs) => {
+  let visitSet = Set.make()
+  let roots = Belt.List.mapWithIndex(Belt.List.fromArray(graphs), (i, g) => {
+    NodeRepr.create("root", {"channel": i}, [g])
+  })
+
+  visit(delegate, visitSet, roots)
+
+  if (RenderDelegate.getTerminalGeneration(delegate) > 1) {
+    stepGarbageCollector(delegate)
+  }
+
+  RenderDelegate.activateRoots(delegate, Belt.List.toArray(Belt.List.map(roots, r => r.hash)))
+
+  // TODO: transaction semantics!
+  RenderDelegate.commitUpdates(delegate)
+}
+

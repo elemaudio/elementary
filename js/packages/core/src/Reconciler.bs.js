@@ -54,20 +54,6 @@ function visit(delegate, visitSet, _ns) {
   };
 }
 
-function renderWithDelegate(delegate, graphs) {
-  var visitSet = new Set();
-  var roots = Belt_List.mapWithIndex(Belt_List.fromArray(graphs), (function (i, g) {
-          return NodeRepr.create("root", {
-                      channel: i
-                    }, [g]);
-        }));
-  visit(delegate, visitSet, roots);
-  delegate.activateRoots(Belt_List.toArray(Belt_List.map(roots, (function (r) {
-                  return r.hash;
-                }))));
-  delegate.commitUpdates();
-}
-
 function stepGarbageCollector(delegate) {
   var nodeMap = delegate.getNodeMap();
   var term = delegate.getTerminalGeneration();
@@ -81,12 +67,28 @@ function stepGarbageCollector(delegate) {
           }
         }), /* [] */0);
   if (Belt_List.length(deleted) > 0) {
-    delegate.commitUpdates();
     return Belt_List.forEach(deleted, (function (n) {
                   nodeMap.delete(n.hash);
                 }));
   }
   
+}
+
+function renderWithDelegate(delegate, graphs) {
+  var visitSet = new Set();
+  var roots = Belt_List.mapWithIndex(Belt_List.fromArray(graphs), (function (i, g) {
+          return NodeRepr.create("root", {
+                      channel: i
+                    }, [g]);
+        }));
+  visit(delegate, visitSet, roots);
+  if (delegate.getTerminalGeneration() > 1) {
+    stepGarbageCollector(delegate);
+  }
+  delegate.activateRoots(Belt_List.toArray(Belt_List.map(roots, (function (r) {
+                  return r.hash;
+                }))));
+  delegate.commitUpdates();
 }
 
 export {
@@ -95,7 +97,7 @@ export {
   RenderDelegate ,
   mount ,
   visit ,
-  renderWithDelegate ,
   stepGarbageCollector ,
+  renderWithDelegate ,
 }
 /* NodeRepr Not a pure module */
