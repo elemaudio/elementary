@@ -1,6 +1,6 @@
 {
   "name": "@elemaudio/offline-renderer",
-  "version": "3.2.0",
+  "version": "3.2.2",
   "type": "module",
   "description": "Official package for rendering Elementary Audio applications offline",
   "author": "Nick Thompson <nick@elementary.audio>",
@@ -39,7 +39,7 @@
     "rollup-plugin-ignore": "^1.0.10"
   },
   "dependencies": {
-    "@elemaudio/core": "^3.2.0",
+    "@elemaudio/core": "^3.2.1",
     "invariant": "^2.2.4"
   }
 }
