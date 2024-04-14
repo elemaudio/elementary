@@ -372,6 +372,7 @@ namespace elem
             if (it != nodeTable.end())
             {
                 auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(it->second);
+                // If any current root was not marked active in this event, we deactivate it
                 if (ptr)
                 {
                     if (active.count(n) == 0)
@@ -379,7 +380,7 @@ namespace elem
                         ptr->setProperty("active", false);
                         ELEM_DBG("[Success] Deactivated root: " << nodeIdToHex(n));
                     }
-
+                    // And if it's still running, we hang onto it
                     if (ptr->stillRunning())
                     {
                         active.insert(n);
@@ -387,8 +388,8 @@ namespace elem
                 }
             }
         }
-
-        currentRoots.swap(active); // More efficient than assignment
+        // Merge
+        currentRoots.swap(active);
         return ReturnCode::Ok();
     }
 

@@ -6,6 +6,7 @@ node_modules
 .cljs_node_repl
 .cpcache
 .cache
+.DS_Store
 
 *.swp
 
@@ -16,4 +17,4 @@ js/packages/**/*.min.js
 /js/packages/core/.DS_Store
 /js/packages/.DS_Store
 /js/.DS_Store
-/.DS_Store
+
