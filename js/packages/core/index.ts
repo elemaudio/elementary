@@ -74,11 +74,11 @@ class Delegate {
 
     this.batch = {
       createNode: [],
-      deleteNode: [],
       appendChild: [],
       setProperty: [],
       activateRoots: [],
       commitUpdates: [],
+      deleteNode: []
     };
   }
 
@@ -127,11 +127,11 @@ class Delegate {
   getPackedInstructions() {
     return [
       ...this.batch.createNode,
-      ...this.batch.deleteNode,
       ...this.batch.appendChild,
       ...this.batch.setProperty,
       ...this.batch.activateRoots,
       ...this.batch.commitUpdates,
+      ...this.batch.deleteNode,
     ];
   }
 }

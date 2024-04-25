@@ -32,6 +32,12 @@ namespace elem
             return (t >= 0.5 || (std::abs(c - t) >= std::numeric_limits<FloatType>::epsilon()));
         }
 
+        void activate(FloatType initialGain = FloatType(0)) 
+        {
+            setProperty("active", true);
+            currentGain.store(initialGain);
+        }
+
         int setProperty(std::string const& key, js::Value const& val) override
         {
             if (key == "active") {
