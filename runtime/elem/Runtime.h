@@ -131,7 +131,7 @@ namespace elem
         //==============================================================================
         std::unordered_map<std::string, NodeFactoryFn> nodeFactory;
         std::unordered_map<NodeId, std::shared_ptr<GraphNode<FloatType>>> nodeTable;
-        std::unordered_map<NodeId, std::vector<NodeId>> edgeTable;
+        std::unordered_map<NodeId, std::vector<std::pair<NodeId, size_t>>> edgeTable;
         std::unordered_map<NodeId, std::shared_ptr<GraphNode<FloatType>>> garbageTable;
 
         std::set<NodeId> currentRoots;
@@ -321,7 +321,7 @@ namespace elem
         if (nodeTable.find(childId) == nodeTable.end())
             return ReturnCode::NodeNotFound();
 
-        edgeTable.at(parentId).push_back(childId);
+        edgeTable.at(parentId).push_back({childId, 0});
 
         return ReturnCode::Ok();
     }
@@ -470,7 +470,8 @@ namespace elem
         auto const numChildren = children.size();
 
         for (size_t i = 0; i < numChildren; ++i) {
-            traverse(visited, visitOrder, children.at(i));
+            auto const& [childId, outputChannel] = children.at(i);
+            traverse(visited, visitOrder, childId);
         }
 
         visitOrder.push_back(n);

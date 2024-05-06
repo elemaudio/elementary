@@ -73,7 +73,8 @@ namespace elem
     {
         FloatType const** inputData;
         size_t numInputChannels;
-        FloatType* outputData;
+        FloatType** outputData;
+        size_t numOutputChannels;
         size_t numSamples;
         void* userData;
     };

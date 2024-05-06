@@ -39,6 +39,10 @@ namespace elem
         size_t getBlockSize() { return blockSize; }
 
         //==============================================================================
+        // Returns the number of output channels this node will write to
+        virtual size_t getNumOutputChannels() { return 1; }
+
+        //==============================================================================
         // Sets a property onto the graph node.
         //
         // By default this does nothing other than store the property into `props`,
