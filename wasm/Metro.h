@@ -35,7 +35,7 @@ namespace elem
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numSamples = ctx.numSamples;
             auto sampleTime = *static_cast<int64_t*>(ctx.userData);
 
