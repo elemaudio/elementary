@@ -13,6 +13,7 @@ type rec t = {
   hash: int,
   kind: string,
   props: props,
+  outputChannel: int,
   children: list<t>,
 }
 
@@ -22,6 +23,7 @@ type shallow = {
   hash: int,
   kind: string,
   props: props,
+  outputChannel: int,
   generation: ref<int>,
 }
 
@@ -38,6 +40,7 @@ let create = (kind, props: 'a, children: array<t>): t => {
     kind: kind,
     hash: HashUtils.hashNode(. kind, asDict(props), childHashes),
     props: asPropsType(props),
+    outputChannel: 0,
     children: childrenList
   }
 }
@@ -63,6 +66,7 @@ let shallowCopy = (node: t): shallow => {
     kind: node.kind,
     hash: node.hash,
     props: asPropsType(Js.Obj.assign(Js.Obj.empty(), asObjectType(node.props))),
+    outputChannel: node.outputChannel,
     generation: ref(0),
   }
 }

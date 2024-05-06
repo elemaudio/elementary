@@ -118,7 +118,7 @@ namespace elem
         int createNode(js::Value const& nodeId, js::Value const& type);
         int deleteNode(js::Value const& nodeId);
         int setProperty(js::Value const& nodeId, js::Value const& prop, js::Value const& v);
-        int appendChild(js::Value const& parentId, js::Value const& childId);
+        int appendChild(js::Value const& parentId, js::Value const& childId, js::Value const& childOutputChannel);
         int activateRoots(js::Array const& v);
 
         BufferAllocator<FloatType> bufferAllocator;
@@ -187,7 +187,7 @@ namespace elem
                     res = setProperty(ar[1], ar[2], ar[3]);
                     break;
                 case InstructionType::APPEND_CHILD:
-                    res = appendChild(ar[1], ar[2]);
+                    res = appendChild(ar[1], ar[2], ar[3]);
                     break;
                 case InstructionType::ACTIVATE_ROOTS:
                     res = activateRoots(ar[1]);
@@ -306,22 +306,23 @@ namespace elem
     }
 
     template <typename FloatType>
-    int Runtime<FloatType>::appendChild(js::Value const& a1, js::Value const& a2)
+    int Runtime<FloatType>::appendChild(js::Value const& a1, js::Value const& a2, js::Value const& a3)
     {
-        if (!a1.isNumber() || !a2.isNumber())
+        if (!a1.isNumber() || !a2.isNumber() || !a3.isNumber())
             return ReturnCode::InvalidInstructionFormat();
 
         auto const parentId = static_cast<int32_t>((js::Number) a1);
         auto const childId = static_cast<int32_t>((js::Number) a2);
+        auto const childOutputChannel = static_cast<int32_t>((js::Number) a3);
 
-        ELEM_DBG("[Native] appendChild " << nodeIdToHex(childId) << " to parent " << nodeIdToHex(parentId));
+        ELEM_DBG("[Native] appendChild " << nodeIdToHex(childId) << ":" << childOutputChannel << " to parent " << nodeIdToHex(parentId));
 
         if (nodeTable.find(parentId) == nodeTable.end() || edgeTable.find(parentId) == edgeTable.end())
             return ReturnCode::NodeNotFound();
         if (nodeTable.find(childId) == nodeTable.end())
             return ReturnCode::NodeNotFound();
 
-        edgeTable.at(parentId).push_back({childId, 0});
+        edgeTable.at(parentId).push_back({childId, childOutputChannel});
 
         return ReturnCode::Ok();
     }

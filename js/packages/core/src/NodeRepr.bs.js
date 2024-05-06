@@ -16,6 +16,7 @@ function create(kind, props, children) {
           hash: HashUtils.hashNode(kind, props, childHashes),
           kind: kind,
           props: props,
+          outputChannel: 0,
           children: childrenList
         };
 }
@@ -42,6 +43,7 @@ function shallowCopy(node) {
           hash: node.hash,
           kind: node.kind,
           props: Object.assign({}, node.props),
+          outputChannel: node.outputChannel,
           generation: {
             contents: 0
           }

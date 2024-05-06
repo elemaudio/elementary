@@ -27,7 +27,7 @@ function mount(delegate, node) {
   delegate.createNode(node.hash, node.kind);
   HashUtils.updateNodeProps(delegate, node.hash, {}, node.props);
   Belt_List.forEach(node.children, (function (child) {
-          delegate.appendChild(node.hash, child.hash);
+          delegate.appendChild(node.hash, child.hash, child.outputChannel);
         }));
   nodeMap.set(node.hash, NodeRepr.shallowCopy(node));
 }

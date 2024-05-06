@@ -9,6 +9,7 @@ import {
   createNode,
   isNode,
   resolve,
+  NodeRepr_t,
 } from './nodeUtils';
 
 
@@ -23,6 +24,17 @@ import * as si from './lib/signals';
 export type { ElemNode, NodeRepr_t } from './nodeUtils';
 export { default as EventEmitter } from './src/Events';
 
+
+// Utility function for addressing multiple output channels from a given graph node
+function unpack(node: NodeRepr_t, numChannels: number): Array<NodeRepr_t> {
+  return Array.from({length: numChannels}, (v, i) => {
+    return {
+      ...node,
+      outputChannel: i,
+    };
+  });
+}
+
 const stdlib = {
   ...co,
   ...dy,
@@ -34,6 +46,7 @@ const stdlib = {
   // Aliases for reserved keyword conflicts
   "const": co.constant,
   "in": ma.identity,
+  unpack,
 };
 
 const InstructionTypes = {
@@ -95,9 +108,9 @@ class Delegate {
     this.batch.deleteNode.push([InstructionTypes.DELETE_NODE, hash]);
   }
 
-  appendChild(parentHash, childHash) {
+  appendChild(parentHash, childHash, childOutputChannel) {
     this.edgesAdded++;
-    this.batch.appendChild.push([InstructionTypes.APPEND_CHILD, parentHash, childHash]);
+    this.batch.appendChild.push([InstructionTypes.APPEND_CHILD, parentHash, childHash, childOutputChannel]);
   }
 
   setProperty(hash, key, value) {

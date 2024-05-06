@@ -37,7 +37,7 @@ module RenderDelegate = {
 
   @send external createNode: (t, int, string) => () = "createNode"
   @send external deleteNode: (t, int) => () = "deleteNode"
-  @send external appendChild: (t, int, int) => () = "appendChild"
+  @send external appendChild: (t, int, int, int) => () = "appendChild"
   @send external setProperty: (t, int, string, 'a) => () = "setProperty"
   @send external activateRoots: (t, array<int>) => () = "activateRoots"
   @send external commitUpdates: t => () = "commitUpdates"
@@ -51,7 +51,7 @@ let mount = (delegate: RenderDelegate.t, node: NodeRepr.t) => {
     HashUtils.updateNodeProps(delegate, node.hash, Js.Obj.empty(), node.props)
 
     Belt.List.forEach(node.children, child => {
-      RenderDelegate.appendChild(delegate, node.hash, child.hash)
+      RenderDelegate.appendChild(delegate, node.hash, child.hash, child.outputChannel)
     })
 
     Map.set(nodeMap, node.hash, NodeRepr.shallowCopy(node))
