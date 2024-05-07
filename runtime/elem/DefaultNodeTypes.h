@@ -20,6 +20,7 @@
 #include "builtins/SparSeq.h"
 #include "builtins/SparSeq2.h"
 #include "builtins/Table.h"
+#include "builtins/mc/Table.h"
 
 
 namespace elem
@@ -121,6 +122,7 @@ namespace elem
             callback("sampleseq",       GenericNodeFactory<SampleSeqNode<FloatType>>());
             callback("sampleseq2",      GenericNodeFactory<SampleSeqWithStretchNode<FloatType>>());
             callback("table",           GenericNodeFactory<TableNode<FloatType>>());
+            callback("mc.table",        GenericNodeFactory<StereoTableNode<FloatType>>());
 
             // Oscillator nodes
             callback("blepsaw",         GenericNodeFactory<PolyBlepOscillatorNode<FloatType, detail::BlepMode::Saw>>());

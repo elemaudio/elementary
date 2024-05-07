@@ -119,10 +119,36 @@ public:
             });
         }
 
-        if (!buf.isFloat32Array()) {
+        if (!buf.isFloat32Array() && !buf.isArray()) {
             return valueToEmVal(elem::js::Object {
                 {"success", false},
-                {"message", "buffer must be a Float32Array"},
+                {"message", "buffer must be an Array<Float32Array> or a Float32Array"},
+            });
+        }
+
+        if (buf.isArray()) {
+            auto& channels = buf.getArray();
+            std::vector<std::vector<float>> channelData;
+            std::vector<float*> channelPointers;
+
+            for (size_t i = 0; i < channels.size(); ++i) {
+                if (!channels[i].isFloat32Array()) {
+                    return valueToEmVal(elem::js::Object {
+                        {"success", false},
+                        {"message", "buffer must be an Array<Float32Array> or a Float32Array"},
+                    });
+                }
+
+                channelData.push_back(channels[i].getFloat32Array());
+                channelPointers.push_back(channelData[i].data());
+            }
+
+            auto resource = std::make_unique<elem::AudioBufferResource>(channelPointers.data(), channelPointers.size(), channelData[0].size());
+            auto result = runtime->addSharedResource((elem::js::String) n, std::move(resource));
+
+            return valueToEmVal(elem::js::Object {
+                {"success", result},
+                {"message", result ? "Ok" : "cannot overwrite existing shared resource"},
             });
         }
 
