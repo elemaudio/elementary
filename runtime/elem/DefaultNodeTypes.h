@@ -124,6 +124,7 @@ namespace elem
             callback("sampleseq2",      GenericNodeFactory<SampleSeqWithStretchNode<FloatType>>());
             callback("table",           GenericNodeFactory<TableNode<FloatType>>());
             callback("mc.sampleseq",    GenericNodeFactory<StereoSampleSeqNode<FloatType>>());
+            callback("mc.sampleseq2",   GenericNodeFactory<StereoSampleSeqWithStretchNode<FloatType>>());
             callback("mc.table",        GenericNodeFactory<StereoTableNode<FloatType>>());
 
             // Oscillator nodes

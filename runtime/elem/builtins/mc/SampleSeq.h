@@ -284,13 +284,13 @@ namespace elem
 
                 // TODO: Hax obviously. Should make an AudioBuffer class which uses a contiguous std vector for
                 // storage and a SmallVector for the pointers pointing into the data. Choc?
-                std::array<float*, 2> ptrs {{scratchData, scratchData + (numSamples * 4)}};
+                std::array<FloatType*, 2> ptrs {{scratchData, scratchData + (numSamples * 4)}};
                 auto** scratchPtrs = ptrs.data();
 
                 readers[0].readAdding(activeBuffer.get(), scratchPtrs, ctx.numOutputChannels, numSourceSamples);
                 readers[1].readAdding(activeBuffer.get(), scratchPtrs, ctx.numOutputChannels, numSourceSamples);
 
-                stretch.process(scratchPtrs, numSourceSamples, outputData, numSamples);
+                stretch.process(scratchPtrs, static_cast<int>(numSourceSamples), outputData, static_cast<int>(numSamples));
             } else {
                 // Clear and read
                 for (size_t i = 0; i < activeBuffer->numChannels(); ++i) {
@@ -328,6 +328,6 @@ namespace elem
     };
 
     template <typename FloatType>
-    using SampleSeqWithStretchNode = SampleSeqNode<FloatType, true>;
+    using StereoSampleSeqWithStretchNode = StereoSampleSeqNode<FloatType, true>;
 
 } // namespace elem
