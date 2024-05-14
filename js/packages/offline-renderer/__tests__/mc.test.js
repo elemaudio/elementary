@@ -1,5 +1,5 @@
 import OfflineRenderer from '../index';
-import { el, createNode } from '@elemaudio/core';
+import { el } from '@elemaudio/core';
 
 
 test('mc table', async function() {
@@ -18,9 +18,7 @@ test('mc table', async function() {
   });
 
   // Graph
-  let mcTable = createNode("mc.table", {path: '/v/stereo'}, [0]);
-  let graph = el.add(...el.unpack(mcTable, 2));
-  await core.render(graph)
+  await core.render(el.add(...el.mc.table({path: '/v/stereo', channels: 2}, 0)));
 
   // Ten blocks of data
   let inps = [];
@@ -55,8 +53,9 @@ test('mc sampleseq', async function() {
   let [time, setTimeProps] = core.createRef("const", {value: 0}, []);
 
   core.render(
-    el.add(...el.unpack(createNode('mc.sampleseq', {
+    el.add(...el.mc.sampleseq({
       path: '/v/stereo',
+      channels: 2,
       duration: 128,
       seq: [
         { time: 0, value: 0 },
@@ -64,7 +63,7 @@ test('mc sampleseq', async function() {
         { time: 256, value: 0 },
         { time: 512, value: 1 },
       ]
-    }, [time]), 2))
+    }, time))
   );
 
   // Ten blocks of data to get past the root node fade

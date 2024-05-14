@@ -7,6 +7,7 @@ import { updateNodeProps } from './src/Hash';
 
 import {
   createNode,
+  unpack,
   isNode,
   resolve,
   NodeRepr_t,
@@ -17,6 +18,7 @@ import * as co from './lib/core';
 import * as dy from './lib/dynamics';
 import * as en from './lib/envelopes';
 import * as ma from './lib/math';
+import * as mc from './lib/mc';
 import * as fi from './lib/filters';
 import * as os from './lib/oscillators';
 import * as si from './lib/signals';
@@ -24,16 +26,6 @@ import * as si from './lib/signals';
 export type { ElemNode, NodeRepr_t } from './nodeUtils';
 export { default as EventEmitter } from './src/Events';
 
-
-// Utility function for addressing multiple output channels from a given graph node
-function unpack(node: NodeRepr_t, numChannels: number): Array<NodeRepr_t> {
-  return Array.from({length: numChannels}, (v, i) => {
-    return {
-      ...node,
-      outputChannel: i,
-    };
-  });
-}
 
 const stdlib = {
   ...co,
@@ -43,10 +35,10 @@ const stdlib = {
   ...ma,
   ...os,
   ...si,
+  mc,
   // Aliases for reserved keyword conflicts
   "const": co.constant,
   "in": ma.identity,
-  unpack,
 };
 
 const InstructionTypes = {
@@ -245,6 +237,7 @@ export {
   Delegate,
   Renderer,
   createNode,
+  unpack,
   isNode,
   resolve,
   renderWithDelegate,
