@@ -1,8 +1,11 @@
 #pragma once
 
-namespace elem 
+
+namespace elem
 {
-     // calculates the smallest power of two that is greater than or equal to integer `n`
+
+    // Returns the smallest power of two that is greater than or equal to
+    // the given integer `n`
     inline int bitceil (int n) {
         if ((n & (n - 1)) == 0)
             return n;
@@ -14,5 +17,6 @@ namespace elem
         }
 
         return o;
-    }  
-}
+    }
+
+} // namespace elem
