@@ -83,7 +83,7 @@ test('mc sampleseq', async function() {
 
   // Spin for a few blocks and we should see the gain fade resolve and
   // emit the constant sum of the two channels
-  for (let i = 0; i < 3; ++i) {
+  for (let i = 0; i < 10; ++i) {
     core.process(inps, outs);
   }
 
