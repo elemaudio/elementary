@@ -58,7 +58,7 @@ namespace elem
                     // Reinitialize the local copy to match our member instance
                     localFade = fade;
 
-                    for (size_t i = 0; (i < numSamples) && (position < bufferSize); ++i) {
+                    for (size_t i = 0; (i < numSamples) && ((position + i) < bufferSize); ++i) {
                         outputData[j][i] += static_cast<DestType>(localFade(sourceData[position + i]));
                     }
                 }
