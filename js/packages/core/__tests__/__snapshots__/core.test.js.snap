@@ -530,15 +530,15 @@ exports[`garbage collection 1`] = `
 exports[`garbage collection 2`] = `
 [
   [
+    5,
+  ],
+  [
     1,
     520300429,
   ],
   [
     1,
     1423955117,
-  ],
-  [
-    5,
   ],
 ]
 `;
