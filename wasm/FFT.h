@@ -73,7 +73,7 @@ namespace elem
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
@@ -102,12 +102,25 @@ namespace elem
                 js::Float32Array re(audiofft::AudioFFT::ComplexSize(size));
                 js::Float32Array im(audiofft::AudioFFT::ComplexSize(size));
 
-                // Window the data first...
-                for (size_t i = 0; i < size; ++i) {
-                  scratchData[i] *= window[i];
+                if constexpr (std::is_same_v<FloatType, float>) {
+                    // Window the data first...
+                    for (size_t i = 0; i < size; ++i) {
+                      scratchData[i] *= window[i];
+                    }
+
+                    fft.fft(scratchData.data(), re.data(), im.data());
                 }
 
-                fft.fft(scratchData.data(), re.data(), im.data());
+                if constexpr (std::is_same_v<FloatType, double>) {
+                    std::vector<float> tmp(size);
+
+                    // Window the data first...
+                    for (size_t i = 0; i < size; ++i) {
+                      tmp[i] = static_cast<float>(scratchData[i] * window[i]);
+                    }
+
+                    fft.fft(tmp.data(), re.data(), im.data());
+                }
 
                 eventHandler("fft", js::Object({
                     {"source", GraphNode<FloatType>::getPropertyWithDefault("name", js::Value())},

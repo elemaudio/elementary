@@ -70,22 +70,22 @@ namespace elem
         void reset();
 
         //==============================================================================
-        // Loads a shared buffer into memory.
+        // Loads a shared resource into memory, taking ownership of the given pointer.
         //
         // This method populates an internal map from which any GraphNode can request a
-        // shared pointer to the data.
-        bool updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size);
+        // shared pointer to the resource.
+        bool addSharedResource(std::string const& name, std::unique_ptr<SharedResource> resource);
 
         // Removes unused resources from the map
         //
         // This method will retain any resource with references held by an active
         // audio graph.
-        void pruneSharedResourceMap();
+        void pruneSharedResources();
 
         // Returns an iterator through the names of the entries in the shared resoure map.
         //
         // Intentionally, this does not provide access to the values in the map.
-        typename SharedResourceMap<FloatType>::KeyViewType getSharedResourceMapKeys();
+        SharedResourceMap::KeyViewType getSharedResourceMapKeys();
 
         //==============================================================================
         // For registering custom GraphNode factory functions.
@@ -118,7 +118,7 @@ namespace elem
         int createNode(js::Value const& nodeId, js::Value const& type);
         int deleteNode(js::Value const& nodeId);
         int setProperty(js::Value const& nodeId, js::Value const& prop, js::Value const& v);
-        int appendChild(js::Value const& parentId, js::Value const& childId);
+        int appendChild(js::Value const& parentId, js::Value const& childId, js::Value const& childOutputChannel);
         int activateRoots(js::Array const& v);
 
         BufferAllocator<FloatType> bufferAllocator;
@@ -131,13 +131,13 @@ namespace elem
         //==============================================================================
         std::unordered_map<std::string, NodeFactoryFn> nodeFactory;
         std::unordered_map<NodeId, std::shared_ptr<GraphNode<FloatType>>> nodeTable;
-        std::unordered_map<NodeId, std::vector<NodeId>> edgeTable;
+        std::unordered_map<NodeId, std::vector<std::pair<NodeId, size_t>>> edgeTable;
         std::unordered_map<NodeId, std::shared_ptr<GraphNode<FloatType>>> garbageTable;
 
         std::set<NodeId> currentRoots;
         RefCountedPool<GraphRenderSequence<FloatType>> renderSeqPool;
 
-        SharedResourceMap<FloatType> sharedResourceMap;
+        SharedResourceMap sharedResourceMap;
 
         double sampleRate;
         int blockSize;
@@ -187,7 +187,7 @@ namespace elem
                     res = setProperty(ar[1], ar[2], ar[3]);
                     break;
                 case InstructionType::APPEND_CHILD:
-                    res = appendChild(ar[1], ar[2]);
+                    res = appendChild(ar[1], ar[2], ar[3]);
                     break;
                 case InstructionType::ACTIVATE_ROOTS:
                     res = activateRoots(ar[1]);
@@ -306,22 +306,23 @@ namespace elem
     }
 
     template <typename FloatType>
-    int Runtime<FloatType>::appendChild(js::Value const& a1, js::Value const& a2)
+    int Runtime<FloatType>::appendChild(js::Value const& a1, js::Value const& a2, js::Value const& a3)
     {
-        if (!a1.isNumber() || !a2.isNumber())
+        if (!a1.isNumber() || !a2.isNumber() || !a3.isNumber())
             return ReturnCode::InvalidInstructionFormat();
 
         auto const parentId = static_cast<int32_t>((js::Number) a1);
         auto const childId = static_cast<int32_t>((js::Number) a2);
+        auto const childOutputChannel = static_cast<int32_t>((js::Number) a3);
 
-        ELEM_DBG("[Native] appendChild " << nodeIdToHex(childId) << " to parent " << nodeIdToHex(parentId));
+        ELEM_DBG("[Native] appendChild " << nodeIdToHex(childId) << ":" << childOutputChannel << " to parent " << nodeIdToHex(parentId));
 
         if (nodeTable.find(parentId) == nodeTable.end() || edgeTable.find(parentId) == edgeTable.end())
             return ReturnCode::NodeNotFound();
         if (nodeTable.find(childId) == nodeTable.end())
             return ReturnCode::NodeNotFound();
 
-        edgeTable.at(parentId).push_back(childId);
+        edgeTable.at(parentId).push_back({childId, childOutputChannel});
 
         return ReturnCode::Ok();
     }
@@ -420,22 +421,19 @@ namespace elem
 
     //==============================================================================
     template <typename FloatType>
-    bool Runtime<FloatType>::updateSharedResourceMap(std::string const& name, FloatType const* data, size_t size)
+    bool Runtime<FloatType>::addSharedResource(std::string const& name, std::unique_ptr<SharedResource> resource)
     {
-        return sharedResourceMap.insert(
-            name,
-            std::make_shared<typename SharedResourceBuffer<FloatType>::element_type>(data, data + size)
-        );
+        return sharedResourceMap.add(name, std::move(resource));
     }
 
     template <typename FloatType>
-    void Runtime<FloatType>::pruneSharedResourceMap()
+    void Runtime<FloatType>::pruneSharedResources()
     {
         sharedResourceMap.prune();
     }
 
     template <typename FloatType>
-    typename SharedResourceMap<FloatType>::KeyViewType Runtime<FloatType>::getSharedResourceMapKeys()
+    SharedResourceMap::KeyViewType Runtime<FloatType>::getSharedResourceMapKeys()
     {
         return sharedResourceMap.keys();
     }
@@ -473,7 +471,8 @@ namespace elem
         auto const numChildren = children.size();
 
         for (size_t i = 0; i < numChildren; ++i) {
-            traverse(visited, visitOrder, children.at(i));
+            auto const& [childId, outputChannel] = children.at(i);
+            traverse(visited, visitOrder, childId);
         }
 
         visitOrder.push_back(n);

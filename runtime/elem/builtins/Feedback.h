@@ -2,10 +2,12 @@
 
 #include <functional>
 
+#include "../AudioBufferResource.h"
 #include "../GraphNode.h"
 #include "../SingleWriterSingleReaderQueue.h"
 
 #include "helpers/RefCountedPool.h"
+#include "helpers/BufferUtils.h"
 
 
 namespace elem
@@ -19,13 +21,16 @@ namespace elem
     struct TapInNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources) override
         {
             if (key == "name") {
                 if (!val.isString())
                     return ReturnCode::InvalidPropertyType();
 
-                auto ref = resources.getOrCreateMutable((js::String) val, GraphNode<FloatType>::getBlockSize());
+                auto ref = resources.getTapResource((js::String) val, [=]() {
+                    return std::make_shared<AudioBufferResource>(1, GraphNode<FloatType>::getBlockSize());
+                });
+
                 bufferQueue.push(std::move(ref));
             }
 
@@ -33,7 +38,7 @@ namespace elem
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numSamples = ctx.numSamples;
 
             while (bufferQueue.size() > 0) {
@@ -43,11 +48,12 @@ namespace elem
             if (!activeBuffer)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
-            std::copy_n(activeBuffer->data(), numSamples, outputData);
+            auto bufferView = activeBuffer->getChannelData(0);
+            elem::util::copy_cast_n(bufferView.data(), numSamples, outputData);
         }
 
-        SingleWriterSingleReaderQueue<MutableSharedResourceBuffer<FloatType>> bufferQueue;
-        MutableSharedResourceBuffer<FloatType> activeBuffer;
+        SingleWriterSingleReaderQueue<SharedResourcePtr> bufferQueue;
+        SharedResourcePtr activeBuffer;
     };
 
     // A special graph node type for producing feedback from within the graph.
@@ -65,13 +71,16 @@ namespace elem
             std::fill_n(delayBuffer.data(), blockSize, FloatType(0));
         }
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources) override
         {
             if (key == "name") {
                 if (!val.isString())
                     return ReturnCode::InvalidPropertyType();
 
-                auto ref = resources.getOrCreateMutable((js::String) val, GraphNode<FloatType>::getBlockSize());
+                auto ref = resources.getTapResource((js::String) val, [=]() {
+                    return std::make_shared<AudioBufferResource>(1, GraphNode<FloatType>::getBlockSize());
+                });
+
                 tapBufferQueue.push(std::move(ref));
             }
 
@@ -95,12 +104,13 @@ namespace elem
                 return;
 
             // Here, we're good to go draining the buffered delay data into the tap line
-            std::copy_n(delayBuffer.data(), numSamples, activeTapBuffer->data());
+            auto bufferView = activeTapBuffer->getChannelData(0);
+            std::copy_n(delayBuffer.data(), numSamples, bufferView.data());
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
@@ -111,13 +121,13 @@ namespace elem
             // Else, we write to our delay line and pass through our input
             auto* delayData = delayBuffer.data();
 
-            std::copy_n(inputData[0], numSamples, delayData);
+            elem::util::copy_cast_n(inputData[0], numSamples, delayData);
             std::copy_n(inputData[0], numSamples, outputData);
         }
 
-        std::vector<FloatType> delayBuffer;
-        SingleWriterSingleReaderQueue<MutableSharedResourceBuffer<FloatType>> tapBufferQueue;
-        MutableSharedResourceBuffer<FloatType> activeTapBuffer;
+        std::vector<float> delayBuffer;
+        SingleWriterSingleReaderQueue<SharedResourcePtr> tapBufferQueue;
+        SharedResourcePtr activeTapBuffer;
     };
 
 } // namespace elem

@@ -1,14 +1,7 @@
 #pragma once
 
-#include "../GraphNode.h"
-#include "../SingleWriterSingleReaderQueue.h"
-#include "../Types.h"
-
-#include "helpers/RefCountedPool.h"
-#include "../third-party/signalsmith-stretch/signalsmith-stretch.h"
-
-#include <map>
-#include <iostream>
+#include "../helpers/FloatUtils.h"
+#include "../helpers/GainFade.h"
 
 
 namespace elem
@@ -16,66 +9,17 @@ namespace elem
 
     namespace detail
     {
-        template <typename FloatType>
-        FloatType lerp (FloatType alpha, FloatType x, FloatType y) {
-            return x + alpha * (y - x);
-        }
 
         template <typename FloatType>
-        FloatType fpEqual (FloatType x, FloatType y) {
-            return std::abs(x - y) <= FloatType(1e-6);
-        }
-
-        template <typename FloatType>
-        struct GainFade {
-            GainFade() = default;
-
-            void setTargetGain (FloatType g) {
-                targetGain = g;
-
-                if (targetGain < currentGain) {
-                    step = FloatType(-1) * std::abs(step);
-                } else {
-                    step = std::abs(step);
-                }
+        struct MCBufferReader {
+            MCBufferReader(double sampleRate, double fadeTime)
+                : fade(sampleRate, fadeTime)
+            {
             }
 
-            FloatType operator() (FloatType x) {
-                if (currentGain == targetGain)
-                    return (currentGain * x);
-
-                auto y = x * currentGain;
-                currentGain = std::clamp(currentGain + step, FloatType(0), FloatType(1));
-
-                return y;
-            }
-
-            bool on() {
-                return fpEqual(targetGain, FloatType(1));
-            }
-
-            bool silent() {
-                return fpEqual(targetGain, FloatType(0)) && fpEqual(currentGain, FloatType(0));
-            }
-
-            void reset() {
-                currentGain = FloatType(0);
-                targetGain = FloatType(0);
-            }
-
-            FloatType currentGain = 0;
-            FloatType targetGain = 0;
-            FloatType step = 0.02; // TODO
-        };
-
-        template <typename FloatType>
-        struct BufferReader {
-            BufferReader() = default;
-
-            void engage (double start, double currentTime, FloatType* _buffer, size_t _size) {
+            void engage (double start, double currentTime, size_t _bufferSize) {
                 startTime = start;
-                buffer = _buffer;
-                bufferSize = _size;
+                bufferSize = _bufferSize;
                 fade.setTargetGain(FloatType(1));
 
                 position = static_cast<size_t>(((currentTime - startTime) / sampleDuration) * (double) (bufferSize - 1u));
@@ -103,47 +47,28 @@ namespace elem
             }
 
             template <typename DestType>
-            void readAdding(DestType* outputData, size_t numSamples) {
-                for (size_t i = 0; (i < numSamples) && (position < bufferSize); ++i) {
-                    outputData[i] += static_cast<DestType>(fade(buffer[position++]));
-                }
-            }
+            void readAdding(SharedResource* resource, DestType** outputData, size_t numChannels, size_t numSamples) {
+                elem::GainFade<FloatType> localFade(fade);
 
-            FloatType read (FloatType const* buffer, size_t size, double t)
-            {
-                if (fade.silent() || sampleDuration <= FloatType(0))
-                    return FloatType(0);
+                for (size_t j = 0; j < std::min(numChannels, resource->numChannels()); ++j) {
+                    auto bufferView = resource->getChannelData(j);
+                    auto bufferSize = bufferView.size();
+                    auto* sourceData = bufferView.data();
 
-                // An allocated but inactive reader is currently fading out at the point in time
-                // from which we jumped to allocate a new reader
-                double const pos = fade.on()
-                    ? (t - startTime) / sampleDuration
-                    : (stepStopTime() - startTime) / sampleDuration;
+                    // Reinitialize the local copy to match our member instance
+                    localFade = fade;
 
-                // While we're still active, track last position so that we can stop effectively
-                if (fade.on()) {
-                    dt = t - lastTimeStep;
-                    lastTimeStep = t;
+                    for (size_t i = 0; (i < numSamples) && ((position + i) < bufferSize); ++i) {
+                        outputData[j][i] += static_cast<DestType>(localFade(sourceData[position + i]));
+                    }
                 }
 
-                // Deallocate if we've run out of bounds
-                if (pos < 0.0 || pos >= 1.0) {
-                    disengage();
-                    return FloatType(0);
-                }
+                // Here we have a localFade instance that has finished running over a block, which
+                // represents where our class instance should now be
+                fade = localFade;
 
-                // Instead of clamping here, we could accept loop points in the sample and
-                // mod the playback position within those loop points. Property loop: [start, stop]
-                auto l = static_cast<size_t>(pos * (double) (size - 1u));
-                auto r = std::min(size, l + 1u);
-                auto const alpha = FloatType((pos * (double) (size - 1u)) - static_cast<double>(l));
-
-                return fade(lerp(alpha, buffer[l], buffer[r]));
-            }
-
-            FloatType stepStopTime() {
-                lastTimeStep += dt;
-                return lastTimeStep;
+                // And update our position
+                position += numSamples;
             }
 
             void reset (double sampleDur) {
@@ -151,32 +76,35 @@ namespace elem
 
                 sampleDuration = sampleDur;
                 startTime = 0.0;
-                dt = 0.0;
             }
 
-            GainFade<FloatType> fade;
-            FloatType* buffer = nullptr;
+            elem::GainFade<FloatType> fade;
             size_t bufferSize = 0;
             size_t position = 0;
 
             double sampleDuration = 0;
             double startTime = 0;
-            double lastTimeStep = 0;
-            double dt = 0;
         };
     }
 
     template <typename FloatType, bool WithStretch = false>
-    struct SampleSeqNode : public GraphNode<FloatType> {
-        SampleSeqNode(NodeId id, FloatType const sr, int const blockSize)
+    struct StereoSampleSeqNode : public GraphNode<FloatType> {
+        StereoSampleSeqNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
+            , readers({detail::MCBufferReader<float>(sr, 8.0), detail::MCBufferReader<float>(sr, 8.0)})
         {
             if constexpr (WithStretch) {
-                stretch.presetDefault(1, sr);
-                scratchBuffer.resize(blockSize * 4);
+                stretch.presetDefault(2, sr);
+
+                // Enough space to scale 1 block into 4 for two different channels
+                scratchBuffer.resize(blockSize * 4 * 2);
             }
         }
 
+        size_t getNumOutputChannels() override
+        {
+            return 2;
+        }
 
         int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources) override
         {
@@ -277,16 +205,14 @@ namespace elem
                 // Here a value of 1.0 is considered an onset, and anything else
                 // considered an offset.
                 if (detail::fpEqual(prevEvent->second, FloatType(1.0))) {
-                    auto const bufferView = activeBuffer->getChannelData(0);
-                    readers[activeReader].engage(prevEvent->first, t, const_cast<float*>(bufferView.data()), bufferView.size());
+                    readers[activeReader].engage(prevEvent->first, t, activeBuffer->numSamples());
                 }
             }
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData[0];
-            auto numChannels = ctx.numInputChannels;
+            auto** outputData = ctx.outputData;
             auto numSamples = ctx.numSamples;
 
             // Load sample duration
@@ -320,8 +246,13 @@ namespace elem
 
             // Next, if we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
-            if (numChannels < 1 || activeSeq == nullptr || activeBuffer == nullptr || sampleDur <= 0.0)
-                return (void) std::fill_n(outputData, numSamples, FloatType(0));
+            if (ctx.numInputChannels < 1 || activeSeq == nullptr || activeBuffer == nullptr || sampleDur <= 0.0) {
+                for (size_t i = 0; i < ctx.numOutputChannels; ++i) {
+                    std::fill_n(outputData[i], numSamples, FloatType(0));
+                }
+
+                return;
+            }
 
             // We reference this a lot
             auto const seqEnd = activeSeq->end();
@@ -366,18 +297,25 @@ namespace elem
                 numSourceSamples = std::clamp(numSourceSamples, static_cast<size_t>(0), scratchBuffer.size());
 
                 // Clear and read
-                std::fill_n(scratchData, numSourceSamples, FloatType(0));
+                std::fill_n(scratchData, scratchBuffer.size(), FloatType(0));
 
-                readers[0].readAdding(scratchData, numSourceSamples);
-                readers[1].readAdding(scratchData, numSourceSamples);
+                // TODO: Hax obviously. Should make an AudioBuffer class which uses a contiguous std vector for
+                // storage and a SmallVector for the pointers pointing into the data. Choc?
+                std::array<FloatType*, 2> ptrs {{scratchData, scratchData + (numSamples * 4)}};
+                auto** scratchPtrs = ptrs.data();
 
-                stretch.process(&scratchData, numSourceSamples, &outputData, numSamples);
+                readers[0].readAdding(activeBuffer.get(), scratchPtrs, ctx.numOutputChannels, numSourceSamples);
+                readers[1].readAdding(activeBuffer.get(), scratchPtrs, ctx.numOutputChannels, numSourceSamples);
+
+                stretch.process(scratchPtrs, static_cast<int>(numSourceSamples), outputData, static_cast<int>(numSamples));
             } else {
                 // Clear and read
-                std::fill_n(outputData, numSamples, FloatType(0));
+                for (size_t i = 0; i < activeBuffer->numChannels(); ++i) {
+                    std::fill_n(outputData[i], numSamples, FloatType(0));
+                }
 
-                readers[0].readAdding(outputData, numSamples);
-                readers[1].readAdding(outputData, numSamples);
+                readers[0].readAdding(activeBuffer.get(), outputData, ctx.numOutputChannels, numSamples);
+                readers[1].readAdding(activeBuffer.get(), outputData, ctx.numOutputChannels, numSamples);
             }
         }
 
@@ -393,7 +331,7 @@ namespace elem
         SingleWriterSingleReaderQueue<SharedResourcePtr> bufferQueue;
         SharedResourcePtr activeBuffer;
 
-        std::array<detail::BufferReader<float>, 2> readers;
+        std::array<detail::MCBufferReader<float>, 2> readers;
         size_t activeReader = 0;
         int64_t nextExpectedBlockStart = 0;
 
@@ -407,6 +345,6 @@ namespace elem
     };
 
     template <typename FloatType>
-    using SampleSeqWithStretchNode = SampleSeqNode<FloatType, true>;
+    using StereoSampleSeqWithStretchNode = StereoSampleSeqNode<FloatType, true>;
 
 } // namespace elem

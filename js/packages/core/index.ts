@@ -7,8 +7,10 @@ import { updateNodeProps } from './src/Hash';
 
 import {
   createNode,
+  unpack,
   isNode,
   resolve,
+  NodeRepr_t,
 } from './nodeUtils';
 
 
@@ -16,12 +18,14 @@ import * as co from './lib/core';
 import * as dy from './lib/dynamics';
 import * as en from './lib/envelopes';
 import * as ma from './lib/math';
+import * as mc from './lib/mc';
 import * as fi from './lib/filters';
 import * as os from './lib/oscillators';
 import * as si from './lib/signals';
 
 export type { ElemNode, NodeRepr_t } from './nodeUtils';
 export { default as EventEmitter } from './src/Events';
+
 
 const stdlib = {
   ...co,
@@ -31,6 +35,7 @@ const stdlib = {
   ...ma,
   ...os,
   ...si,
+  mc,
   // Aliases for reserved keyword conflicts
   "const": co.constant,
   "in": ma.identity,
@@ -59,10 +64,9 @@ class Delegate {
   private terminalGeneration: number;
   private batch: any;
 
-  constructor(terminalGeneration = 8) {
+  constructor() {
     this.nodeMap = new Map();
     this.currentActiveRoots = new Set();
-    this.terminalGeneration = terminalGeneration;
 
     this.clear();
   }
@@ -84,7 +88,7 @@ class Delegate {
   }
 
   getNodeMap() { return this.nodeMap; }
-  getTerminalGeneration() { return this.terminalGeneration; }
+  getTerminalGeneration() { return 4; }
 
   createNode(hash, type) {
     this.nodesAdded++;
@@ -96,9 +100,9 @@ class Delegate {
     this.batch.deleteNode.push([InstructionTypes.DELETE_NODE, hash]);
   }
 
-  appendChild(parentHash, childHash) {
+  appendChild(parentHash, childHash, childOutputChannel) {
     this.edgesAdded++;
-    this.batch.appendChild.push([InstructionTypes.APPEND_CHILD, parentHash, childHash]);
+    this.batch.appendChild.push([InstructionTypes.APPEND_CHILD, parentHash, childHash, childOutputChannel]);
   }
 
   setProperty(hash, key, value) {
@@ -159,8 +163,8 @@ class Renderer {
   private _sendMessage: Function;
   private _nextRefId: number;
 
-  constructor(sendMessage, gcTerminalGeneration = 8) {
-    this._delegate = new Delegate(gcTerminalGeneration);
+  constructor(sendMessage) {
+    this._delegate = new Delegate();
     this._sendMessage = sendMessage;
     this._nextRefId = 0;
   }
@@ -233,6 +237,7 @@ export {
   Delegate,
   Renderer,
   createNode,
+  unpack,
   isNode,
   resolve,
   renderWithDelegate,

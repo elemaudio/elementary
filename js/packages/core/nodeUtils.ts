@@ -31,3 +31,13 @@ export function createNode(
 ): NodeRepr_t {
   return create(kind, props, children.map(resolve));
 }
+
+// Utility function for addressing multiple output channels from a given graph node
+export function unpack(node: NodeRepr_t, numChannels: number): Array<NodeRepr_t> {
+  return Array.from({length: numChannels}, (v, i) => {
+    return {
+      ...node,
+      outputChannel: i,
+    };
+  });
+}

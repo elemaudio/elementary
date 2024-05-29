@@ -15,9 +15,9 @@ import type {t as NodeRepr_t} from './NodeRepr.gen';
 // tslint:disable-next-line:max-classes-per-file 
 export abstract class RenderDelegate_t { protected opaque!: any }; /* simulate opaque types */
 
-export const stepGarbageCollector: (delegate:RenderDelegate_t) => void = ReconcilerBS.stepGarbageCollector;
-
 export const renderWithDelegate: (delegate:RenderDelegate_t, graphs:NodeRepr_t[]) => void = function (Arg1: any, Arg2: any) {
   const result = Curry._2(ReconcilerBS.renderWithDelegate, Arg1, Arg2);
   return result
 };
+
+export const stepGarbageCollector: (delegate:RenderDelegate_t) => void = ReconcilerBS.stepGarbageCollector;

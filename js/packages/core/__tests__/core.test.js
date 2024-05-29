@@ -276,20 +276,27 @@ test('garbage collection', function() {
     ])
   );
 
+  // Next we're going to render a sine tone using cosine. We'll expect to
+  // see most of the prior structure preserved.
+  tr.gc();
+
+  tr.render(
+    createNode("cos", {}, [
+      createNode("mul", {}, [
+        2 * Math.PI,
+        createNode("phasor", {}, [440])
+      ])
+    ])
+  );
+
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
   tr._delegate.clear();
 
-  // Now if we render a different graph structure enough times, we should
-  // see that sin node and its parent get cleaned up
+  // Now if we step the garbage collector enough we should see the sine node
+  // and its parent root get cleaned up now that they're no longer referenced
+  // in the active tree
   for (let i = 0; i < tr.getTerminalGeneration() - 1; ++i) {
-    tr.render(
-      createNode("cos", {}, [
-        createNode("mul", {}, [
-          2 * Math.PI,
-          createNode("phasor", {}, [440])
-        ])
-      ])
-    );
+    tr.gc();
   }
 
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();

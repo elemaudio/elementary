@@ -22,6 +22,7 @@ export type t = {
   readonly hash: number; 
   readonly kind: string; 
   readonly props: props; 
+  readonly outputChannel: number; 
   readonly children: list<t>
 };
 
@@ -31,6 +32,7 @@ export type shallow = {
   readonly hash: number; 
   readonly kind: string; 
   readonly props: props; 
+  readonly outputChannel: number; 
   readonly generation: {
     contents: number
   }

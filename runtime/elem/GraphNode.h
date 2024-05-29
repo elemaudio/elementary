@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SharedResource.h"
 #include "Types.h"
 #include "Value.h"
 
@@ -38,6 +39,10 @@ namespace elem
         size_t getBlockSize() { return blockSize; }
 
         //==============================================================================
+        // Returns the number of output channels this node will write to
+        virtual size_t getNumOutputChannels() { return 1; }
+
+        //==============================================================================
         // Sets a property onto the graph node.
         //
         // By default this does nothing other than store the property into `props`,
@@ -47,7 +52,7 @@ namespace elem
         // Thread safety must be managed by the user. This method will be called on
         // a non-realtime thread.
         virtual int setProperty(std::string const& key, js::Value const& val);
-        virtual int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources);
+        virtual int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources);
 
         // Retreives a property from the Node's props, falling back to the provided
         // default value if no property exists by the given name.
@@ -111,7 +116,7 @@ namespace elem
     }
 
     template <typename FloatType>
-    int GraphNode<FloatType>::setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>&) {
+    int GraphNode<FloatType>::setProperty(std::string const& key, js::Value const& val, SharedResourceMap&) {
         return setProperty(key, val);
     }
 
