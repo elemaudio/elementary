@@ -1,0 +1,317 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`clamp 1`] = `
+{
+  "children": {
+    "hd": {
+      "children": 0,
+      "hash": 276154007,
+      "kind": "const",
+      "outputChannel": 0,
+      "props": {
+        "value": -0.1,
+      },
+      "symbol": "__ELEM_NODE__",
+    },
+    "tl": {
+      "hd": {
+        "children": {
+          "hd": {
+            "children": 0,
+            "hash": 745245079,
+            "kind": "const",
+            "outputChannel": 0,
+            "props": {
+              "value": 0,
+            },
+            "symbol": "__ELEM_NODE__",
+          },
+          "tl": {
+            "hd": {
+              "children": 0,
+              "hash": 787097512,
+              "kind": "const",
+              "outputChannel": 0,
+              "props": {
+                "value": 1,
+              },
+              "symbol": "__ELEM_NODE__",
+            },
+            "tl": 0,
+          },
+        },
+        "hash": 209048344,
+        "kind": "max",
+        "outputChannel": 0,
+        "props": {},
+        "symbol": "__ELEM_NODE__",
+      },
+      "tl": 0,
+    },
+  },
+  "hash": 672731954,
+  "kind": "min",
+  "outputChannel": 0,
+  "props": {},
+  "symbol": "__ELEM_NODE__",
+}
+`;
+
+exports[`clamp 2`] = `
+{
+  "children": {
+    "hd": {
+      "children": 0,
+      "hash": 276154007,
+      "kind": "const",
+      "outputChannel": 0,
+      "props": {
+        "value": -0.1,
+      },
+      "symbol": "__ELEM_NODE__",
+    },
+    "tl": {
+      "hd": {
+        "children": {
+          "hd": {
+            "children": 0,
+            "hash": 745245079,
+            "kind": "const",
+            "outputChannel": 0,
+            "props": {
+              "value": 0,
+            },
+            "symbol": "__ELEM_NODE__",
+          },
+          "tl": {
+            "hd": {
+              "children": 0,
+              "hash": 787097512,
+              "kind": "const",
+              "outputChannel": 0,
+              "props": {
+                "value": 1,
+              },
+              "symbol": "__ELEM_NODE__",
+            },
+            "tl": 0,
+          },
+        },
+        "hash": 209048344,
+        "kind": "max",
+        "outputChannel": 0,
+        "props": {},
+        "symbol": "__ELEM_NODE__",
+      },
+      "tl": 0,
+    },
+  },
+  "hash": 672731954,
+  "kind": "min",
+  "outputChannel": 0,
+  "props": {},
+  "symbol": "__ELEM_NODE__",
+}
+`;
+
+exports[`lerp 1`] = `
+{
+  "children": {
+    "hd": {
+      "children": {
+        "hd": {
+          "children": {
+            "hd": {
+              "children": 0,
+              "hash": 787097512,
+              "kind": "const",
+              "outputChannel": 0,
+              "props": {
+                "value": 1,
+              },
+              "symbol": "__ELEM_NODE__",
+            },
+            "tl": {
+              "hd": {
+                "children": 0,
+                "hash": 787097512,
+                "kind": "const",
+                "outputChannel": 0,
+                "props": {
+                  "value": 1,
+                },
+                "symbol": "__ELEM_NODE__",
+              },
+              "tl": 0,
+            },
+          },
+          "hash": 1365355073,
+          "kind": "sub",
+          "outputChannel": 0,
+          "props": {},
+          "symbol": "__ELEM_NODE__",
+        },
+        "tl": {
+          "hd": {
+            "children": 0,
+            "hash": 332596981,
+            "kind": "const",
+            "outputChannel": 0,
+            "props": {
+              "value": 0.4,
+            },
+            "symbol": "__ELEM_NODE__",
+          },
+          "tl": 0,
+        },
+      },
+      "hash": 1389947663,
+      "kind": "mul",
+      "outputChannel": 0,
+      "props": {},
+      "symbol": "__ELEM_NODE__",
+    },
+    "tl": {
+      "hd": {
+        "children": {
+          "hd": {
+            "children": 0,
+            "hash": 787097512,
+            "kind": "const",
+            "outputChannel": 0,
+            "props": {
+              "value": 1,
+            },
+            "symbol": "__ELEM_NODE__",
+          },
+          "tl": {
+            "hd": {
+              "children": 0,
+              "hash": 745245079,
+              "kind": "const",
+              "outputChannel": 0,
+              "props": {
+                "value": 0,
+              },
+              "symbol": "__ELEM_NODE__",
+            },
+            "tl": 0,
+          },
+        },
+        "hash": 207603630,
+        "kind": "mul",
+        "outputChannel": 0,
+        "props": {},
+        "symbol": "__ELEM_NODE__",
+      },
+      "tl": 0,
+    },
+  },
+  "hash": 86843759,
+  "kind": "add",
+  "outputChannel": 0,
+  "props": {},
+  "symbol": "__ELEM_NODE__",
+}
+`;
+
+exports[`lerp 2`] = `
+{
+  "children": {
+    "hd": {
+      "children": {
+        "hd": {
+          "children": {
+            "hd": {
+              "children": 0,
+              "hash": 787097512,
+              "kind": "const",
+              "outputChannel": 0,
+              "props": {
+                "value": 1,
+              },
+              "symbol": "__ELEM_NODE__",
+            },
+            "tl": {
+              "hd": {
+                "children": 0,
+                "hash": 787097512,
+                "kind": "const",
+                "outputChannel": 0,
+                "props": {
+                  "value": 1,
+                },
+                "symbol": "__ELEM_NODE__",
+              },
+              "tl": 0,
+            },
+          },
+          "hash": 1365355073,
+          "kind": "sub",
+          "outputChannel": 0,
+          "props": {},
+          "symbol": "__ELEM_NODE__",
+        },
+        "tl": {
+          "hd": {
+            "children": 0,
+            "hash": 332596981,
+            "kind": "const",
+            "outputChannel": 0,
+            "props": {
+              "value": 0.4,
+            },
+            "symbol": "__ELEM_NODE__",
+          },
+          "tl": 0,
+        },
+      },
+      "hash": 1389947663,
+      "kind": "mul",
+      "outputChannel": 0,
+      "props": {},
+      "symbol": "__ELEM_NODE__",
+    },
+    "tl": {
+      "hd": {
+        "children": {
+          "hd": {
+            "children": 0,
+            "hash": 787097512,
+            "kind": "const",
+            "outputChannel": 0,
+            "props": {
+              "value": 1,
+            },
+            "symbol": "__ELEM_NODE__",
+          },
+          "tl": {
+            "hd": {
+              "children": 0,
+              "hash": 745245079,
+              "kind": "const",
+              "outputChannel": 0,
+              "props": {
+                "value": 0,
+              },
+              "symbol": "__ELEM_NODE__",
+            },
+            "tl": 0,
+          },
+        },
+        "hash": 207603630,
+        "kind": "mul",
+        "outputChannel": 0,
+        "props": {},
+        "symbol": "__ELEM_NODE__",
+      },
+      "tl": 0,
+    },
+  },
+  "hash": 86843759,
+  "kind": "add",
+  "outputChannel": 0,
+  "props": {},
+  "symbol": "__ELEM_NODE__",
+}
+`;

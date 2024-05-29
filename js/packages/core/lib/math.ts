@@ -189,6 +189,12 @@ export function geq(a, b, c?) {
   return createNode("geq", a, [resolve(b), resolve(c)]);
 }
 
+// Alias comparison nodes
+export const lt = le;
+export const lte = leq;
+export const gt = ge;
+export const gte = geq;
+
 export function pow(a: ElemNode, b: ElemNode): NodeRepr_t;
 export function pow(props: OptionalKeyProps, a: ElemNode, b: ElemNode): NodeRepr_t;
 export function pow(a, b, c?) {
@@ -320,4 +326,30 @@ export function max(a, ...bs) {
   }
 
   return createNode("max", a, bs.map(resolve));
+}
+
+export function sign(x: ElemNode): NodeRepr_t;
+export function sign(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
+export function sign(a, b?) {
+  return (typeof a === "number" || isNode(a))
+    ? createNode("sign", {}, [resolve(a)])
+    : createNode("sign", a, [resolve(b)]);
+}
+
+export function clamp(x: ElemNode, min: ElemNode, max: ElemNode): NodeRepr_t;
+export function clamp(props: OptionalKeyProps, x: ElemNode, min: ElemNode, max: ElemNode): NodeRepr_t;
+export function clamp(a, b, c, d?) {
+  if (typeof a === "number" || isNode(a)) {
+    return min(a, max(b, c));
+  }
+  return min(a, b, max(c, d));
+}
+
+export function lerp(a: ElemNode, b: ElemNode, t: ElemNode): NodeRepr_t;
+export function lerp(props: OptionalKeyProps, a: ElemNode, b: ElemNode, t: ElemNode): NodeRepr_t;
+export function lerp(a, b, c, d?) {
+  if (typeof a === "number" || isNode(a)) {
+    return add(mul(sub(1, c), a), mul(c, b));
+  }
+  return add(a, mul(sub(1, d), b), mul(d, c));
 }
