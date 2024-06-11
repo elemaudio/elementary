@@ -109,8 +109,8 @@ namespace elem
                 bufferMap.insert({{node->getId(), i}, ba.next()});
                 outputPtrs[i] = bufferMap.at({node->getId(), i});
             }
-
-            renderOps.push_back([=, outputPtrs = std::move(outputPtrs)](HostContext<FloatType>& ctx) mutable {
+            
+            renderOps.push_back([=, active = rootPtr->active(), outputPtrs = std::move(outputPtrs)](HostContext<FloatType>& ctx) mutable {
                 node->process(BlockContext<FloatType> {
                     ctx.inputData,
                     ctx.numInputChannels,
@@ -118,6 +118,7 @@ namespace elem
                     numOuts,
                     ctx.numSamples,
                     ctx.userData,
+                    active,
                 });
             });
         }
@@ -148,8 +149,8 @@ namespace elem
             for (size_t j = 0; j < numChildren; ++j) {
                 inputPtrs[j] = bufferMap.at(children[j]);
             }
-
-            renderOps.push_back([=, outputPtrs = std::move(outputPtrs), inputPtrs = std::move(inputPtrs)](HostContext<FloatType>& ctx) mutable {
+            
+            renderOps.push_back([=, active = rootPtr->active(), outputPtrs = std::move(outputPtrs), inputPtrs = std::move(inputPtrs)](HostContext<FloatType>& ctx) mutable {
                 node->process(BlockContext<FloatType> {
                     const_cast<const FloatType**>(inputPtrs.data()),
                     numChildren,
@@ -157,6 +158,7 @@ namespace elem
                     numOuts,
                     ctx.numSamples,
                     ctx.userData,
+                    active,
                 });
             });
         }
