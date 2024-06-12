@@ -77,6 +77,7 @@ namespace elem
         size_t numOutputChannels;
         size_t numSamples;
         void* userData;
+        bool active;
     };
 
     //==============================================================================
