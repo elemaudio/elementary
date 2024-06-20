@@ -95,6 +95,7 @@ namespace elem
             callback("sparseq",         GenericNodeFactory<SparSeqNode<FloatType>>());
             callback("sparseq2",        GenericNodeFactory<SparSeq2Node<FloatType>>());
             callback("counter",         GenericNodeFactory<CounterNode<FloatType>>());
+            callback("counter2",        GenericNodeFactory<Counter2Node<FloatType>>());
             callback("accum",           GenericNodeFactory<AccumNode<FloatType>>());
             callback("latch",           GenericNodeFactory<LatchNode<FloatType>>());
             callback("maxhold",         GenericNodeFactory<MaxHold<FloatType>>());

@@ -216,6 +216,49 @@ namespace elem
         FloatType count = 0;
     };
 
+    // Counts the number of rising edges until a reset signal is received
+    template <typename FloatType>
+    struct Counter2Node : public GraphNode<FloatType> {
+        using GraphNode<FloatType>::GraphNode;
+
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto** inputData = ctx.inputData;
+            auto* outputData = ctx.outputData[0];
+            auto numChannels = ctx.numInputChannels;
+            auto numSamples = ctx.numSamples;
+
+            // If we don't have the inputs we need, we bail here and zero the buffer
+            // hoping to prevent unexpected signals.
+            if (numChannels < 2)
+                return (void) std::fill_n(outputData, numSamples, FloatType(0));
+
+            for (size_t i = 0; i < numSamples; ++i) {
+                auto const in = inputData[0][i];
+                auto const reset = inputData[1][i];
+
+                // When reset is high, reset counter
+                if ((FloatType(1.0) - reset) <= std::numeric_limits<FloatType>::epsilon()) {
+                    count = FloatType(0);
+                }
+
+                // When the gate is high, count once
+                if ((FloatType(1.0) - in) <= std::numeric_limits<FloatType>::epsilon()) {
+                    if (!risingEdge) {
+                        count = count + FloatType(1);
+                        risingEdge = true;
+                    }
+                } else {
+                    risingEdge = false;
+                }
+                
+                outputData[i] = count;
+            }
+        }
+
+        FloatType count = 0;
+        bool risingEdge = false;
+    };
+
     // Simply accumulates its input until reset
     template <typename FloatType>
     struct AccumNode : public GraphNode<FloatType> {
