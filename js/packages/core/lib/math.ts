@@ -344,12 +344,3 @@ export function clamp(a, b, c, d?) {
   }
   return min(a, b, max(c, d));
 }
-
-export function lerp(a: ElemNode, b: ElemNode, t: ElemNode): NodeRepr_t;
-export function lerp(props: OptionalKeyProps, a: ElemNode, b: ElemNode, t: ElemNode): NodeRepr_t;
-export function lerp(a, b, c, d?) {
-  if (typeof a === "number" || isNode(a)) {
-    return add(mul(sub(1, c), a), mul(c, b));
-  }
-  return add(a, mul(sub(1, d), b), mul(d, c));
-}
