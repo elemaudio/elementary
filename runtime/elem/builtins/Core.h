@@ -24,6 +24,11 @@ namespace elem
             return targetGain.load();
         }
 
+        bool active()
+        {
+            return targetGain.load() > 0.0f;
+        }
+
         bool stillRunning()
         {
             auto const t = targetGain.load();
