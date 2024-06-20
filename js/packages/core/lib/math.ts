@@ -219,6 +219,18 @@ export function eq(a, b, c?) {
   return createNode("eq", a, [resolve(b), resolve(c)]);
 }
 
+export function neq(a: ElemNode, b: ElemNode): NodeRepr_t;
+export function neq(props: OptionalKeyProps, a: ElemNode, b: ElemNode): NodeRepr_t;
+export function neq(a, b, c?) {
+  // In a future update we'll collapse literal constants here; need to sort
+  // out how keys work in that case.
+  if (typeof a === "number" || isNode(a)) {
+    return sub(1, eq(a, b));
+  }
+
+  return sub(a, 1, eq(b, c));
+}
+
 export function and(a: ElemNode, b: ElemNode): NodeRepr_t;
 export function and(props: OptionalKeyProps, a: ElemNode, b: ElemNode): NodeRepr_t;
 export function and(a, b, c?) {
