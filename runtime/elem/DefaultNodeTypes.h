@@ -63,6 +63,7 @@ namespace elem
             callback("sqrt",            GenericNodeFactory<UnaryOperationNode<FloatType, std::sqrt>>());
             callback("exp",             GenericNodeFactory<UnaryOperationNode<FloatType, std::exp>>());
             callback("abs",             GenericNodeFactory<UnaryOperationNode<FloatType, std::abs>>());
+            callback("sign",            GenericNodeFactory<UnaryOperationNode<FloatType, SignFunction>>());
 
             // Binary math nodes
             callback("le",              GenericNodeFactory<BinaryOperationNode<FloatType, std::less<FloatType>>>());
@@ -94,6 +95,7 @@ namespace elem
             callback("sparseq",         GenericNodeFactory<SparSeqNode<FloatType>>());
             callback("sparseq2",        GenericNodeFactory<SparSeq2Node<FloatType>>());
             callback("counter",         GenericNodeFactory<CounterNode<FloatType>>());
+            callback("counter2",        GenericNodeFactory<Counter2Node<FloatType>>());
             callback("accum",           GenericNodeFactory<AccumNode<FloatType>>());
             callback("latch",           GenericNodeFactory<LatchNode<FloatType>>());
             callback("maxhold",         GenericNodeFactory<MaxHold<FloatType>>());

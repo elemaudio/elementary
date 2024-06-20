@@ -41,6 +41,17 @@ export function counter(a, b?) {
   return createNode("counter", a, [resolve(b)]);
 }
 
+// Counter2 node
+export function counter2(gate: ElemNode): NodeRepr_t;
+export function counter2(props: OptionalKeyProps, gate: ElemNode): NodeRepr_t;
+export function counter2(a, b?) {
+  if (typeof a === "number" || isNode(a)) {
+    return createNode("counter2", {}, [resolve(a)]);
+  }
+
+  return createNode("counter2", a, [resolve(b)]);
+}
+
 // Accum node
 export function accum(xn: ElemNode, reset: ElemNode): NodeRepr_t;
 export function accum(props: OptionalKeyProps, xn: ElemNode, reset: ElemNode): NodeRepr_t;

@@ -126,6 +126,13 @@ namespace elem
     };
 
     template <typename FloatType>
+    FloatType SignFunction(FloatType x) {
+        if (x == FloatType(0)) return FloatType(0);
+
+        return std::signbit(x) ? FloatType(-1.0) : FloatType(1.0);
+    }
+
+    template <typename FloatType>
     struct Modulus {
         FloatType operator() (FloatType x, FloatType y) {
             return std::fmod(x, y);

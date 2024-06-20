@@ -85,3 +85,21 @@ export function select(g: ElemNode, a: ElemNode, b: ElemNode): NodeRepr_t {
 export function hann(t: ElemNode): NodeRepr_t {
   return el.mul(0.5, el.sub(1, el.cos(el.mul(2.0 * Math.PI, t))));
 }
+
+/**
+ * Converts a MIDI note number to a frequency in Hz.
+ * 
+ * Middle C4 is MIDI note 60, which corresponds to 261.63 Hz.
+ */
+export function midi2frequency(midi: ElemNode): NodeRepr_t {
+  return el.mul(440, el.pow(2, el.div(el.sub(midi, 69), 12)));
+}
+
+/**
+ * Converts a frequency in Hz to a MIDI note number.
+ * 
+ * Middle C4 is MIDI note 60, which corresponds to 261.63 Hz.
+ */
+export function frequency2midi(frequency: ElemNode): NodeRepr_t {
+  return el.add(69, el.mul(12, el.log2(el.div(frequency, 440))));
+}
