@@ -60,7 +60,7 @@ el__main() {
         docker run \
           -v $(pwd):/src \
           --env ELEM_BUILD_ASYNC="$ELEM_BUILD_ASYNC" \
-          emscripten/emsdk:3.1.52 \
+          docker.io/emscripten/emsdk:3.1.52 \
           ./scripts/build-wasm.sh build
 
         # Then we copy the resulting file over to the website directory where
