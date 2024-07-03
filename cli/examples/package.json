@@ -4,7 +4,7 @@
     "build": "esbuild *.js --bundle --outdir=dist"
   },
   "dependencies": {
-    "@elemaudio/core": "^2.0.0",
+    "@elemaudio/core": "^3.2",
     "esbuild": "^0.17.8"
   }
 }
