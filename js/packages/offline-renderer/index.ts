@@ -170,6 +170,14 @@ export default class OfflineRenderer extends EventEmitter {
     this._native.reset();
   }
 
+  gc() {
+    let pruned = this._native.gc();
+
+    // TODO: Update nodeMap with pruned set
+
+    return pruned;
+  }
+
   setCurrentTime(t) {
     this._native.setCurrentTime(t);
   }
