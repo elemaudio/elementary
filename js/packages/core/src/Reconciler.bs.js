@@ -20,9 +20,7 @@ function mount(delegate, node) {
   var nodeMap = delegate.getNodeMap();
   if (nodeMap.has(node.hash)) {
     var existing = nodeMap.get(node.hash);
-    HashUtils.updateNodeProps(delegate, existing.hash, existing.props, node.props);
-    existing.generation.contents = 0;
-    return ;
+    return HashUtils.updateNodeProps(delegate, existing.hash, existing.props, node.props);
   }
   delegate.createNode(node.hash, node.kind);
   HashUtils.updateNodeProps(delegate, node.hash, {}, node.props);
@@ -68,27 +66,6 @@ function renderWithDelegate(delegate, graphs) {
   delegate.commitUpdates();
 }
 
-function stepGarbageCollector(delegate) {
-  var nodeMap = delegate.getNodeMap();
-  var term = delegate.getTerminalGeneration();
-  var deleted = Array.from(nodeMap.values()).reduce((function (acc, n) {
-          n.generation.contents = n.generation.contents + 1 | 0;
-          if (n.generation.contents >= term) {
-            delegate.deleteNode(n.hash);
-            return Belt_List.add(acc, n);
-          } else {
-            return acc;
-          }
-        }), /* [] */0);
-  if (Belt_List.length(deleted) > 0) {
-    delegate.commitUpdates();
-    return Belt_List.forEach(deleted, (function (n) {
-                  nodeMap.delete(n.hash);
-                }));
-  }
-  
-}
-
 export {
   $$Map ,
   $$Set ,
@@ -96,6 +73,5 @@ export {
   mount ,
   visit ,
   renderWithDelegate ,
-  stepGarbageCollector ,
 }
 /* NodeRepr Not a pure module */

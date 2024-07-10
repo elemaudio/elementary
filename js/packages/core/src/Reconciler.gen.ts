@@ -19,5 +19,3 @@ export const renderWithDelegate: (delegate:RenderDelegate_t, graphs:NodeRepr_t[]
   const result = Curry._2(ReconcilerBS.renderWithDelegate, Arg1, Arg2);
   return result
 };
-
-export const stepGarbageCollector: (delegate:RenderDelegate_t) => void = ReconcilerBS.stepGarbageCollector;

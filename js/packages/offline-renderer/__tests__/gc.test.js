@@ -37,8 +37,8 @@ test('gc basics', async function() {
 
   // We also expect that the renderer's nodeMap no longer contains the
   // pruned keys
-  // earlyMapKeys.forEach((k) => {
-  //   expect(core._renderer._delegate.nodeMap.has(k)).toBe(false);
-  // });
+  earlyMapKeys.forEach((k) => {
+    expect(core._renderer._delegate.nodeMap.has(k)).toBe(false);
+  });
 });
 

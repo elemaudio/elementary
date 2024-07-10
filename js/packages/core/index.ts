@@ -1,6 +1,5 @@
 import {
   renderWithDelegate,
-  stepGarbageCollector,
 } from './src/Reconciler.gen';
 
 import { updateNodeProps } from './src/Hash';
@@ -43,7 +42,6 @@ const stdlib = {
 
 const InstructionTypes = {
   CREATE_NODE: 0,
-  DELETE_NODE: 1,
   APPEND_CHILD: 2,
   SET_PROPERTY: 3,
   ACTIVATE_ROOTS: 4,
@@ -61,7 +59,6 @@ class Delegate {
   public nodeMap: Map<number, any>;
 
   private currentActiveRoots: Set<number>;
-  private terminalGeneration: number;
   private batch: any;
 
   constructor() {
@@ -83,21 +80,14 @@ class Delegate {
       setProperty: [],
       activateRoots: [],
       commitUpdates: [],
-      deleteNode: []
     };
   }
 
   getNodeMap() { return this.nodeMap; }
-  getTerminalGeneration() { return 4; }
 
   createNode(hash, type) {
     this.nodesAdded++;
     this.batch.createNode.push([InstructionTypes.CREATE_NODE, hash, type]);
-  }
-
-  deleteNode(hash) {
-    this.nodesRemoved++;
-    this.batch.deleteNode.push([InstructionTypes.DELETE_NODE, hash]);
   }
 
   appendChild(parentHash, childHash, childOutputChannel) {
@@ -136,7 +126,6 @@ class Delegate {
       ...this.batch.setProperty,
       ...this.batch.activateRoots,
       ...this.batch.commitUpdates,
-      ...this.batch.deleteNode,
     ];
   }
 }
@@ -231,6 +220,12 @@ class Renderer {
       };
     });
   }
+
+  prune(nodeIds) {
+    nodeIds.forEach((n) => {
+      this._delegate.nodeMap.delete(n);
+    });
+  }
 }
 
 export {
@@ -241,7 +236,6 @@ export {
   isNode,
   resolve,
   renderWithDelegate,
-  stepGarbageCollector,
   stdlib,
   stdlib as el,
 };

@@ -165,6 +165,12 @@ export default class WebAudioRenderer extends EventEmitter {
     return await this._sendWorkletRequest('reset', {});
   }
 
+  async gc() {
+    let pruned = await this._sendWorkletRequest('gc', {});
+    this._renderer.prune(pruned);
+    return pruned;
+  }
+
   async setCurrentTime(t) {
     return await this._sendWorkletRequest('setCurrentTime', {
       time: t

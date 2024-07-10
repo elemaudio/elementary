@@ -1,6 +1,5 @@
 const EventTypes = {
   CREATE_NODE: 0,
-  DELETE_NODE: 1,
   APPEND_CHILD: 2,
   SET_PROPERTY: 3,
   ACTIVATE_ROOTS: 4,
@@ -112,6 +111,13 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
           return this.port.postMessage(['reply', {
             requestId,
             result: null,
+          }]);
+        case 'gc':
+          let pruned = this._native.gc();
+
+          return this.port.postMessage(['reply', {
+            requestId,
+            result: pruned,
           }]);
         case 'pruneVirtualFileSystem':
           this._native.pruneSharedResources();

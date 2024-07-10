@@ -172,9 +172,7 @@ export default class OfflineRenderer extends EventEmitter {
 
   gc() {
     let pruned = this._native.gc();
-
-    // TODO: Update nodeMap with pruned set
-
+    this._renderer.prune(pruned);
     return pruned;
   }
 
