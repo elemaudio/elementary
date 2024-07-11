@@ -231,6 +231,7 @@ namespace elem
             if (it->second.use_count() == 1) {
                 ELEM_DBG("[Native] gc " << nodeIdToHex(it->second->getId()));
                 pruned.insert(it->first);
+                edgeTable.erase(it->first);
                 it = nodeTable.erase(it);
             } else {
                 it++;
