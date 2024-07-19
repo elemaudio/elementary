@@ -13,7 +13,7 @@ namespace elem
         template <typename FloatType>
         struct MCBufferReader {
             MCBufferReader(double sampleRate, double fadeTime)
-                : fade(sampleRate, fadeTime)
+                : fade(sampleRate, fadeTime, fadeTime)
             {
             }
 

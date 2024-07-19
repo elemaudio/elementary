@@ -22,12 +22,12 @@ namespace elem
 
         bool active()
         {
-            return fadeOut.targetGain > 0.5;
+            return fade.on();
         }
 
         bool stillRunning()
         {
-            return active() || !fadeOut.settled();
+            return active() || !fade.settled();
         }
 
         int setProperty(std::string const& key, js::Value const& val) override
@@ -36,8 +36,7 @@ namespace elem
                 if (!val.isBool())
                     return ReturnCode::InvalidPropertyType();
 
-                fadeIn.currentGain = val ? 0.0 : 1.0;
-                fadeOut.setTargetGain(val ? 1.0 : 0.0);
+                fade.setTargetGain(val ? 1.0 : 0.0);
             }
 
             if (key == "channel") {
@@ -48,14 +47,14 @@ namespace elem
                 if (!val.isNumber())
                     return ReturnCode::InvalidPropertyType();
 
-                fadeIn.setFadeTimeMs(GraphNode<FloatType>::getSampleRate(), static_cast<float>((js::Number) val));
+                fade.setFadeInTimeMs(GraphNode<FloatType>::getSampleRate(), static_cast<float>((js::Number) val));
             }
 
             if (key == "fadeOutMs") {
                 if (!val.isNumber())
                     return ReturnCode::InvalidPropertyType();
 
-                fadeOut.setFadeTimeMs(GraphNode<FloatType>::getSampleRate(), static_cast<float>((js::Number) val));
+                fade.setFadeOutTimeMs(GraphNode<FloatType>::getSampleRate(), static_cast<float>((js::Number) val));
             }
 
             return GraphNode<FloatType>::setProperty(key, val);
@@ -73,12 +72,11 @@ namespace elem
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
             for (size_t i = 0; i < numSamples; ++i) {
-                outputData[i] = fadeIn(fadeOut(inputData[0][i]));
+                outputData[i] = fade(inputData[0][i]);
             }
         }
 
-        GainFade<FloatType> fadeIn = {GraphNode<FloatType>::getSampleRate(), 20, 1.0, 1.0};
-        GainFade<FloatType> fadeOut = {GraphNode<FloatType>::getSampleRate(), 20, 1.0, 1.0};
+        GainFade<FloatType> fade = {GraphNode<FloatType>::getSampleRate(), 20, 20, 0.0, 1.0};
 
         std::atomic<int> channelIndex = -1;
     };

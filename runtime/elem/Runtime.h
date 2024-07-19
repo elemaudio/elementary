@@ -123,7 +123,7 @@ namespace elem
         int createNode(js::Value const& nodeId, js::Value const& type);
         int setProperty(js::Value const& nodeId, js::Value const& prop, js::Value const& v);
         int appendChild(js::Value const& parentId, js::Value const& childId, js::Value const& childOutputChannel);
-        int activateRoots(js::Array const&);
+        int activateRoots(js::Array const& v);
 
         BufferAllocator<FloatType> bufferAllocator;
         std::shared_ptr<GraphRenderSequence<FloatType>> rtRenderSeq;
