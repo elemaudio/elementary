@@ -178,7 +178,7 @@ namespace elem
         {
             // Don't promote if our RootRenderSequence represents a RootNode that has become
             // inactive, even if it's still fading out
-            if (rootPtr->getTargetGain() < FloatType(0.5))
+            if (!rootPtr->active() && rootPtr->stillRunning())
                 return;
 
             for (auto& n : tapList) {

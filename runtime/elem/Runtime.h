@@ -123,7 +123,7 @@ namespace elem
         int createNode(js::Value const& nodeId, js::Value const& type);
         int setProperty(js::Value const& nodeId, js::Value const& prop, js::Value const& v);
         int appendChild(js::Value const& parentId, js::Value const& childId, js::Value const& childOutputChannel);
-        int activateRoots(js::Array const& v);
+        int activateRoots(js::Array const& v, js::Number fadeInMs, js::Number fadeOutMs);
 
         BufferAllocator<FloatType> bufferAllocator;
         std::shared_ptr<GraphRenderSequence<FloatType>> rtRenderSeq;
@@ -190,7 +190,7 @@ namespace elem
                     res = appendChild(ar[1], ar[2], ar[3]);
                     break;
                 case InstructionType::ACTIVATE_ROOTS:
-                    res = activateRoots(ar[1]);
+                    res = activateRoots(ar[1], ar[2], ar[3]);
                     shouldRebuild = true;
                     break;
                 case InstructionType::COMMIT_UPDATES:
@@ -326,7 +326,7 @@ namespace elem
     }
 
     template <typename FloatType>
-    int Runtime<FloatType>::activateRoots(js::Array const& roots)
+    int Runtime<FloatType>::activateRoots(js::Array const& roots, js::Number fadeInMs, js::Number fadeOutMs)
     {
         // Populate and activate from the incoming event
         std::set<NodeId> active;
@@ -354,7 +354,8 @@ namespace elem
             auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(it->second);
             if (ptr)
             {
-                ptr->activate(currentRoots.empty() ? FloatType(1) : FloatType(0));
+                ptr->setFades(fadeInMs, fadeOutMs);
+                ptr->setProperty("active", true);
                 active.insert(nodeId);
                 ELEM_DBG("[Success] Activated root: " << nodeIdToHex(nodeId));
             }

@@ -4,6 +4,7 @@
 #include "../SingleWriterSingleReaderQueue.h"
 
 #include "helpers/Change.h"
+#include "helpers/GainFade.h"
 #include "helpers/RefCountedPool.h"
 
 
@@ -19,28 +20,20 @@ namespace elem
             return channelIndex.load();
         }
 
-        FloatType getTargetGain()
-        {
-            return targetGain.load();
-        }
-
         bool active()
         {
-            return targetGain.load() > 0.0f;
+            return fadeOut.targetGain > 0.5;
         }
 
         bool stillRunning()
         {
-            auto const t = targetGain.load();
-            auto const c = currentGain.load();
-
-            return (t >= 0.5 || (std::abs(c - t) >= 1e-6));
+            return active() || !fadeOut.settled();
         }
 
-        void activate(FloatType initialGain = FloatType(0)) 
+        void setFades(FloatType fadeInMs, FloatType fadeOutMs) 
         {
-            setProperty("active", true);
-            currentGain.store(initialGain);
+            fadeIn.setFadeTimeMs(GraphNode<FloatType>::getSampleRate(), fadeInMs);
+            fadeOut.setFadeTimeMs(GraphNode<FloatType>::getSampleRate(), fadeOutMs);
         }
 
         int setProperty(std::string const& key, js::Value const& val) override
@@ -49,7 +42,8 @@ namespace elem
                 if (!val.isBool())
                     return ReturnCode::InvalidPropertyType();
 
-                targetGain.store(FloatType(val ? 1 : 0));
+                fadeIn.currentGain = val ? 0.0 : 1.0;
+                fadeOut.setTargetGain(val ? 1.0 : 0.0);
             }
 
             if (key == "channel") {
@@ -70,22 +64,14 @@ namespace elem
             if (numChannels < 1)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
-            auto const t = targetGain.load();
-            auto c = currentGain.load();
-
-            auto const direction = (t < c) ? FloatType(-1) : FloatType(1);
-            auto const step = direction * FloatType(20) / FloatType(GraphNode<FloatType>::getSampleRate());
-
             for (size_t i = 0; i < numSamples; ++i) {
-                outputData[i] = inputData[0][i] * c;
-                c = std::clamp(c + step, FloatType(0), FloatType(1));
+                outputData[i] = fadeIn(fadeOut(inputData[0][i]));
             }
-
-            currentGain.store(c);
         }
 
-        std::atomic<FloatType> targetGain = 1;
-        std::atomic<FloatType> currentGain = 0;
+        GainFade<FloatType> fadeIn = {GraphNode<FloatType>::getSampleRate(), 20, 1.0, 1.0};
+        GainFade<FloatType> fadeOut = {GraphNode<FloatType>::getSampleRate(), 20, 1.0, 1.0};
+
         std::atomic<int> channelIndex = -1;
     };
 

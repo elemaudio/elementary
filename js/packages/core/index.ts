@@ -100,7 +100,7 @@ class Delegate {
     this.batch.setProperty.push([InstructionTypes.SET_PROPERTY, hash, key, value]);
   }
 
-  activateRoots(roots) {
+  activateRoots(roots, fadeInMs, fadeOutMs) {
     // If we're asked to activate exactly the roots that are already active,
     // no need to push the instruction. We need the length/size check though
     // because it may be that we're asked to activate a subset of the current
@@ -110,7 +110,7 @@ class Delegate {
       roots.every((root) => this.currentActiveRoots.has(root));
 
     if (!alreadyActive) {
-      this.batch.activateRoots.push([InstructionTypes.ACTIVATE_ROOTS, roots]);
+      this.batch.activateRoots.push([InstructionTypes.ACTIVATE_ROOTS, roots, fadeInMs, fadeOutMs]);
       this.currentActiveRoots = new Set(roots);
     }
   }
@@ -151,6 +151,9 @@ class Renderer {
   private _delegate: Delegate;
   private _sendMessage: Function;
   private _nextRefId: number;
+
+  // Fades applied to roots when they are activated and deactivated as a result of render
+  rootFades: { inMs: number, outMs: number} = { inMs: 20, outMs: 20 };
 
   constructor(sendMessage) {
     this._delegate = new Delegate();
@@ -202,7 +205,7 @@ class Renderer {
     const t0 = now();
 
     this._delegate.clear();
-    renderWithDelegate(this._delegate as any, args.map(resolve));
+    renderWithDelegate(this._delegate as any, args.map(resolve), this.rootFades.inMs, this.rootFades.outMs);
 
     const t1 = now();
 

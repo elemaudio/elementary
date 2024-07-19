@@ -52,7 +52,7 @@ function visit(delegate, visitSet, _ns) {
   };
 }
 
-function renderWithDelegate(delegate, graphs) {
+function renderWithDelegate(delegate, graphs, rootFadeInMs, rootFadeOutMs) {
   var visitSet = new Set();
   var roots = Belt_List.mapWithIndex(Belt_List.fromArray(graphs), (function (i, g) {
           return NodeRepr.create("root", {
@@ -62,7 +62,7 @@ function renderWithDelegate(delegate, graphs) {
   visit(delegate, visitSet, roots);
   delegate.activateRoots(Belt_List.toArray(Belt_List.map(roots, (function (r) {
                   return r.hash;
-                }))));
+                }))), rootFadeInMs, rootFadeOutMs);
   delegate.commitUpdates();
 }
 

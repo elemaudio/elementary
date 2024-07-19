@@ -9,9 +9,11 @@ namespace elem
     template <typename FloatType>
     struct GainFade
     {
-        GainFade(double sampleRate, double fadeTimeMs)
-            : step(FloatType(1.0 / (sampleRate * fadeTimeMs / 1000.0)))
+        GainFade(double sampleRate, double fadeTimeMs, FloatType current = 0.0, FloatType target = 0.0)
+        : currentGain(current)
+        , targetGain(target)
         {
+            setFadeTimeMs(sampleRate, fadeTimeMs);
         }
 
         GainFade(GainFade const& other)
@@ -34,6 +36,11 @@ namespace elem
             currentGain = std::clamp(currentGain + step, FloatType(0), FloatType(1));
 
             return y;
+        }
+
+        void setFadeTimeMs(double sampleRate, double fadeTimeMs)
+        {
+            step = FloatType(fadeTimeMs > FloatType(1e-6) ? 1.0 / (sampleRate * fadeTimeMs / 1000.0) : 1.0);
         }
 
         void setTargetGain (FloatType g) {
