@@ -94,6 +94,7 @@ let renderWithDelegate = (delegate, graphs, rootFadeInMs, rootFadeOutMs) => {
   })
 
   visit(delegate, visitSet, roots)
+  
   RenderDelegate.activateRoots(delegate, Belt.List.toArray(Belt.List.map(roots, r => r.hash)))
   RenderDelegate.commitUpdates(delegate)
 }
