@@ -56,13 +56,15 @@ function renderWithDelegate(delegate, graphs, rootFadeInMs, rootFadeOutMs) {
   var visitSet = new Set();
   var roots = Belt_List.mapWithIndex(Belt_List.fromArray(graphs), (function (i, g) {
           return NodeRepr.create("root", {
-                      channel: i
+                      channel: i,
+                      fadeInMs: rootFadeInMs,
+                      fadeOutMs: rootFadeOutMs
                     }, [g]);
         }));
   visit(delegate, visitSet, roots);
   delegate.activateRoots(Belt_List.toArray(Belt_List.map(roots, (function (r) {
                   return r.hash;
-                }))), rootFadeInMs, rootFadeOutMs);
+                }))));
   delegate.commitUpdates();
 }
 

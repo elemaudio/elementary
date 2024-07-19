@@ -15,7 +15,7 @@ import type {t as NodeRepr_t} from './NodeRepr.gen';
 // tslint:disable-next-line:max-classes-per-file 
 export abstract class RenderDelegate_t { protected opaque!: any }; /* simulate opaque types */
 
-export const renderWithDelegate: (delegate:RenderDelegate_t, graphs:NodeRepr_t[], rootFadeInMs:number, rootFadeOutMs:number) => void = function (Arg1: any, Arg2: any, Arg3: any, Arg4: any) {
+export const renderWithDelegate: <T1,T2>(delegate:RenderDelegate_t, graphs:NodeRepr_t[], rootFadeInMs:T1, rootFadeOutMs:T2) => void = function <T1,T2>(Arg1: any, Arg2: any, Arg3: any, Arg4: any) {
   const result = Curry._4(ReconcilerBS.renderWithDelegate, Arg1, Arg2, Arg3, Arg4);
   return result
 };

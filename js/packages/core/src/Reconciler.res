@@ -38,7 +38,7 @@ module RenderDelegate = {
   @send external deleteNode: (t, int) => () = "deleteNode"
   @send external appendChild: (t, int, int, int) => () = "appendChild"
   @send external setProperty: (t, int, string, 'a) => () = "setProperty"
-  @send external activateRoots: (t, array<int>, int, int) => () = "activateRoots"
+  @send external activateRoots: (t, array<int>) => () = "activateRoots"
   @send external commitUpdates: t => () = "commitUpdates"
 }
 
@@ -90,10 +90,10 @@ let rec visit = (
 let renderWithDelegate = (delegate, graphs, rootFadeInMs, rootFadeOutMs) => {
   let visitSet = Set.make()
   let roots = Belt.List.mapWithIndex(Belt.List.fromArray(graphs), (i, g) => {
-    NodeRepr.create("root", {"channel": i}, [g])
+    NodeRepr.create("root", {"channel": i, "fadeInMs": rootFadeInMs, "fadeOutMs": rootFadeOutMs}, [g])
   })
 
   visit(delegate, visitSet, roots)
-  RenderDelegate.activateRoots(delegate, Belt.List.toArray(Belt.List.map(roots, r => r.hash)), rootFadeInMs, rootFadeOutMs)
+  RenderDelegate.activateRoots(delegate, Belt.List.toArray(Belt.List.map(roots, r => r.hash)))
   RenderDelegate.commitUpdates(delegate)
 }

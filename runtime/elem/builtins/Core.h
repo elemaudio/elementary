@@ -30,12 +30,6 @@ namespace elem
             return active() || !fadeOut.settled();
         }
 
-        void setFades(FloatType fadeInMs, FloatType fadeOutMs) 
-        {
-            fadeIn.setFadeTimeMs(GraphNode<FloatType>::getSampleRate(), fadeInMs);
-            fadeOut.setFadeTimeMs(GraphNode<FloatType>::getSampleRate(), fadeOutMs);
-        }
-
         int setProperty(std::string const& key, js::Value const& val) override
         {
             if (key == "active") {
@@ -48,6 +42,20 @@ namespace elem
 
             if (key == "channel") {
                 channelIndex.store(static_cast<int>((js::Number) val));
+            }
+
+            if (key == "fadeInMs") {
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                fadeIn.setFadeTimeMs(GraphNode<FloatType>::getSampleRate(), static_cast<float>((js::Number) val));
+            }
+
+            if (key == "fadeOutMs") {
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                fadeOut.setFadeTimeMs(GraphNode<FloatType>::getSampleRate(), static_cast<float>((js::Number) val));
             }
 
             return GraphNode<FloatType>::setProperty(key, val);
