@@ -20,14 +20,14 @@ namespace elem
             void engage (double start, double currentTime, size_t _bufferSize) {
                 startTime = start;
                 bufferSize = _bufferSize;
-                fade.setTargetGain(FloatType(1));
+                fade.fadeIn();
 
                 position = static_cast<size_t>(((currentTime - startTime) / sampleDuration) * (double) (bufferSize - 1u));
                 position = std::clamp<size_t>(position, 0, bufferSize);
             }
 
             void disengage() {
-                fade.setTargetGain(FloatType(0));
+                fade.fadeOut();
             }
 
             // Does the incoming time match what this reader is expecting?

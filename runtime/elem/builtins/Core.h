@@ -36,7 +36,10 @@ namespace elem
                 if (!val.isBool())
                     return ReturnCode::InvalidPropertyType();
 
-                fade.setTargetGain(val ? 1.0 : 0.0);
+                if (val)
+                    fade.fadeIn();
+                else
+                    fade.fadeOut();
             }
 
             if (key == "channel") {
@@ -71,9 +74,7 @@ namespace elem
             if (numChannels < 1)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
-            for (size_t i = 0; i < numSamples; ++i) {
-                outputData[i] = fade(inputData[0][i]);
-            }
+            fade.process(inputData[0], outputData, numSamples);
         }
 
         GainFade<FloatType> fade = {GraphNode<FloatType>::getSampleRate(), 20, 20, 0.0, 1.0};

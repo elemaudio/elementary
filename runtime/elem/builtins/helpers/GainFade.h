@@ -26,8 +26,9 @@ namespace elem
         GainFade(GainFade const& other)
         : currentGain(other.currentGain.load())
         , targetGain(other.targetGain.load())
-        , inStep(other.inStep.load())
-        , outStep(other.outStep.load())
+        , step(other.step.load())
+        , inStep(other.inStep)
+        , outStep(other.outStep)
         {
         }
 
@@ -35,37 +36,61 @@ namespace elem
         {
             currentGain.store(other.currentGain.load());
             targetGain.store(other.targetGain.load());
-            inStep.store(other.inStep.load());
-            outStep.store(other.outStep.load());
+            step.store(other.step.load());
+            inStep = other.inStep;
+            outStep = other.outStep;
         }
 
         FloatType operator() (FloatType x) {
             auto const _currentGain = currentGain.load();
-            auto const _targetGain = targetGain.load();
-            if (_currentGain == _targetGain)
+            if (_currentGain == targetGain.load())
                 return (_currentGain * x);
 
             auto y = x * _currentGain;
-            auto const step = _currentGain < _targetGain ? inStep.load() : outStep.load();
-            currentGain.store(std::clamp(_currentGain + step, FloatType(0), FloatType(1)));
+            currentGain.store(std::clamp(_currentGain + step.load(), FloatType(0), FloatType(1)));
 
             return y;
         }
 
+        void process (const FloatType* input, FloatType* output, int numSamples) {
+            auto const _currentGain = currentGain.load();
+            if (_currentGain == targetGain.load()) {
+                for (int i = 0; i < numSamples; ++i) {
+                    output[i] = input[i] * _currentGain;
+                }
+                return;
+            }
+
+            auto const _step = step.load();
+            for (int i = 0; i < numSamples; ++i) {
+                output[i] = input[i] * std::clamp(_currentGain + _step * i, FloatType(0), FloatType(1));
+            }
+            
+            currentGain.store(std::clamp(_currentGain + _step * numSamples, FloatType(0), FloatType(1)));
+        }
+
         void setFadeInTimeMs(double sampleRate, double fadeInTimeMs) {
-            inStep.store(detail::millisecondsToStep(sampleRate, fadeInTimeMs));
+            inStep = detail::millisecondsToStep(sampleRate, fadeInTimeMs);
+            updateCurrentStep();
         }
 
         void setFadeOutTimeMs(double sampleRate, double fadeOutTimeMs) {
-            outStep.store(detail::millisecondsToStep(sampleRate, fadeOutTimeMs));
-        }
-        
-        void setCurrentGain(FloatType gain) {
-            currentGain.store(gain);
+            outStep = FloatType(-1) * detail::millisecondsToStep(sampleRate, fadeOutTimeMs);
+            updateCurrentStep();
         }
 
-        void setTargetGain(FloatType gain) {
-            targetGain.store(gain);
+        void fadeIn() {
+            targetGain.store(FloatType(1));
+            updateCurrentStep();
+        }
+
+        void fadeOut() {
+            targetGain.store(FloatType(0));
+            updateCurrentStep();
+        }
+
+        void setCurrentGain(FloatType gain) {
+            currentGain.store(gain);
         }
 
         bool on() {
@@ -82,10 +107,15 @@ namespace elem
         }
 
     private:
+        void updateCurrentStep() {
+            step.store(currentGain.load() > targetGain.load() ? outStep : inStep);
+        }
+
         std::atomic<FloatType> currentGain = 0;
         std::atomic<FloatType> targetGain = 0;
-        std::atomic<FloatType> inStep = 0;
-        std::atomic<FloatType> outStep = 0;
+        std::atomic<FloatType> step = 0;
+        FloatType inStep = 0;
+        FloatType outStep = 0;
     };
 
 } // namespace elem
