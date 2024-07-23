@@ -43,8 +43,9 @@ namespace elem
 
         FloatType operator() (FloatType x) {
             auto const _currentGain = currentGain.load();
-            if (_currentGain == targetGain.load())
-                return (_currentGain * x);
+            auto const _targetGain = targetGain.load();
+            if (fpEqual(_currentGain, _targetGain))
+                return (_targetGain * x);
 
             auto y = x * _currentGain;
             currentGain.store(std::clamp(_currentGain + step.load(), FloatType(0), FloatType(1)));
@@ -54,9 +55,10 @@ namespace elem
 
         void process (const FloatType* input, FloatType* output, int numSamples) {
             auto const _currentGain = currentGain.load();
-            if (_currentGain == targetGain.load()) {
+            auto const _targetGain = targetGain.load();
+            if (_currentGain == _targetGain) {
                 for (int i = 0; i < numSamples; ++i) {
-                    output[i] = input[i] * _currentGain;
+                    output[i] = input[i] * _targetGain;
                 }
                 return;
             }

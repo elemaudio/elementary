@@ -50,14 +50,14 @@ namespace elem
                 if (!val.isNumber())
                     return ReturnCode::InvalidPropertyType();
 
-                fade.setFadeInTimeMs(GraphNode<FloatType>::getSampleRate(), static_cast<float>((js::Number) val));
+                fade.setFadeInTimeMs(GraphNode<FloatType>::getSampleRate(), (js::Number) val);
             }
 
             if (key == "fadeOutMs") {
                 if (!val.isNumber())
                     return ReturnCode::InvalidPropertyType();
 
-                fade.setFadeOutTimeMs(GraphNode<FloatType>::getSampleRate(), static_cast<float>((js::Number) val));
+                fade.setFadeOutTimeMs(GraphNode<FloatType>::getSampleRate(), (js::Number) val);
             }
 
             return GraphNode<FloatType>::setProperty(key, val);
