@@ -36,7 +36,8 @@ test('vfs should show registered entries', async function() {
   expect(await core.render(el.table({key: 'a', path: 'test2'}, 0.5))).toMatchObject({
     nodesAdded: 3,
     edgesAdded: 2,
-    propsWritten: 4,
+    // Root node channel, fadeIn, fadeOut, table key, path, const value
+    propsWritten: 6,
   });
 
   await core.pruneVirtualFileSystem();
