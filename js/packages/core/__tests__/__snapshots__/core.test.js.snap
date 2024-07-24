@@ -146,18 +146,6 @@ exports[`distinguish by props 1`] = `
   ],
   [
     3,
-    1423379257,
-    "fadeInMs",
-    undefined,
-  ],
-  [
-    3,
-    1423379257,
-    "fadeOutMs",
-    undefined,
-  ],
-  [
-    3,
     1497369747,
     "path",
     "test/path.wav",
@@ -173,18 +161,6 @@ exports[`distinguish by props 1`] = `
     1737893648,
     "channel",
     1,
-  ],
-  [
-    3,
-    1737893648,
-    "fadeInMs",
-    undefined,
-  ],
-  [
-    3,
-    1737893648,
-    "fadeOutMs",
-    undefined,
   ],
   [
     4,
@@ -483,18 +459,6 @@ exports[`distinguished subtrees by key 1`] = `
     0,
   ],
   [
-    3,
-    1891960130,
-    "fadeInMs",
-    undefined,
-  ],
-  [
-    3,
-    1891960130,
-    "fadeOutMs",
-    undefined,
-  ],
-  [
     4,
     [
       1891960130,
@@ -587,18 +551,6 @@ exports[`multi-channel basics 1`] = `
   ],
   [
     3,
-    704782214,
-    "fadeInMs",
-    undefined,
-  ],
-  [
-    3,
-    704782214,
-    "fadeOutMs",
-    undefined,
-  ],
-  [
-    3,
     1097289128,
     "value",
     6.283185307179586,
@@ -620,18 +572,6 @@ exports[`multi-channel basics 1`] = `
     2134855787,
     "channel",
     0,
-  ],
-  [
-    3,
-    2134855787,
-    "fadeInMs",
-    undefined,
-  ],
-  [
-    3,
-    2134855787,
-    "fadeOutMs",
-    undefined,
   ],
   [
     4,
@@ -727,18 +667,6 @@ exports[`numeric literals 1`] = `
     0,
   ],
   [
-    3,
-    1468062699,
-    "fadeInMs",
-    undefined,
-  ],
-  [
-    3,
-    1468062699,
-    "fadeOutMs",
-    undefined,
-  ],
-  [
     4,
     [
       1468062699,
@@ -779,18 +707,6 @@ exports[`simple sharing 1`] = `
     1832877767,
     "channel",
     0,
-  ],
-  [
-    3,
-    1832877767,
-    "fadeInMs",
-    undefined,
-  ],
-  [
-    3,
-    1832877767,
-    "fadeOutMs",
-    undefined,
   ],
   [
     4,
@@ -917,18 +833,6 @@ exports[`the basics 1`] = `
     2134855787,
     "channel",
     0,
-  ],
-  [
-    3,
-    2134855787,
-    "fadeInMs",
-    undefined,
-  ],
-  [
-    3,
-    2134855787,
-    "fadeOutMs",
-    undefined,
   ],
   [
     4,
