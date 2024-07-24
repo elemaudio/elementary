@@ -199,7 +199,7 @@ class Renderer {
   }
 
   render(...args) {
-    return this.renderWithOptions({ rootFadeInMs: 20, rootFadeOutMs: 20 }, args);
+    return this.renderWithOptions({ rootFadeInMs: 20, rootFadeOutMs: 20 }, ...args);
   }
 
   renderWithOptions(options: { rootFadeInMs: number, rootFadeOutMs: number }, ...args) {

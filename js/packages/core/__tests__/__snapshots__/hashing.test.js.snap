@@ -65,6 +65,18 @@ exports[`instruction set similarity without hash values 1`] = `
   ],
   [
     3,
+    0,
+    "fadeInMs",
+    20,
+  ],
+  [
+    3,
+    0,
+    "fadeOutMs",
+    20,
+  ],
+  [
+    3,
     3,
     "value",
     6.283185307179586,
@@ -872,6 +884,18 @@ exports[`instruction set similarity without hash values 2 1`] = `
   ],
   [
     3,
+    0,
+    "fadeInMs",
+    20,
+  ],
+  [
+    3,
+    0,
+    "fadeOutMs",
+    20,
+  ],
+  [
+    3,
     2,
     "value",
     0.25,
@@ -1010,6 +1034,18 @@ exports[`instruction set similarity without hash values 2 1`] = `
     66,
     "channel",
     1,
+  ],
+  [
+    3,
+    66,
+    "fadeInMs",
+    20,
+  ],
+  [
+    3,
+    66,
+    "fadeOutMs",
+    20,
   ],
   [
     4,

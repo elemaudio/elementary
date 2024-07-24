@@ -14,7 +14,7 @@ class TestRenderer extends Renderer {
   render(...args) {
     this._delegate.clear();
 
-    renderWithDelegate(this._delegate, args.map(resolve));
+    renderWithDelegate(this._delegate, args.map(resolve), 20, 20);
 
     return {
       nodesAdded: this._delegate.nodesAdded,
