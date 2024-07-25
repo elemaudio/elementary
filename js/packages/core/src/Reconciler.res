@@ -87,14 +87,14 @@ let rec visit = (
 }
 
 @genType
-let renderWithDelegate = (delegate, graphs) => {
+let renderWithDelegate = (delegate, graphs, rootFadeInMs, rootFadeOutMs) => {
   let visitSet = Set.make()
   let roots = Belt.List.mapWithIndex(Belt.List.fromArray(graphs), (i, g) => {
-    NodeRepr.create("root", {"channel": i}, [g])
+    NodeRepr.create("root", {"channel": i, "fadeInMs": rootFadeInMs, "fadeOutMs": rootFadeOutMs}, [g])
   })
 
   visit(delegate, visitSet, roots)
-
+  
   RenderDelegate.activateRoots(delegate, Belt.List.toArray(Belt.List.map(roots, r => r.hash)))
   RenderDelegate.commitUpdates(delegate)
 }

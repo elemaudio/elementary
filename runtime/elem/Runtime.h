@@ -354,7 +354,7 @@ namespace elem
             auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(it->second);
             if (ptr)
             {
-                ptr->activate(currentRoots.empty() ? FloatType(1) : FloatType(0));
+                ptr->setProperty("active", true);
                 active.insert(nodeId);
                 ELEM_DBG("[Success] Activated root: " << nodeIdToHex(nodeId));
             }

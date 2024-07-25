@@ -199,10 +199,14 @@ class Renderer {
   }
 
   render(...args) {
+    return this.renderWithOptions({ rootFadeInMs: 20, rootFadeOutMs: 20 }, ...args);
+  }
+
+  renderWithOptions(options: { rootFadeInMs: number, rootFadeOutMs: number }, ...args) {
     const t0 = now();
 
     this._delegate.clear();
-    renderWithDelegate(this._delegate as any, args.map(resolve));
+    renderWithDelegate(this._delegate as any, args.map(resolve), options.rootFadeInMs, options.rootFadeOutMs);
 
     const t1 = now();
 

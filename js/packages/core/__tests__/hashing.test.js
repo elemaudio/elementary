@@ -85,7 +85,7 @@ class HashlessRenderer {
   }
 
   render(...args) {
-    this.roots = renderWithDelegate(this, args);
+    this.roots = renderWithDelegate(this, args, 20, 20);
   }
 }
 
