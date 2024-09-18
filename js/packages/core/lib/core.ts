@@ -135,6 +135,7 @@ export function rand(a?) {
 // Metro node
 type MetroNodeProps = {
   key?: string,
+  name?: string,
   interval?: number,
 };
 
