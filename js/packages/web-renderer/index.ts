@@ -11,16 +11,21 @@ import { pkgVersion } from './version';
 import WorkletProcessor from './raw/WorkletProcessor';
 import WasmModule from './raw/elementary-wasm';
 
-export default class WebAudioRenderer extends EventEmitter {
+export default class WebRenderer extends EventEmitter {
   private _worklet: any;
   private _promiseMap: any;
   private _nextRequestId: number;
   private _renderer: Renderer;
   private _timer: any;
 
+  public context: AudioContext = null;
+
   async initialize(audioContext: AudioContext, workletOptions: AudioWorkletNodeOptions = {}, eventInterval: number = 16): Promise<AudioWorkletNode> {
     invariant(typeof audioContext === 'object' && audioContext !== null, 'First argument to initialize must be a valid AudioContext instance.');
     invariant(typeof workletOptions === 'object' && workletOptions !== null, 'The optional second argument to initialize must be an object.');
+
+    // Hold a reference here for easier access to the underlying AudioContext
+    this.context = audioContext;
 
     // A bit of a hack here, but if we try to register the same ElementaryAudioWorkletProcessor on the same
     // AudioContext twice, the browser will throw an error. We don't have any way to ask the AudioContext what
