@@ -2,7 +2,7 @@ import EventEmitter from 'eventemitter3';
 
 
 type EventTypes = {
-  capture: (data: { source?: string, data: Float32Array[] }) => void;
+  capture: (data: { source?: string, data: Float32Array }) => void;
   error: (error: Error) => void;
   fft: (data: { source?: string, data: { real: Float32Array, imag: Float32Array } }) => void;
   load: () => void;
