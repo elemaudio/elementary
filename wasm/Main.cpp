@@ -193,6 +193,13 @@ public:
     /** Audio block processing. */
     void process (int const numSamples)
     {
+        for (size_t i = numInputChannels; i < numOutputChannels; ++i) {
+            if (i < scratchBuffers.size()) {
+                auto& vec = scratchBuffers[i];
+                std::fill(vec.begin(), vec.end(), 0.0);
+            }
+        }
+
         // We just operate on our scratch data. Expect the JavaScript caller to hit
         // our getInputBufferData and getOutputBufferData to prepare and extract the actual
         // data for this processor
