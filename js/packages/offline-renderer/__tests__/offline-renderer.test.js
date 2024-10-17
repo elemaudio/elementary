@@ -39,7 +39,7 @@ test('events', async function() {
     events.push(e);
   });
 
-  core.render(el.meter(el.mul(2, 3)));
+  core.render(el.meter({}, el.mul(2, 3)));
   core.process(inps, outs);
 
   expect(events).toMatchSnapshot();

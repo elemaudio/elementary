@@ -2,20 +2,14 @@ import {
   createNode,
   isNode,
   resolve,
-} from '../nodeUtils';
+  ElemNode,
+  NodeRepr_t,
+} from "../nodeUtils";
 
-import type {ElemNode, NodeRepr_t} from '../nodeUtils';
-
-import * as co from './core';
-import * as ma from './math';
-import * as fi from './filters';
-import * as si from './signals';
-
-
-// Generic
-type OptionalKeyProps = {
-  key?: string,
-}
+import * as co from "./core";
+import * as ma from "./math";
+import * as fi from "./filters";
+import * as si from "./signals";
 
 const el = {
   ...co,
@@ -30,13 +24,12 @@ const el = {
  * When the gate is high (1), this generates the ADS phase. When the gate is
  * low (0), the R phase.
  *
- * @param {Object} [props]
- * @param {core.Node|number} a - Attack time in seconds
- * @param {core.Node|number} d - Decay time in seconds
- * @param {core.Node|number} s - Sustain level between 0, 1
- * @param {core.Node|number} r - Release time in seconds
- * @param {core.Node|number} g - Gate signal
- * @returns {core.Node}
+ * @param {ElemNode} a - Attack time in seconds
+ * @param {ElemNode} d - Decay time in seconds
+ * @param {ElemNode} s - Sustain level between 0, 1
+ * @param {ElemNode} r - Release time in seconds
+ * @param {ElemNode} g - Gate signal
+ * @returns {NodeRepr_t}
  */
 export function adsr(
   attackSec: ElemNode,
@@ -44,23 +37,8 @@ export function adsr(
   sustain: ElemNode,
   releaseSec: ElemNode,
   gate: ElemNode,
-): NodeRepr_t;
-
-export function adsr(
-  props: OptionalKeyProps,
-  attackSec: ElemNode,
-  decaySec: ElemNode,
-  sustain: ElemNode,
-  releaseSec: ElemNode,
-  gate: ElemNode,
-): NodeRepr_t;
-
-export function adsr(a_, b_, c_, d_, e_, f_?) {
-  let children = (typeof a_ === "number" || isNode(a_))
-    ? [a_, b_, c_, d_, e_]
-    : [b_, c_, d_, e_, f_];
-
-  let [a, d, s, r, g] = children;
+): NodeRepr_t {
+  let [a, d, s, r, g] = [attackSec, decaySec, sustain, releaseSec, gate];
   let atkSamps = el.mul(a, el.sr());
   let atkGate = el.le(el.counter(g), atkSamps);
 

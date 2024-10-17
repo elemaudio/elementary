@@ -2,23 +2,11 @@ import {
   createNode,
   isNode,
   resolve,
-} from '../nodeUtils';
+  ElemNode,
+  NodeRepr_t,
+} from "../nodeUtils";
 
-import type {ElemNode, NodeRepr_t} from '../nodeUtils';
-
-
-// Generic
-type OptionalKeyProps = {
-  key?: string,
-};
-
-// Const node and constant value nodes
-type ConstNodeProps = {
-  key?: string,
-  value: number,
-};
-
-export function constant(props: ConstNodeProps): NodeRepr_t {
+export function constant(props: { key?: string; value: number }): NodeRepr_t {
   return createNode("const", props, []);
 }
 
@@ -30,396 +18,259 @@ export function time(): NodeRepr_t {
   return createNode("time", {}, []);
 }
 
-// Counter node
-export function counter(gate: ElemNode): NodeRepr_t;
-export function counter(props: OptionalKeyProps, gate: ElemNode): NodeRepr_t;
-export function counter(a, b?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("counter", {}, [resolve(a)]);
-  }
-
-  return createNode("counter", a, [resolve(b)]);
+export function counter(gate: ElemNode): NodeRepr_t {
+  return createNode("counter", {}, [resolve(gate)]);
 }
 
-// Accum node
-export function accum(xn: ElemNode, reset: ElemNode): NodeRepr_t;
-export function accum(props: OptionalKeyProps, xn: ElemNode, reset: ElemNode): NodeRepr_t;
-export function accum(a, b, c?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("accum", {}, [resolve(a), resolve(b)]);
-  }
-
-  return createNode("accum", a, [resolve(b), resolve(c)]);
+export function accum(xn: ElemNode, reset: ElemNode): NodeRepr_t {
+  return createNode("accum", {}, [resolve(xn), resolve(reset)]);
 }
 
 // Phasor node
-export function phasor(rate: ElemNode): NodeRepr_t;
-export function phasor(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
-export function phasor(a, b?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("phasor", {}, [resolve(a)]);
-  }
-
-  return createNode("phasor", a, [resolve(b)]);
+export function phasor(rate: ElemNode): NodeRepr_t {
+  return createNode("phasor", {}, [resolve(rate)]);
 }
 
-export function syncphasor(rate: ElemNode, reset: ElemNode): NodeRepr_t;
-export function syncphasor(props: OptionalKeyProps, rate: ElemNode, reset: ElemNode): NodeRepr_t;
-export function syncphasor(a, b, c?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("sphasor", {}, [resolve(a), resolve(b)]);
-  }
-
-  return createNode("sphasor", a, [resolve(b), resolve(c)]);
+export function syncphasor(rate: ElemNode, reset: ElemNode): NodeRepr_t {
+  return createNode("sphasor", {}, [resolve(rate), resolve(reset)]);
 }
 
-// Latch node
-export function latch(t: ElemNode, x: ElemNode): NodeRepr_t;
-export function latch(props: OptionalKeyProps, t: ElemNode, x: ElemNode): NodeRepr_t;
-export function latch(a, b, c?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("latch", {}, [resolve(a), resolve(b)]);
-  }
-
-  return createNode("latch", a, [resolve(b), resolve(c)]);
+export function latch(t: ElemNode, x: ElemNode): NodeRepr_t {
+  return createNode("latch", {}, [resolve(t), resolve(x)]);
 }
 
-// MaxHold node
-type MaxHoldNodeProps = {
-  key?: string,
-  hold?: number,
-};
-
-export function maxhold(x: ElemNode, reset: ElemNode): NodeRepr_t;
-export function maxhold(props: MaxHoldNodeProps, x: ElemNode, reset: ElemNode): NodeRepr_t;
-export function maxhold(a, b, c?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("maxhold", {}, [resolve(a), resolve(b)]);
-  }
-
-  return createNode("maxhold", a, [resolve(b), resolve(c)]);
+export function maxhold(
+  props: { key?: string; hold?: number },
+  x: ElemNode,
+  reset: ElemNode,
+): NodeRepr_t {
+  return createNode("maxhold", props, [resolve(x), resolve(reset)]);
 }
 
-// Once node
-type OnceNodeProps = {
-  key?: string,
-  arm?: boolean,
-};
-
-export function once(x: ElemNode): NodeRepr_t;
-export function once(props: OnceNodeProps, x: ElemNode): NodeRepr_t;
-export function once(a, b?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("once", {}, [resolve(a)]);
-  }
-
-  return createNode("once", a, [resolve(b)]);
+export function once(
+  props: { key?: string; arm?: boolean },
+  x: ElemNode,
+): NodeRepr_t {
+  return createNode("once", props, [resolve(x)]);
 }
 
-// Rand node
-type RandNodeProps = {
-  key?: string,
-  seed?: number,
-};
-
-export function rand(): NodeRepr_t;
-export function rand(props: RandNodeProps): NodeRepr_t;
-export function rand(a?) {
-  if (typeof a !== "undefined") {
-    return createNode("rand", a, []);
-  }
-
-  return createNode("rand", {}, []);
+export function rand(props?: { key?: string }): NodeRepr_t {
+  return createNode("rand", props || {}, []);
 }
 
-// Metro node
-type MetroNodeProps = {
-  key?: string,
-  name?: string,
-  interval?: number,
-};
-
-export function metro(): NodeRepr_t;
-export function metro(props: MetroNodeProps): NodeRepr_t;
-export function metro(a?) {
-  if (typeof a !== "undefined") {
-    return createNode("metro", a, []);
-  }
-
-  return createNode("metro", {}, []);
+export function metro(props?: {
+  key?: string;
+  name?: string;
+  interval?: number;
+}): NodeRepr_t {
+  return createNode("metro", props || {}, []);
 }
 
-// Sample node
-type SampleNodeProps = {
-  key?: string,
-  path?: string,
-  mode?: string,
-  startOffset?: number,
-  stopOffset?: number,
-};
-
-export function sample(props: SampleNodeProps, trigger: ElemNode, rate: ElemNode): NodeRepr_t {
+export function sample(
+  props: {
+    key?: string;
+    path: string;
+    mode?: string;
+    startOffset?: number;
+    stopOffset?: number;
+  },
+  trigger: ElemNode,
+  rate: ElemNode,
+): NodeRepr_t {
   return createNode("sample", props, [resolve(trigger), resolve(rate)]);
 }
 
-// Table node
-type TableNodeProps = {
-  key?: string,
-  path?: string,
-};
-
-export function table(props: TableNodeProps, t: ElemNode): NodeRepr_t {
+export function table(
+  props: {
+    key?: string;
+    path: string;
+  },
+  t: ElemNode,
+): NodeRepr_t {
   return createNode("table", props, [resolve(t)]);
 }
 
-// Convolve node
-type ConvolveNodeProps = {
-  key?: string,
-  path?: string,
-};
-
-export function convolve(props: ConvolveNodeProps, x: ElemNode): NodeRepr_t {
+export function convolve(
+  props: {
+    key?: string;
+    path: string;
+  },
+  x: ElemNode,
+): NodeRepr_t {
   return createNode("convolve", props, [resolve(x)]);
 }
 
-// Seq node
-type SeqNodeProps = {
-  key?: string,
-  seq?: Array<number>,
-  offset?: number,
-  hold?: boolean,
-  loop?: boolean,
-};
-
-export function seq(props: SeqNodeProps, trigger: ElemNode, reset: ElemNode): NodeRepr_t {
+export function seq(
+  props: {
+    key?: string;
+    seq: Array<number>;
+    offset?: number;
+    hold?: boolean;
+    loop?: boolean;
+  },
+  trigger: ElemNode,
+  reset: ElemNode,
+): NodeRepr_t {
   return createNode("seq", props, [resolve(trigger), resolve(reset)]);
 }
 
-// Seq2 node
-type Seq2NodeProps = {
-  key?: string,
-  seq?: Array<number>,
-  offset?: number,
-  hold?: boolean,
-  loop?: boolean,
-};
-
-export function seq2(props: Seq2NodeProps, trigger: ElemNode, reset: ElemNode): NodeRepr_t {
+export function seq2(
+  props: {
+    key?: string;
+    seq: Array<number>;
+    offset?: number;
+    hold?: boolean;
+    loop?: boolean;
+  },
+  trigger: ElemNode,
+  reset: ElemNode,
+): NodeRepr_t {
   return createNode("seq2", props, [resolve(trigger), resolve(reset)]);
 }
 
-// SparSeq node
-type SparSeqNodeProps = {
-  key?: string,
-  seq?: Array<{value: number, tickTime: number}>,
-  offset?: number,
-  loop?: boolean | Array<number>,
-  resetOnLoop?: boolean,
-  interpolate?: number,
-  tickInterval?: number,
-};
-
-export function sparseq(props: SparSeqNodeProps, trigger: ElemNode, reset: ElemNode): NodeRepr_t {
+export function sparseq(
+  props: {
+    key?: string;
+    seq: Array<{ value: number; tickTime: number }>;
+    offset?: number;
+    loop?: boolean | Array<number>;
+    resetOnLoop?: boolean;
+    interpolate?: number;
+    tickInterval?: number;
+  },
+  trigger: ElemNode,
+  reset: ElemNode,
+): NodeRepr_t {
   return createNode("sparseq", props, [resolve(trigger), resolve(reset)]);
 }
 
-// SparSeq2 node
-type SparSeq2NodeProps = {
-  key?: string,
-  seq?: Array<{value: number, time: number}>,
-};
-
-export function sparseq2(props: SparSeq2NodeProps, time: ElemNode): NodeRepr_t {
+export function sparseq2(
+  props: {
+    key?: string;
+    seq: Array<{ value: number; time: number }>;
+  },
+  time: ElemNode,
+): NodeRepr_t {
   return createNode("sparseq2", props, [resolve(time)]);
 }
 
-// Sampleseq node
-type SampleSeqNodeProps = {
-  key?: string,
-  seq?: Array<{value: number, time: number}>,
-  duration: number,
-  path: string,
-};
-
-export function sampleseq(props: SampleSeqNodeProps, time: ElemNode): NodeRepr_t {
+export function sampleseq(
+  props: {
+    key?: string;
+    path: string;
+    seq: Array<{ value: number; time: number }>;
+    duration: number;
+  },
+  time: ElemNode,
+): NodeRepr_t {
   return createNode("sampleseq", props, [resolve(time)]);
 }
 
-// Sampleseq2 node
-type SampleSeq2NodeProps = {
-  key?: string,
-  seq?: Array<{value: number, time: number}>,
-  duration: number,
-  path: string,
-  stretch?: number,
-  shift?: number,
-};
-
-export function sampleseq2(props: SampleSeq2NodeProps, time: ElemNode): NodeRepr_t {
+export function sampleseq2(
+  props: {
+    key?: string;
+    path: string;
+    seq: Array<{ value: number; time: number }>;
+    duration: number;
+    stretch?: number;
+    shift?: number;
+  },
+  time: ElemNode,
+): NodeRepr_t {
   return createNode("sampleseq2", props, [resolve(time)]);
 }
 
-// Pole node
-export function pole(p: ElemNode, x: ElemNode): NodeRepr_t;
-export function pole(props: OptionalKeyProps, p: ElemNode, x: ElemNode): NodeRepr_t;
-export function pole(a, b, c?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("pole", {}, [resolve(a), resolve(b)]);
-  }
-
-  return createNode("pole", a, [resolve(b), resolve(c)]);
+export function pole(p: ElemNode, x: ElemNode): NodeRepr_t {
+  return createNode("pole", {}, [resolve(p), resolve(x)]);
 }
 
-// Env node
-export function env(atkPole: ElemNode, relPole: ElemNode, x: ElemNode): NodeRepr_t;
-export function env(props: OptionalKeyProps, atkPole: ElemNode, relPole: ElemNode, x: ElemNode): NodeRepr_t;
-export function env(a, b, c, d?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("env", {}, [resolve(a), resolve(b), resolve(c)]);
-  }
-
-  return createNode("env", a, [resolve(b), resolve(c), resolve(d)]);
+export function env(
+  atkPole: ElemNode,
+  relPole: ElemNode,
+  x: ElemNode,
+): NodeRepr_t {
+  return createNode("env", {}, [
+    resolve(atkPole),
+    resolve(relPole),
+    resolve(x),
+  ]);
 }
 
 // Single sample delay node
-export function z(x: ElemNode): NodeRepr_t;
-export function z(props: OptionalKeyProps, x: ElemNode): NodeRepr_t;
-export function z(a, b?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("z", {}, [resolve(a)]);
-  }
-
-  return createNode("z", a, [resolve(b)]);
+export function z(x: ElemNode): NodeRepr_t {
+  return createNode("z", {}, [resolve(x)]);
 }
 
 // Variable delay node
-type DelayNodeProps = {
-  key?: string,
-  size: number,
-};
-
 export function delay(
-  props: DelayNodeProps,
+  props: {
+    key?: string;
+    size: number;
+  },
   len: ElemNode,
   fb: ElemNode,
-  x : ElemNode,
-): NodeRepr_t;
-
-export function delay(a, b, c, d) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("delay", {}, [resolve(a), resolve(b), resolve(c)]);
-  }
-
-  return createNode("delay", a, [resolve(b), resolve(c), resolve(d)]);
+  x: ElemNode,
+): NodeRepr_t {
+  return createNode("delay", props, [resolve(len), resolve(fb), resolve(x)]);
 }
 
-export function sdelay(props: DelayNodeProps, x: ElemNode): NodeRepr_t {
+// Static delay node
+export function sdelay(
+  props: {
+    key?: string;
+    size: number;
+  },
+  x: ElemNode,
+): NodeRepr_t {
   return createNode("sdelay", props, [resolve(x)]);
 }
 
 // Multimode1p
 export function prewarp(fc: ElemNode): NodeRepr_t {
-  return createNode("prewarp", {}, [fc]);
+  return createNode("prewarp", {}, [resolve(fc)]);
 }
 
 export function mm1p(
-  fc: ElemNode,
-  x: ElemNode,
-): NodeRepr_t;
-
-export function mm1p(
   props: {
-    key?: string,
-    mode?: string,
+    key?: string;
+    mode?: string;
   },
   fc: ElemNode,
   x: ElemNode,
-): NodeRepr_t;
-
-export function mm1p(a, b, c?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("mm1p", {}, [
-      resolve(a),
-      resolve(b),
-    ]);
-  }
-
-  return createNode("mm1p", a, [
-    resolve(b),
-    resolve(c),
-  ]);
+): NodeRepr_t {
+  return createNode("mm1p", props, [resolve(fc), resolve(x)]);
 }
-
-// SVF
-export function svf(
-  fc: ElemNode,
-  q: ElemNode,
-  x: ElemNode,
-): NodeRepr_t;
 
 export function svf(
   props: {
-    key?: string,
-    mode?: string,
+    key?: string;
+    mode?: string;
   },
   fc: ElemNode,
   q: ElemNode,
   x: ElemNode,
-): NodeRepr_t;
-
-export function svf(a, b, c, d?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("svf", {}, [
-      resolve(a),
-      resolve(b),
-      resolve(c),
-    ]);
-  }
-
-  return createNode("svf", a, [
-    resolve(b),
-    resolve(c),
-    resolve(d),
-  ]);
+): NodeRepr_t {
+  return createNode("svf", props, [resolve(fc), resolve(q), resolve(x)]);
 }
 
 export function svfshelf(
-  fc: ElemNode,
-  q: ElemNode,
-  gainDecibels: ElemNode,
-  x: ElemNode,
-): NodeRepr_t;
-
-export function svfshelf(
   props: {
-    key?: string,
-    mode?: string,
+    key?: string;
+    mode?: string;
   },
   fc: ElemNode,
   q: ElemNode,
   gainDecibels: ElemNode,
   x: ElemNode,
-): NodeRepr_t;
-
-export function svfshelf(a, b, c, d, e?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("svfshelf", {}, [
-      resolve(a),
-      resolve(b),
-      resolve(c),
-      resolve(d),
-    ]);
-  }
-
-  return createNode("svfshelf", a, [
-    resolve(b),
-    resolve(c),
-    resolve(d),
-    resolve(e),
+): NodeRepr_t {
+  return createNode("svfshelf", props, [
+    resolve(fc),
+    resolve(q),
+    resolve(gainDecibels),
+    resolve(x),
   ]);
 }
 
-// Biquad node
 export function biquad(
   b0: ElemNode,
   b1: ElemNode,
@@ -427,136 +278,81 @@ export function biquad(
   a1: ElemNode,
   a2: ElemNode,
   x: ElemNode,
-): NodeRepr_t;
-
-export function biquad(
-  props: OptionalKeyProps,
-  b0: ElemNode,
-  b1: ElemNode,
-  b2: ElemNode,
-  a1: ElemNode,
-  a2: ElemNode,
-  x: ElemNode,
-): NodeRepr_t;
-
-export function biquad(a, b, c, d, e, f, g?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("biquad", {}, [
-      resolve(a),
-      resolve(b),
-      resolve(c),
-      resolve(d),
-      resolve(e),
-      resolve(f),
-    ]);
-  }
-
-  return createNode("biquad", a, [
-    resolve(b),
-    resolve(c),
-    resolve(d),
-    resolve(e),
-    resolve(f),
-    resolve(g),
+): NodeRepr_t {
+  return createNode("biquad", {}, [
+    resolve(b0),
+    resolve(b1),
+    resolve(b2),
+    resolve(a1),
+    resolve(a2),
+    resolve(x),
   ]);
 }
 
 // Feedback nodes
-type TapInNodeProps = {
-  name: string,
-};
-
-type TapOutNodeProps = {
-  name: string,
-};
-
-export function tapIn(props: TapInNodeProps): NodeRepr_t {
+export function tapIn(props: { key?: string; name: string }): NodeRepr_t {
   return createNode("tapIn", props, []);
 }
 
-export function tapOut(props: TapOutNodeProps, x: ElemNode): NodeRepr_t {
+export function tapOut(
+  props: { key?: string; name: string },
+  x: ElemNode,
+): NodeRepr_t {
   return createNode("tapOut", props, [resolve(x)]);
 }
 
-// Meter node
-type MeterNodeProps = {
-  key?: string,
-  name?: string,
-};
-
-export function meter(x: ElemNode): NodeRepr_t;
-export function meter(props: MeterNodeProps, x: ElemNode): NodeRepr_t;
-export function meter(a, b?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("meter", {}, [resolve(a)]);
-  }
-
-  return createNode("meter", a, [resolve(b)]);
+// Analysis
+export function meter(
+  props: {
+    key?: string;
+    name?: string;
+  },
+  x: ElemNode,
+): NodeRepr_t {
+  return createNode("meter", props, [resolve(x)]);
 }
 
-// Snapshot node
-type SnapshotNodeProps = {
-  key?: string,
-  name?: string,
-};
-
-export function snapshot(trigger: ElemNode, x: ElemNode): NodeRepr_t;
-export function snapshot(props: SnapshotNodeProps, trigger: ElemNode, x: ElemNode): NodeRepr_t;
-export function snapshot(a, b, c?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("snapshot", {}, [resolve(a), resolve(b)]);
-  }
-
-  return createNode("snapshot", a, [resolve(b), resolve(c)]);
+export function snapshot(
+  props: {
+    key?: string;
+    name?: string;
+  },
+  trigger: ElemNode,
+  x: ElemNode,
+): NodeRepr_t {
+  return createNode("snapshot", props, [resolve(trigger), resolve(x)]);
 }
 
-// Scope node
-type ScopeNodeProps = {
-  key?: string,
-  name?: string,
-  size?: number,
-  channels?: number,
-};
-
-export function scope(...args : Array<ElemNode>): NodeRepr_t;
-export function scope(props: ScopeNodeProps, ...args : Array<ElemNode>): NodeRepr_t;
-export function scope(a, ...bs) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("scope", {}, [a, ...bs].map(resolve));
-  }
-
-  return createNode("scope", a, bs.map(resolve));
+export function scope(
+  props: {
+    key?: string;
+    name?: string;
+    size?: number;
+    channels?: number;
+  },
+  ...args: Array<ElemNode>
+): NodeRepr_t {
+  return createNode("scope", props, args.map(resolve));
 }
 
-// FFT node
-type FFTNodeProps = {
-  key?: string,
-  name?: string,
-  size?: number,
-};
-
-export function fft(x: ElemNode): NodeRepr_t;
-export function fft(props: FFTNodeProps, x: ElemNode): NodeRepr_t;
-export function fft(a, b?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("fft", {}, [resolve(a)]);
-  }
-
-  return createNode("fft", a, [resolve(b)]);
+export function fft(
+  props: {
+    key?: string;
+    name?: string;
+    size?: number;
+  },
+  x: ElemNode,
+): NodeRepr_t {
+  return createNode("fft", props, [resolve(x)]);
 }
 
-// Capture node
-type CaptureNodeProps = {
-  key?: string,
-  size?: number,
-};
-
-export function capture(g: ElemNode, x: ElemNode): NodeRepr_t;
-export function capture(props: CaptureNodeProps, g: ElemNode, x: ElemNode): NodeRepr_t;
-export function capture(a, b, c?) {
-  if (typeof a === "number" || isNode(a)) {
-    return createNode("capture", {}, [resolve(a), resolve(b)]);
-  }
-
-  return createNode("capture", a, [resolve(b), resolve(c)]);
+export function capture(
+  props: {
+    key?: string;
+    size?: number;
+  },
+  g: ElemNode,
+  x: ElemNode,
+): NodeRepr_t {
+  return createNode("capture", props, [resolve(g), resolve(x)]);
 }

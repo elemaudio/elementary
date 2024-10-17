@@ -16,7 +16,7 @@ test('event propagation', async function() {
   core.on('meter', callback);
 
   // Graph
-  core.render(el.meter(0));
+  core.render(el.meter({}, 0));
 
   // Processing
   let inps = [];
@@ -33,7 +33,7 @@ test('event propagation', async function() {
   callback.mockClear();
 
   // New graph
-  core.render(el.meter(1));
+  core.render(el.meter({}, 1));
 
   // Processing
   core.process(inps, outs);
