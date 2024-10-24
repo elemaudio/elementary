@@ -11,6 +11,19 @@ namespace elem
 {
 
     //==============================================================================
+    // Returns the number of output channels given a set of outlet connections
+    inline size_t getRequiredOutputChannels(std::vector<OutletConnection> const& outlets) {
+        size_t numOuts = 1;
+
+        for (auto const& connection : outlets) {
+            // Outlet channels are zero indexed, hence the +1 for required channel count
+            numOuts = std::max(numOuts, connection.outletChannel + 1);
+        }
+
+        return numOuts;
+    }
+
+    //==============================================================================
     // A simple struct representing the audio processing inputs given to the runtime
     // by the host application.
     template <typename FloatType>
@@ -91,7 +104,7 @@ namespace elem
             , bufferMap(bm)
         {}
 
-        void push(BufferAllocator<FloatType>& ba, std::shared_ptr<GraphNode<FloatType>>& node)
+        void push(BufferAllocator<FloatType>& ba, std::shared_ptr<GraphNode<FloatType>>& node, std::vector<OutletConnection> const& outlets)
         {
             // First we update our node and tap registry to make sure we can easily visit them
             // for tap promotion and event propagation
@@ -102,14 +115,14 @@ namespace elem
             }
 
             // Next we prepare the render operation
-            auto const numOuts = node->getNumOutputChannels();
+            auto const numOuts = getRequiredOutputChannels(outlets);
             std::vector<FloatType*> outputPtrs(numOuts);
 
             for (size_t i = 0; i < numOuts; ++i) {
                 bufferMap.insert({{node->getId(), i}, ba.next()});
                 outputPtrs[i] = bufferMap.at({node->getId(), i});
             }
-            
+
             renderOps.push_back([=, active = rootPtr->active(), outputPtrs = std::move(outputPtrs)](HostContext<FloatType>& ctx) mutable {
                 node->process(BlockContext<FloatType> {
                     ctx.inputData,
@@ -123,8 +136,13 @@ namespace elem
             });
         }
 
-        void push(BufferAllocator<FloatType>& ba, std::shared_ptr<GraphNode<FloatType>>& node, std::vector<std::pair<NodeId, size_t>> const& children)
+        void push(BufferAllocator<FloatType>& ba, std::shared_ptr<GraphNode<FloatType>>& node, std::vector<InletConnection> const& inlets, std::vector<OutletConnection> const& outlets)
         {
+            // Check if we're dealing with a leaf node
+            if (inlets.size() == 0) {
+                return push(ba, node, outlets);
+            }
+
             // First we update our node and tap registry to make sure we can easily visit them
             // for tap promotion and event propagation
             nodeList.push_back(node);
@@ -134,7 +152,7 @@ namespace elem
             }
 
             // Next we prepare the render operation
-            auto const numOuts = node->getNumOutputChannels();
+            auto const numOuts = getRequiredOutputChannels(outlets);
             std::vector<FloatType*> outputPtrs(numOuts);
 
             for (size_t i = 0; i < numOuts; ++i) {
@@ -143,13 +161,14 @@ namespace elem
             }
 
             // Allocate room for the child pointers here, gets moved into the lambda capture group below
-            std::vector<FloatType*> inputPtrs(children.size());
-            auto const numChildren = children.size();
+            std::vector<FloatType*> inputPtrs(inlets.size());
+            auto const numChildren = inlets.size();
 
             for (size_t j = 0; j < numChildren; ++j) {
-                inputPtrs[j] = bufferMap.at(children[j]);
+                auto const& inlet = inlets[j];
+                inputPtrs[j] = bufferMap.at({inlet.source, inlet.outletChannel});
             }
-            
+
             renderOps.push_back([=, active = rootPtr->active(), outputPtrs = std::move(outputPtrs), inputPtrs = std::move(inputPtrs)](HostContext<FloatType>& ctx) mutable {
                 node->process(BlockContext<FloatType> {
                     const_cast<const FloatType**>(inputPtrs.data()),

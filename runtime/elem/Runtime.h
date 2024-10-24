@@ -134,8 +134,14 @@ namespace elem
 
         //==============================================================================
         std::unordered_map<std::string, NodeFactoryFn> nodeFactory;
-        std::unordered_map<NodeId, std::shared_ptr<GraphNode<FloatType>>> nodeTable;
-        std::unordered_map<NodeId, std::vector<std::pair<NodeId, size_t>>> edgeTable;
+
+        struct GraphEntry {
+            std::shared_ptr<GraphNode<FloatType>> node;
+            std::vector<InletConnection> inlets;
+            std::vector<OutletConnection> outlets;
+        };
+
+        std::unordered_map<NodeId, GraphEntry> nodeTable;
 
         std::set<NodeId> currentRoots;
         RefCountedPool<GraphRenderSequence<FloatType>> renderSeqPool;
@@ -228,10 +234,9 @@ namespace elem
         // active graph rendering sequence have multiple references, while those
         // that are unused are held only by the nodeTable. Those nodes we clean up here.
         for (auto it = nodeTable.begin(); it != nodeTable.end(); /* skip increment */) {
-            if (it->second.use_count() == 1) {
-                ELEM_DBG("[Native] gc " << nodeIdToHex(it->second->getId()));
+            if (it->second.node.use_count() == 1) {
+                ELEM_DBG("[Native] gc " << nodeIdToHex(it->second.node->getId()));
                 pruned.insert(it->first);
-                edgeTable.erase(it->first);
                 it = nodeTable.erase(it);
             } else {
                 it++;
@@ -273,12 +278,11 @@ namespace elem
 
         if (nodeFactory.find(type) == nodeFactory.end())
             return ReturnCode::UnknownNodeType();
-        if (nodeTable.find(nodeId) != nodeTable.end() || edgeTable.find(nodeId) != edgeTable.end())
+        if (nodeTable.find(nodeId) != nodeTable.end())
             return ReturnCode::NodeAlreadyExists();
 
         auto node = nodeFactory[type](nodeId, sampleRate, blockSize);
-        nodeTable.insert({nodeId, node});
-        edgeTable.insert({nodeId, {}});
+        nodeTable.insert({nodeId, {node, {}, {}}});
 
         return ReturnCode::Ok();
     }
@@ -300,7 +304,7 @@ namespace elem
         // This is intentionally called on the non-realtime thread. It is the job
         // of the GraphNode to ensure thread safety between calls to setProperty
         // and calls to its own proces function
-        return nodeTable.at(nodeId)->setProperty(prop, v, sharedResourceMap);
+        return nodeTable.at(nodeId).node->setProperty(prop, v, sharedResourceMap);
     }
 
     template <typename FloatType>
@@ -315,12 +319,23 @@ namespace elem
 
         ELEM_DBG("[Native] appendChild " << nodeIdToHex(childId) << ":" << childOutputChannel << " to parent " << nodeIdToHex(parentId));
 
-        if (nodeTable.find(parentId) == nodeTable.end() || edgeTable.find(parentId) == edgeTable.end())
+        if (nodeTable.find(parentId) == nodeTable.end())
             return ReturnCode::NodeNotFound();
         if (nodeTable.find(childId) == nodeTable.end())
             return ReturnCode::NodeNotFound();
 
-        edgeTable.at(parentId).push_back({childId, childOutputChannel});
+        auto& parentEntry = nodeTable.at(parentId);
+        auto& childEntry = nodeTable.at(childId);
+
+        parentEntry.inlets.push_back(InletConnection {
+            childId,
+            static_cast<size_t>(childOutputChannel),
+        });
+
+        childEntry.outlets.push_back(OutletConnection {
+            parentId,
+            static_cast<size_t>(childOutputChannel),
+        });
 
         return ReturnCode::Ok();
     }
@@ -351,7 +366,7 @@ namespace elem
             }
 
             // Attempt to cast the found node to a RootNode type and activate it
-            auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(it->second);
+            auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(it->second.node);
             if (ptr)
             {
                 ptr->setProperty("active", true);
@@ -370,7 +385,7 @@ namespace elem
             auto it = nodeTable.find(n);
             if (it != nodeTable.end())
             {
-                auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(it->second);
+                auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(it->second.node);
                 // If any current root was not marked active in this event, we deactivate it
                 if (ptr)
                 {
@@ -413,7 +428,7 @@ namespace elem
         // a pass here through the tapTable bufers. Edit: wait, don't need that, just need
         // the TapOut nodes to zero themselves out, w00t
         for (auto it = nodeTable.begin(); it != nodeTable.end(); ++it) {
-            it->second->reset();
+            it->second.node->reset();
         }
     }
 
@@ -465,12 +480,12 @@ namespace elem
         if (visited.count(n) > 0)
             return;
 
-        auto& children = edgeTable.at(n);
+        auto& children = nodeTable.at(n).inlets;
         auto const numChildren = children.size();
 
         for (size_t i = 0; i < numChildren; ++i) {
-            auto const& [childId, outputChannel] = children.at(i);
-            traverse(visited, visitOrder, childId);
+            auto const& connection = children.at(i);
+            traverse(visited, visitOrder, connection.source);
         }
 
         visitOrder.push_back(n);
@@ -507,7 +522,7 @@ namespace elem
         std::set<NodeId> visited;
 
         for (auto const& n : currentRoots) {
-            if (auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(nodeTable.at(n))) {
+            if (auto ptr = std::dynamic_pointer_cast<RootNode<FloatType>>(nodeTable.at(n).node)) {
                 auto isActive = ptr->getPropertyWithDefault("active", (js::Boolean) false);
 
                 if (isActive) {
@@ -525,14 +540,9 @@ namespace elem
             traverse(visited, visitOrder, ptr->getId());
 
             std::for_each(visitOrder.begin(), visitOrder.end(), [&](NodeId const& nid) {
-                auto& node = nodeTable.at(nid);
-                auto& children = edgeTable.at(nid);
+                auto& entry = nodeTable.at(nid);
 
-                if (children.size() > 0) {
-                    rrs.push(bufferAllocator, node, children);
-                } else {
-                    rrs.push(bufferAllocator, node);
-                }
+                rrs.push(bufferAllocator, entry.node, entry.inlets, entry.outlets);
             });
 
             rseq->push(std::move(rrs));

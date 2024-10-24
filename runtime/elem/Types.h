@@ -26,6 +26,25 @@ namespace elem
     }
 
     //==============================================================================
+    // Because of the nature of composing audio graphs in a functional manner, inlet
+    // connections are always explicit and ordered (you must invoke a function with
+    // explicit ordered arguments), but outlet connections are not (you can pass the same
+    // argument to multiple functions).
+    //
+    // We therefore manage the state of these connections paying particular attention to
+    // the outlet channel associated with each connection (the inlet channel can be inferred
+    // from the indexing of the inlets vector).
+    struct InletConnection {
+        NodeId source;
+        size_t outletChannel;
+    };
+
+    struct OutletConnection {
+        NodeId destination;
+        size_t outletChannel;
+    };
+
+    //==============================================================================
     // A static helper for enumerating and describing return codes used throughout
     // the codebase
     struct ReturnCode {

@@ -1,16 +1,15 @@
-import OfflineRenderer from '../index';
-import { el } from '@elemaudio/core';
+import OfflineRenderer from "../index";
+import { el } from "@elemaudio/core";
 
-
-test('mc table', async function() {
+test("mc table", async function () {
   let core = new OfflineRenderer();
 
   await core.initialize({
     numInputChannels: 0,
     numOutputChannels: 1,
     virtualFileSystem: {
-      '/v/ones': Float32Array.from([1, 1, 1]),
-      '/v/stereo': [
+      "/v/ones": Float32Array.from([1, 1, 1]),
+      "/v/stereo": [
         Float32Array.from([27, 27, 27]),
         Float32Array.from([15, 15, 15]),
       ],
@@ -18,7 +17,9 @@ test('mc table', async function() {
   });
 
   // Graph
-  await core.render(el.add(...el.mc.table({path: '/v/stereo', channels: 2}, 0)));
+  await core.render(
+    el.add(...el.mc.table({ path: "/v/stereo", channels: 2 }, 0)),
+  );
 
   // Ten blocks of data
   let inps = [];
@@ -34,36 +35,69 @@ test('mc table', async function() {
   core.process(inps, outs);
 
   expect(outs[0]).toMatchSnapshot();
+
+  // Let's try a graph unpacking more channels than the resource has
+  await core.render(
+    el.add(...el.mc.table({ path: "/v/stereo", channels: 3 }, 0)),
+  );
+
+  // Get past the fade-in
+  for (let i = 0; i < 100; ++i) {
+    core.process(inps, outs);
+  }
+
+  // Process another small block
+  core.process(inps, outs);
+  expect(outs[0]).toMatchSnapshot();
+
+  // And again unpacking fewer channels
+  await core.render(
+    el.add(...el.mc.table({ path: "/v/stereo", channels: 1 }, 0)),
+  );
+
+  // Get past the fade-in
+  for (let i = 0; i < 100; ++i) {
+    core.process(inps, outs);
+  }
+
+  // Process another small block
+  core.process(inps, outs);
+  expect(outs[0]).toMatchSnapshot();
 });
 
-test('mc sampleseq', async function() {
+test("mc sampleseq", async function () {
   let core = new OfflineRenderer();
 
   await core.initialize({
     numInputChannels: 0,
     numOutputChannels: 1,
     virtualFileSystem: {
-      '/v/stereo': [
-        Float32Array.from(Array.from({length: 128}).fill(27)),
-        Float32Array.from(Array.from({length: 128}).fill(15)),
+      "/v/stereo": [
+        Float32Array.from(Array.from({ length: 128 }).fill(27)),
+        Float32Array.from(Array.from({ length: 128 }).fill(15)),
       ],
     },
   });
 
-  let [time, setTimeProps] = core.createRef("const", {value: 0}, []);
+  let [time, setTimeProps] = core.createRef("const", { value: 0 }, []);
 
   core.render(
-    el.add(...el.mc.sampleseq({
-      path: '/v/stereo',
-      channels: 2,
-      duration: 128,
-      seq: [
-        { time: 0, value: 0 },
-        { time: 128, value: 1 },
-        { time: 256, value: 0 },
-        { time: 512, value: 1 },
-      ]
-    }, time))
+    el.add(
+      ...el.mc.sampleseq(
+        {
+          path: "/v/stereo",
+          channels: 2,
+          duration: 128,
+          seq: [
+            { time: 0, value: 0 },
+            { time: 128, value: 1 },
+            { time: 256, value: 0 },
+            { time: 512, value: 1 },
+          ],
+        },
+        time,
+      ),
+    ),
   );
 
   // Ten blocks of data to get past the root node fade
@@ -79,7 +113,7 @@ test('mc sampleseq', async function() {
   expect(outs[0]).toMatchSnapshot();
 
   // Jump in time
-  setTimeProps({value: 520});
+  setTimeProps({ value: 520 });
 
   // Spin for a few blocks and we should see the gain fade resolve and
   // emit the constant sum of the two channels
