@@ -63,6 +63,28 @@ test("mc table", async function () {
   // Process another small block
   core.process(inps, outs);
   expect(outs[0]).toMatchSnapshot();
+
+  // Now here we expect that the first graph has been totally nudged out
+  // of relevance, except for the nodes that remain shared which are the table
+  // and the const 0. If we gc then, we should remove that add() and root() from
+  // the original graph.
+  expect(await core.gc()).toEqual([1611541315, 1811703364]);
+
+  // But now the act of removing that add node should have pruned the outlet connections
+  // list on the table node. We'll test that original graph again to ensure that after
+  // rebuilding that connection everything still looks good.
+  await core.render(
+    el.add(...el.mc.table({ path: "/v/stereo", channels: 2 }, 0)),
+  );
+
+  // Get past the fade-in
+  for (let i = 0; i < 100; ++i) {
+    core.process(inps, outs);
+  }
+
+  // Process another small block
+  core.process(inps, outs);
+  expect(outs[0]).toMatchSnapshot();
 });
 
 test("mc sampleseq", async function () {

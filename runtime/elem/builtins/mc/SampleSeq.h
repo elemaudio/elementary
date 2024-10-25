@@ -101,11 +101,6 @@ namespace elem
             }
         }
 
-        size_t getNumOutputChannels() override
-        {
-            return 2;
-        }
-
         int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources) override
         {
             if constexpr (WithStretch) {

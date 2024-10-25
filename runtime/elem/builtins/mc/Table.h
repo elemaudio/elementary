@@ -12,11 +12,6 @@ namespace elem
     struct StereoTableNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        size_t getNumOutputChannels() override
-        {
-            return 2;
-        }
-
         int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources) override
         {
             if (key == "path") {

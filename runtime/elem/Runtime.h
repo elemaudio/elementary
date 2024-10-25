@@ -234,9 +234,33 @@ namespace elem
         // active graph rendering sequence have multiple references, while those
         // that are unused are held only by the nodeTable. Those nodes we clean up here.
         for (auto it = nodeTable.begin(); it != nodeTable.end(); /* skip increment */) {
-            if (it->second.node.use_count() == 1) {
-                ELEM_DBG("[Native] gc " << nodeIdToHex(it->second.node->getId()));
-                pruned.insert(it->first);
+            auto& nodeId = it->first;
+            auto& entry = it->second;
+
+            if (entry.node.use_count() == 1) {
+                ELEM_DBG("[Native] gc " << nodeIdToHex(nodeId));
+                pruned.insert(nodeId);
+
+                // Update the adjacency list to remove the parent pointers from each
+                // of the removed node's children.
+                for (auto& inlet : entry.inlets) {
+                    auto& childId = inlet.source;
+
+                    // It's possible we already removed the child in this same gc pass
+                    if (nodeTable.count(childId) > 0) {
+                        auto& childEntry = nodeTable.at(childId);
+                        childEntry.outlets.erase(
+                            std::remove_if(
+                                childEntry.outlets.begin(),
+                                childEntry.outlets.end(),
+                                [&](auto const& outlet) {
+                                    return outlet.destination == nodeId;
+                                }
+                            )
+                        );
+                    }
+                }
+
                 it = nodeTable.erase(it);
             } else {
                 it++;
