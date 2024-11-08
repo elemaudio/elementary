@@ -145,3 +145,58 @@ test("mc sampleseq", async function () {
 
   expect(outs[0]).toMatchSnapshot();
 });
+
+test("mc capture", async function () {
+  let core = new OfflineRenderer();
+
+  await core.initialize({
+    numInputChannels: 0,
+    numOutputChannels: 4,
+    blockSize: 32,
+  });
+
+  let [gate, setGateProps] = core.createRef("const", { value: 0 }, []);
+
+  core.render(
+    ...el.mc.capture({ name: "test", channels: 4 }, gate, 1, 2, 3, 4),
+  );
+
+  // Ten blocks of data to get past the root node fade
+  let inps = [];
+  let outs = [
+    new Float32Array(32),
+    new Float32Array(32),
+    new Float32Array(32),
+    new Float32Array(32),
+  ];
+
+  // Get past the fade-in
+  for (let i = 0; i < 1000; ++i) {
+    core.process(inps, outs);
+  }
+
+  let eventCallback = jest.fn();
+  core.on("mc.capture", eventCallback);
+
+  setGateProps({ value: 1 });
+  core.process(inps, outs);
+  expect(outs).toMatchSnapshot();
+
+  setGateProps({ value: 0 });
+  core.process(inps, outs);
+
+  expect(eventCallback.mock.calls).toHaveLength(1);
+  let args = eventCallback.mock.calls[0];
+  let evt = args[0];
+
+  expect(evt.data).toHaveLength(4);
+  expect(evt.source).toBe("test");
+
+  for (let i = 0; i < 4; ++i) {
+    expect(evt.data[i]).toHaveLength(32);
+
+    for (let j = 0; j < 32; ++j) {
+      expect(evt.data[i][j]).toBe(i + 1);
+    }
+  }
+});

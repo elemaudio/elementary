@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <sstream>
 #include <unordered_map>
 
@@ -118,6 +119,48 @@ namespace elem
     private:
         FloatType* _data;
         size_t _size;
+    };
+
+    //==============================================================================
+    template <typename FloatType>
+    class AudioBuffer {
+    public:
+        AudioBuffer() = default;
+
+        void resize(size_t newNumChannels, size_t newNumSamples) {
+            auto const newSize = newNumChannels * newNumSamples;
+
+            storage = std::vector<FloatType>(newSize);
+            numChannels = newNumChannels;
+            numSamples = newNumSamples;
+
+            for (size_t i = 0; i < newNumChannels; ++i) {
+                channelPtrs[i] = storage.data() + (i * newNumSamples);
+            }
+        }
+
+        size_t getNumChannels() {
+            return numChannels;
+        }
+
+        size_t getNumSamples() {
+            return numSamples;
+        }
+
+        FloatType** data() {
+            return channelPtrs.data();
+        }
+
+        void clear() {
+            std::fill_n(storage.data(), storage.size(), FloatType(0));
+        }
+
+    private:
+        std::array<FloatType*, 32> channelPtrs;
+        std::vector<FloatType> storage;
+
+        size_t numChannels = 0;
+        size_t numSamples = 0;
     };
 
     //==============================================================================

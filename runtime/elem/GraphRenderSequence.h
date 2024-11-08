@@ -164,6 +164,10 @@ namespace elem
             std::vector<FloatType*> inputPtrs(inlets.size());
             auto const numChildren = inlets.size();
 
+            // Gives the node a chance to prepare anything that might dynamically depend on
+            // the number of input signals
+            node->setProperty("_internal:numChildren", elem::js::Number(numChildren));
+
             for (size_t j = 0; j < numChildren; ++j) {
                 auto const& inlet = inlets[j];
                 inputPtrs[j] = bufferMap.at({inlet.source, inlet.outletChannel});

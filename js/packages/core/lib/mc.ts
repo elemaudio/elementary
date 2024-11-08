@@ -68,3 +68,21 @@ export function table(
 
   return unpack(createNode("mc.table", other, [resolve(t)]), channels);
 }
+
+export function capture(
+  props: {
+    name?: string;
+    channels: number,
+  },
+  g: ElemNode,
+  ...args: Array<NodeRepr_t>
+): Array<NodeRepr_t> {
+  let { channels, ...other } = props;
+
+  invariant(
+    typeof channels === "number" && channels > 0,
+    "Must provide a positive number channels prop",
+  );
+
+  return unpack(createNode("mc.capture", other, [resolve(g), ...args.map(resolve)]), channels);
+}

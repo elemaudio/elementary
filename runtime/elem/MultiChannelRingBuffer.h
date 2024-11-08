@@ -31,7 +31,7 @@ namespace elem
         ~MultiChannelRingBuffer() = default;
 
         //==============================================================================
-        void write (T const** data, size_t numChannels, size_t numSamples)
+        void write (T const** data, size_t numChannels, size_t numSamples, size_t readOffset = 0)
         {
             auto const w = writePos.load();
             auto const r = readPos.load();
@@ -45,10 +45,10 @@ namespace elem
             for (size_t i = 0; i < std::min(buffers.size(), numChannels); ++i) {
                 if (w + numSamples >= maxElements) {
                     auto const s1 = maxElements - w;
-                    std::copy_n(data[i], s1, buffers[i].data() + w);
-                    std::copy_n(data[i] + s1, numSamples - s1, buffers[i].data());
+                    std::copy_n(data[i] + readOffset, s1, buffers[i].data() + w);
+                    std::copy_n(data[i] + readOffset + s1, numSamples - s1, buffers[i].data());
                 } else {
-                    std::copy_n(data[i], numSamples, buffers[i].data() + w);
+                    std::copy_n(data[i] + readOffset, numSamples, buffers[i].data() + w);
                 }
             }
 
@@ -90,6 +90,11 @@ namespace elem
             return numFullSlots(r, w);
         }
 
+        size_t getNumChannels()
+        {
+            return buffers.size();
+        }
+
     private:
         size_t numFullSlots(size_t const r, size_t const w)
         {
@@ -126,4 +131,3 @@ namespace elem
     };
 
 } // namespace elem
-
