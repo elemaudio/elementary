@@ -200,3 +200,192 @@ test("mc capture", async function () {
     }
   }
 });
+
+test("mc.sample", async function () {
+  let core = new OfflineRenderer();
+
+  await core.initialize({
+    numInputChannels: 1,
+    numOutputChannels: 1,
+    blockSize: 32,
+    virtualFileSystem: {
+      "/v/stereo": [
+        Float32Array.from(Array.from({ length: 512 }).fill(27)),
+        Float32Array.from(Array.from({ length: 512 }).fill(15)),
+      ],
+    },
+  });
+
+  let [gate, setGateProps] = core.createRef("const", { value: 0 }, []);
+
+  await core.render(
+    el.add(
+      ...el.mc.sample(
+        {
+          path: "/v/stereo",
+          channels: 2,
+        },
+        gate,
+      ),
+    ),
+  );
+
+  let inps = [new Float32Array(32)];
+  let outs = [new Float32Array(32)];
+
+  // Get past the fade-in
+  for (let i = 0; i < 1000; ++i) {
+    core.process(inps, outs);
+  }
+
+  // Now we expect to see zeros because we haven't triggered the sample
+  core.process(inps, outs);
+  expect(outs).toMatchObject([new Float32Array(32)]);
+
+  // Trigger and we should see sample playback
+  await setGateProps({ value: 1 });
+
+  // Gain fade on sample boundary
+  for (let i = 0; i < 5; ++i) {
+    core.process(inps, outs);
+
+    for (let j = 1; j < 32; ++j) {
+      expect(outs[0][j]).toBeGreaterThanOrEqual(0);
+      expect(outs[0][j]).toBeLessThan(42);
+      expect(outs[0][j]).toBeGreaterThan(outs[0][j - 1]);
+    }
+  }
+
+  // Gain fade resolves on the next block
+  core.process(inps, outs);
+
+  // Then in the subsequent block we should see constant 42s
+  core.process(inps, outs);
+  expect(outs).toMatchObject([Float32Array.from({ length: 32 }, () => 42)]);
+
+  // Test for triggers mid-block
+  await core.render(
+    el.add(
+      ...el.mc.sample(
+        {
+          path: "/v/stereo",
+          channels: 2,
+          mode: "gate",
+        },
+        el.in({ channel: 0 }),
+      ),
+    ),
+  );
+
+  // Get past the fade-in
+  for (let i = 0; i < 1000; ++i) {
+    core.process(inps, outs);
+  }
+
+  // Now we send a very intentional trigger
+  for (let i = 8; i < 16; ++i) {
+    inps[0][i] = 1.0;
+  }
+
+  core.process(inps, outs);
+
+  // From 0 to 8 we expect silence
+  expect(outs[0].slice(0, 8)).toMatchObject(new Float32Array(8));
+
+  // From 8 to 16 we expect to see the gain ramp up
+  for (let i = 8; i < 16; ++i) {
+    expect(outs[0][i]).toBeGreaterThanOrEqual(0);
+    expect(outs[0][i]).toBeLessThan(42);
+    expect(outs[0][i]).toBeGreaterThanOrEqual(outs[0][i - 1]);
+  }
+
+  // Then we expect to see the gain ramp down
+  for (let i = 17; i < 24; ++i) {
+    expect(outs[0][i]).toBeLessThanOrEqual(outs[0][i - 1]);
+  }
+});
+
+test("mc.sample again", async function () {
+  let core = new OfflineRenderer();
+
+  await core.initialize({
+    numInputChannels: 0,
+    numOutputChannels: 1,
+    blockSize: 32,
+    virtualFileSystem: {
+      "/v/stereo": [
+        Float32Array.from([1, 2, 3, 4, 5, 6, 7, 8]),
+        Float32Array.from([1, 2, 3, 4, 5, 6, 7, 8]),
+      ],
+    },
+  });
+
+  await core.render(
+    el.add(
+      ...el.mc.sample(
+        {
+          path: "/v/stereo",
+          channels: 2,
+          mode: "loop",
+          key: "test",
+        },
+        1,
+      ),
+    ),
+  );
+
+  let inps = [];
+  let outs = [new Float32Array(32)];
+
+  // Fade in
+  for (let i = 0; i < 1000; ++i) {
+    core.process(inps, outs);
+  }
+
+  expect(outs[0]).toMatchSnapshot();
+
+  await core.render(
+    el.add(
+      ...el.mc.sample(
+        {
+          path: "/v/stereo",
+          channels: 2,
+          mode: "loop",
+          key: "test",
+          playbackRate: 2.0,
+        },
+        1,
+      ),
+    ),
+  );
+
+  core.process(inps, outs);
+  console.log(outs[0]);
+  expect(outs[0]).toMatchSnapshot();
+
+  await core.render(
+    el.add(
+      ...el.mc.sample(
+        {
+          path: "/v/stereo",
+          channels: 2,
+          mode: "loop",
+          // We need a new trigger for the start/stop offset to take hold
+          key: "test2",
+          playbackRate: 2.0,
+          startOffset: 1,
+          stopOffset: 1,
+        },
+        1,
+      ),
+    ),
+  );
+
+  // Fade in
+  for (let i = 0; i < 1000; ++i) {
+    core.process(inps, outs);
+  }
+
+  console.log(outs[0]);
+  expect(outs[0]).toMatchSnapshot();
+});

@@ -9,6 +9,28 @@ import {
 
 import invariant from "invariant";
 
+export function sample(
+  props: {
+    key?: string;
+    path: string;
+    channels: number;
+    mode?: string;
+    startOffset?: number;
+    stopOffset?: number;
+    playbackRate?: number;
+  },
+  gate: ElemNode,
+): Array<NodeRepr_t> {
+  let { channels, ...other } = props;
+
+  invariant(
+    typeof channels === "number" && channels > 0,
+    "Must provide a positive number channels prop",
+  );
+
+  return unpack(createNode("mc.sample", other, [resolve(gate)]), channels);
+}
+
 export function sampleseq(
   props: {
     key?: string;
@@ -72,7 +94,7 @@ export function table(
 export function capture(
   props: {
     name?: string;
-    channels: number,
+    channels: number;
   },
   g: ElemNode,
   ...args: Array<NodeRepr_t>
@@ -84,5 +106,8 @@ export function capture(
     "Must provide a positive number channels prop",
   );
 
-  return unpack(createNode("mc.capture", other, [resolve(g), ...args.map(resolve)]), channels);
+  return unpack(
+    createNode("mc.capture", other, [resolve(g), ...args.map(resolve)]),
+    channels,
+  );
 }

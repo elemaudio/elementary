@@ -21,6 +21,7 @@
 #include "builtins/SparSeq2.h"
 #include "builtins/Table.h"
 #include "builtins/mc/Capture.h"
+#include "builtins/mc/Sample.h"
 #include "builtins/mc/SampleSeq.h"
 #include "builtins/mc/Table.h"
 
@@ -125,6 +126,7 @@ namespace elem
             callback("sampleseq2",      GenericNodeFactory<SampleSeqWithStretchNode<FloatType>>());
             callback("table",           GenericNodeFactory<TableNode<FloatType>>());
             callback("mc.capture",      GenericNodeFactory<MCCaptureNode<FloatType>>());
+            callback("mc.sample",       GenericNodeFactory<MCSampleNode<FloatType>>());
             callback("mc.sampleseq",    GenericNodeFactory<StereoSampleSeqNode<FloatType>>());
             callback("mc.sampleseq2",   GenericNodeFactory<StereoSampleSeqWithStretchNode<FloatType>>());
             callback("mc.table",        GenericNodeFactory<StereoTableNode<FloatType>>());
