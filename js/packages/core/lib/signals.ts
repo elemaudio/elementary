@@ -22,7 +22,7 @@ export function ms2samps(t: ElemNode): NodeRepr_t {
 }
 
 /**
- * Computes a real pole position giving exponential decay over t, where t is the time (in seconds) to decay 60dB.
+ * Computes a real pole position giving exponential decay over t, where t is the time (in seconds) to decay by 1/e.
  */
 export function tau2pole(t: ElemNode): NodeRepr_t {
   return el.exp(el.div(-1.0, el.mul(t, el.sr())));

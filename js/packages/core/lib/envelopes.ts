@@ -42,12 +42,17 @@ export function adsr(
   let atkSamps = el.mul(a, el.sr());
   let atkGate = el.le(el.counter(g), atkSamps);
 
-  let target = el.select(g, el.select(atkGate, 1.0, s), 0);
-  let t60 = el.select(g, el.select(atkGate, a, d), r);
+  let targetValue = el.select(g, el.select(atkGate, 1.0, s), 0);
+
+  // Clamp the values to a minimum of 0.1ms because a time constant of 0 yields
+  // a divide-by-zero in the pole calculation
+  let t60 = el.max(0.0001, el.select(g, el.select(atkGate, a, d), r));
 
   // Accelerate the phase time when calculating the pole position to ensure
   // we reach closer to the target value before moving to the next phase.
+  //
+  // See: https://ccrma.stanford.edu/~jos/mdft/Audio_Decay_Time_T60.html
   let p = el.tau2pole(el.div(t60, 6.91));
 
-  return el.smooth(p, target);
+  return el.smooth(p, targetValue);
 }
