@@ -54,7 +54,7 @@ export function once(
   return createNode("once", props, [resolve(x)]);
 }
 
-export function rand(props?: { key?: string }): NodeRepr_t {
+export function rand(props?: { key?: string, seed?: number }): NodeRepr_t {
   return createNode("rand", props || {}, []);
 }
 
@@ -134,7 +134,6 @@ export function sparseq(
     seq: Array<{ value: number; tickTime: number }>;
     offset?: number;
     loop?: boolean | Array<number>;
-    resetOnLoop?: boolean;
     interpolate?: number;
     tickInterval?: number;
   },
@@ -349,7 +348,6 @@ export function fft(
 export function capture(
   props: {
     key?: string;
-    size?: number;
   },
   g: ElemNode,
   x: ElemNode,
