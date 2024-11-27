@@ -25,10 +25,6 @@ namespace elem
 
 
                 auto& seq = val.getArray();
-
-                if (seq.size() <= 0)
-                    return ReturnCode::InvalidPropertyValue();
-
                 auto data = seqPool.allocate();
 
                 // The data array that we get from the pool may have been
@@ -92,7 +88,7 @@ namespace elem
 
             // Next, if we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
-            if (numChannels < 1 || activeSeq == nullptr)
+            if (numChannels < 1 || activeSeq == nullptr || activeSeq->size() == 0)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
             // We reference this a lot
