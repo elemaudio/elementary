@@ -1,0 +1,26 @@
+[package]
+name = "elementary"
+version = { workspace = true }
+description = "Elementary Audio runtime bindings"
+keywords = ["audio", "dsp"]
+categories = { workspace = true }
+license = { workspace = true }
+readme = "README.md"
+# TODO Update with appropriate docs link
+documentation = "https://www.elementary.audio/docs"
+repository = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+
+[lib]
+path = "src/lib.rs"
+bench = false
+doctest = true
+
+[dependencies]
+ciborium = "0.2.2"
+cxx = "1.0"
+
+[build-dependencies]
+cxx-build = "1.0"

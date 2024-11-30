@@ -1,0 +1,29 @@
+[workspace]
+members = ["cli", "elementary"]
+default-members = ["elementary"]
+resolver = "2"
+
+[workspace.package]
+authors = ["The Elementary Authors"]
+categories = ["multimedia::audio"]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/elemaudio/elementary"
+rust-version = "1.75.0"
+# TODO Update on release
+version = "5.0.0"
+
+[workspace.dependencies]
+
+[profile.dev.package."*"]
+debug-assertions = false
+
+# Speedup build on macOS
+# See https://blog.rust-lang.org/2021/03/25/Rust-1.51.0.html#splitting-debug-information
+[profile.dev]
+debug-assertions = true
+split-debuginfo = "unpacked"
+
+[profile.release]
+# Will slow-down compile, but improve perf on generated code.
+codegen-units = 1
