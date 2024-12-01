@@ -8,6 +8,7 @@ fn main() {
         .include(cli_include_dir.canonicalize().unwrap())
         .file("src/Bindings.cpp")
         .std("c++17")
+        .warnings(false)
         .compile("bindings");
 
     println!("cargo:rerun-if-changed=src/main.rs");
