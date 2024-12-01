@@ -27,6 +27,15 @@ export type t = {
 };
 
 // tslint:disable-next-line:interface-over-type-literal
+export type formatted = {
+  readonly hash: number; 
+  readonly kind: string; 
+  readonly props: props; 
+  readonly output_channel: number; 
+  readonly children: formatted[]
+};
+
+// tslint:disable-next-line:interface-over-type-literal
 export type shallow = {
   readonly symbol: string; 
   readonly hash: number; 
@@ -38,10 +47,14 @@ export type shallow = {
   }
 };
 
+export const format: (node:t) => formatted = NodeReprBS.format;
+
 export const create: (kind:string, props:{}, children:t[]) => t = function (Arg1: any, Arg2: any, Arg3: any) {
   const result = Curry._3(NodeReprBS.create, Arg1, Arg2, Arg3);
   return result
 };
+
+export const formatRoots: (roots:t[]) => formatted[] = NodeReprBS.formatRoots;
 
 export const isNode: <T1>(a:{ readonly symbol: T1 }) => boolean = NodeReprBS.isNode;
 

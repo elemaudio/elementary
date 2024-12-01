@@ -18,6 +18,15 @@ type rec t = {
 }
 
 @genType
+type rec formatted = {
+  hash: int,
+  kind: string,
+  props: props,
+  output_channel: int,
+  children: array<formatted>,
+}
+
+@genType
 type shallow = {
   symbol: string,
   hash: int,
@@ -29,6 +38,17 @@ type shallow = {
 
 // Symbol constant for helping to identify node objects
 let symbol = "__ELEM_NODE__"
+
+@genType
+let rec format = (node: t): formatted => {
+  {
+    hash: node.hash,
+    kind: node.kind,
+    props: node.props,
+    output_channel: node.outputChannel,
+    children: Belt.List.toArray(Belt.List.map(node.children, n => format(n))),
+  }
+}
 
 @genType
 let create = (kind, props: 'a, children: array<t>): t => {
@@ -51,6 +71,13 @@ let create = (kind, props: 'a, children: array<t>): t => {
     outputChannel: 0,
     children: childrenList,
   }
+}
+
+@genType
+let formatRoots = (roots: array<t>): array<formatted> => {
+  Belt.Array.mapWithIndex(roots, (i, g) => {
+    format(create("root", {"channel": i, "fadeInMs": 8, "fadeOutMs": 8}, [g]))
+  })
 }
 
 @genType

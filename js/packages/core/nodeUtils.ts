@@ -1,4 +1,4 @@
-import { create, isNode as NodeRepr_isNode } from './src/NodeRepr.gen';
+import { format, formatRoots, create, isNode as NodeRepr_isNode } from './src/NodeRepr.gen';
 import type { t as NodeRepr_t } from './src/NodeRepr.gen';
 
 import invariant from 'invariant';
@@ -41,3 +41,5 @@ export function unpack(node: NodeRepr_t, numChannels: number): Array<NodeRepr_t>
     };
   });
 }
+
+export { format, formatRoots };

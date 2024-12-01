@@ -3,8 +3,19 @@
 import * as Js_types from "rescript/lib/es6/js_types.js";
 import * as Belt_List from "rescript/lib/es6/belt_List.js";
 import * as HashUtils from "./HashUtils.bs.js";
+import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 
 var symbol = "__ELEM_NODE__";
+
+function format(node) {
+  return {
+          hash: node.hash,
+          kind: node.kind,
+          props: node.props,
+          output_channel: node.outputChannel,
+          children: Belt_List.toArray(Belt_List.map(node.children, format))
+        };
+}
 
 function create(kind, props, children) {
   var childrenList = Belt_List.fromArray(children);
@@ -18,6 +29,16 @@ function create(kind, props, children) {
           outputChannel: 0,
           children: childrenList
         };
+}
+
+function formatRoots(roots) {
+  return Belt_Array.mapWithIndex(roots, (function (i, g) {
+                return format(create("root", {
+                                channel: i,
+                                fadeInMs: 8,
+                                fadeOutMs: 8
+                              }, [g]));
+              }));
 }
 
 function isNode(a) {
@@ -51,7 +72,9 @@ function shallowCopy(node) {
 
 export {
   symbol ,
+  format ,
   create ,
+  formatRoots ,
   isNode ,
   shallowCopy ,
 }

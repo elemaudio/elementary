@@ -10,6 +10,8 @@ import {
   isNode,
   resolve,
   NodeRepr_t,
+  format,
+  formatRoots,
 } from './nodeUtils';
 
 
@@ -242,4 +244,6 @@ export {
   renderWithDelegate,
   stdlib,
   stdlib as el,
+  format,
+  formatRoots,
 };
