@@ -144,13 +144,13 @@ export default class WebRenderer extends EventEmitter {
   async updateVirtualFileSystem(vfs) {
     const valid = typeof vfs === 'object' && vfs !== null;
 
-    invariant(valid, "Virtual file system must be an object mapping string type keys to Array|Float32Array type values");
+    invariant(valid, "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values");
 
     Object.keys(vfs).forEach(function(key) {
       const validValue = typeof vfs[key] === 'object' &&
         (Array.isArray(vfs[key]) || (vfs[key] instanceof Float32Array));
 
-      invariant(validValue, "Virtual file system must be an object mapping string type keys to Array|Float32Array type values");
+      invariant(validValue, "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values");
     });
 
     return await this._sendWorkletRequest('updateSharedResourceMap', {
