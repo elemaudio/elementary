@@ -13,6 +13,7 @@ type rec t = {
   hash: int,
   kind: string,
   props: props,
+  outputChannel: int,
   children: list<t>,
 }
 
@@ -22,6 +23,7 @@ type shallow = {
   hash: int,
   kind: string,
   props: props,
+  outputChannel: int,
   generation: ref<int>,
 }
 
@@ -31,14 +33,23 @@ let symbol = "__ELEM_NODE__"
 @genType
 let create = (kind, props: 'a, children: array<t>): t => {
   let childrenList = Belt.List.fromArray(children)
-  let childHashes = Belt.List.map(childrenList, n => n.hash)
 
+  // Here we make sure that a node's hash depends of course on its type, props, and children,
+  // but importantly also depends on the outputChannel that we're addressing on each of those
+  // children. Without doing that, two different nodes that reference different outputs of the
+  // same one child node would hash to the same value even though they represent different signal
+  // paths.
   {
-    symbol: symbol,
-    kind: kind,
-    hash: HashUtils.hashNode(. kind, asDict(props), childHashes),
+    symbol,
+    kind,
+    hash: HashUtils.hashNode(.
+      kind,
+      asDict(props),
+      Belt.List.map(childrenList, n => HashUtils.mixNumber(. n.hash, n.outputChannel)),
+    ),
     props: asPropsType(props),
-    children: childrenList
+    outputChannel: 0,
+    children: childrenList,
   }
 }
 
@@ -63,6 +74,7 @@ let shallowCopy = (node: t): shallow => {
     kind: node.kind,
     hash: node.hash,
     props: asPropsType(Js.Obj.assign(Js.Obj.empty(), asObjectType(node.props))),
+    outputChannel: node.outputChannel,
     generation: ref(0),
   }
 }

@@ -2,19 +2,13 @@ import {
   createNode,
   isNode,
   resolve,
-} from '../nodeUtils';
+  ElemNode,
+  NodeRepr_t,
+} from "../nodeUtils";
 
-import type {ElemNode, NodeRepr_t} from '../nodeUtils';
-
-import * as co from './core';
-import * as ma from './math';
-import * as fi from './filters';
-
-
-// Generic
-type OptionalKeyProps = {
-  key?: string,
-};
+import * as co from "./core";
+import * as ma from "./math";
+import * as fi from "./filters";
 
 const el = {
   ...co,
@@ -27,18 +21,11 @@ const el = {
  *
  * Expects exactly one child, providing the train rate in Hz.
  *
- * @param {Object} [props]
- * @param {core.Node|number} rate - Frequency
- * @returns {core.Node}
+ * @param {ElemNode} rate - Frequency
+ * @returns {NodeRepr_t}
  */
-export function train(rate: ElemNode): NodeRepr_t;
-export function train(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
-export function train(a, b?) {
-  if (typeof a === "number" || isNode(a)) {
-    return el.le(el.phasor(a, 0), 0.5);
-  }
-
-  return el.le(el.phasor(a, b, 0), 0.5);
+export function train(rate: ElemNode): NodeRepr_t {
+  return el.le(el.phasor(rate), 0.5);
 }
 
 /**
@@ -46,16 +33,11 @@ export function train(a, b?) {
  *
  * Expects exactly one child specifying the cycle frequency in Hz.
  *
- * @param {Object} [props]
- * @param {core.Node|number} rate - Cycle frequency
- * @returns {core.Node}
+ * @param {ElemNode} rate - Cycle frequency
+ * @returns {NodeRepr_t}
  */
-export function cycle(rate: ElemNode): NodeRepr_t;
-export function cycle(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
-export function cycle(a, b?) {
-  return (typeof a === "number" || isNode(a))
-    ? el.sin(el.mul(2.0 * Math.PI, el.phasor(a, 0)))
-    : el.sin(el.mul(2.0 * Math.PI, el.phasor(a, b, 0)));
+export function cycle(rate: ElemNode): NodeRepr_t {
+  return el.sin(el.mul(2.0 * Math.PI, el.phasor(rate)));
 }
 
 /**
@@ -66,16 +48,11 @@ export function cycle(a, b?) {
  * Typically, due to the aliasing of the naive sawtooth at audio rates, this oscillator
  * is used for low frequency modulation.
  *
- * @param {Object} [props]
- * @param {core.Node|number} rate - Saw frequency
- * @returns {core.Node}
+ * @param {ElemNode} rate - Saw frequency
+ * @returns {NodeRepr_t}
  */
-export function saw(rate: ElemNode): NodeRepr_t;
-export function saw(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
-export function saw(a, b?) {
-  return (typeof a === "number" || isNode(a))
-    ? el.sub(el.mul(2, el.phasor(a, 0)), 1)
-    : el.sub(el.mul(2, el.phasor(a, b, 0)), 1);
+export function saw(rate: ElemNode): NodeRepr_t {
+  return el.sub(el.mul(2, el.phasor(rate)), 1);
 }
 
 /**
@@ -86,16 +63,11 @@ export function saw(a, b?) {
  * Typically, due to the aliasing of the naive square at audio rates, this oscillator
  * is used for low frequency modulation.
  *
- * @param {Object} [props]
- * @param {core.Node|number} rate - Square frequency
- * @returns {core.Node}
+ * @param {ElemNode} rate - Square frequency
+ * @returns {NodeRepr_t}
  */
-export function square(rate: ElemNode): NodeRepr_t;
-export function square(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
-export function square(a, b?) {
-  return (typeof a === "number" || isNode(a))
-    ? el.sub(el.mul(2, train(a)), 1)
-    : el.sub(el.mul(2, train(a, b)), 1);
+export function square(rate: ElemNode): NodeRepr_t {
+  return el.sub(el.mul(2, train(rate)), 1);
 }
 
 /**
@@ -106,36 +78,11 @@ export function square(a, b?) {
  * Typically, due to the aliasing of the naive triangle at audio rates, this oscillator
  * is used for low frequency modulation.
  *
- * @param {Object} [props]
- * @param {core.Node|number} rate - Triangle frequency
- * @returns {core.Node}
+ * @param {ElemNode} rate - Triangle frequency
+ * @returns {NodeRepr_t}
  */
-export function triangle(rate: ElemNode): NodeRepr_t;
-export function triangle(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
-export function triangle(a, b?) {
-  return (typeof a === "number" || isNode(a))
-    ? el.mul(2, el.sub(0.5, el.abs(saw(a))))
-    : el.mul(2, el.sub(0.5, el.abs(saw(a, b))));
-}
-
-/**
- * Outputs a polyblep signal to be summed into various naive oscillator types.
- *
- * @param {core.Node|number} step – phase step per sample, given by the frequency of the oscillator
- * @param {core.Node} phase – current phase of the oscillator
- * @returns {core.Node}
- * @ignore
- */
-function polyblep(step, phase) {
-  let leftgate = el.le(phase, step);
-  let rightgate = el.ge(phase, el.sub(1, step));
-  let lx = el.div(phase, step);
-  let rx = el.div(el.sub(phase, 1), step);
-
-  return el.add(
-    el.mul(leftgate, el.sub(el.mul(2, lx), el.mul(lx, lx), 1)),
-    el.mul(rightgate, el.add(el.mul(2, rx), el.mul(rx, rx), 1)),
-  );
+export function triangle(rate: ElemNode): NodeRepr_t {
+  return el.mul(2, el.sub(0.5, el.abs(saw(rate))));
 }
 
 /**
@@ -143,17 +90,11 @@ function polyblep(step, phase) {
  *
  * Expects exactly one child specifying the saw frequency in Hz.
  *
- * @param {Object} [props]
- * @param {core.Node|number} rate - Saw frequency
- * @returns {core.Node}
+ * @param {ElemNode} rate - Saw frequency
+ * @returns {NodeRepr_t}
  */
-export function blepsaw(rate: ElemNode): NodeRepr_t;
-export function blepsaw(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
-export function blepsaw(a, b?) {
-  let hasProps = !(typeof a === "number" || isNode(a));
-  let rate = hasProps ? b : a;
-
-  return createNode("blepsaw", {}, [rate]);
+export function blepsaw(rate: ElemNode): NodeRepr_t {
+  return createNode("blepsaw", {}, [resolve(rate)]);
 }
 
 /**
@@ -161,17 +102,11 @@ export function blepsaw(a, b?) {
  *
  * Expects exactly one child specifying the square frequency in Hz.
  *
- * @param {Object} [props]
- * @param {core.Node|number} rate - Square frequency
- * @returns {core.Node}
+ * @param {ElemNode} rate - Square frequency
+ * @returns {NodeRepr_t}
  */
-export function blepsquare(rate: ElemNode): NodeRepr_t;
-export function blepsquare(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
-export function blepsquare(a, b?) {
-  let hasProps = !(typeof a === "number" || isNode(a));
-  let rate = hasProps ? b : a;
-
-  return createNode("blepsquare", {}, [rate]);
+export function blepsquare(rate: ElemNode): NodeRepr_t {
+  return createNode("blepsquare", {}, [resolve(rate)]);
 }
 
 /**
@@ -189,24 +124,12 @@ export function blepsquare(a, b?) {
  *
  * Expects exactly one child specifying the triangle frequency in Hz.
  *
- * @param {Object} [props]
- * @param {core.Node|number} rate - Triangle frequency
- * @returns {core.Node}
+ * @param {ElemNode} rate - Triangle frequency
+ * @returns {NodeRepr_t}
  */
-export function bleptriangle(rate: ElemNode): NodeRepr_t;
-export function bleptriangle(props: OptionalKeyProps, rate: ElemNode): NodeRepr_t;
-export function bleptriangle(a, b?) {
-  let hasProps = !(typeof a === "number" || isNode(a));
-  let rate = hasProps ? b : a;
-
-  return createNode("bleptriangle", {}, [rate]);
+export function bleptriangle(rate: ElemNode): NodeRepr_t {
+  return createNode("bleptriangle", {}, [resolve(rate)]);
 }
-
-// Noise
-type NoiseNodeProps = {
-  key?: string,
-  seed?: number,
-};
 
 /**
  * A simple white noise generator.
@@ -215,16 +138,10 @@ type NoiseNodeProps = {
  *
  * The seed property may be used to seed the underying random number generator.
  *
- * @param {Object} [props]
- * @returns {core.Node}
+ * @param {Object} props
+ * @returns {NodeRepr_t}
  */
-export function noise(): NodeRepr_t;
-export function noise(props: NoiseNodeProps): NodeRepr_t;
-export function noise(a?) {
-  if (typeof a === "undefined") {
-    return el.sub(el.mul(2, el.rand()), 1);
-  }
-
+export function noise(props?: { key?: string; seed?: number }): NodeRepr_t {
   return el.sub(el.mul(2, el.rand(a)), 1);
 }
 
@@ -238,12 +155,6 @@ export function noise(a?) {
  * @param {Object} [props]
  * @returns {core.Node}
  */
-export function pinknoise(): NodeRepr_t;
-export function pinknoise(props: NoiseNodeProps): NodeRepr_t;
-export function pinknoise(a?) {
-  if (typeof a === "undefined") {
-    return el.pink(noise());
-  }
-
-  return el.pink(noise(a));
+export function pinknoise(props?: { key?: string; seed?: number }): NodeRepr_t {
+  return el.pink(noise(props));
 }

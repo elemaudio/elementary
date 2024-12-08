@@ -1,6 +1,6 @@
 {
   "name": "@elemaudio/web-renderer",
-  "version": "3.2.3",
+  "version": "4.0.0",
   "type": "module",
   "description": "Official package for rendering Elementary Audio applications to Web Audio",
   "keywords": [
@@ -34,7 +34,6 @@
     "@rollup/plugin-replace": "^4.0.0",
     "@rollup/plugin-typescript": "^8.3.1",
     "@vitest/browser": "^1.2.2",
-    "invariant": "^2.2.4",
     "rollup": "^2.70.0",
     "rollup-pluginutils": "^2.8.2",
     "terser": "^5.12.0",
@@ -43,6 +42,7 @@
     "webdriverio": "^8.30.0"
   },
   "dependencies": {
-    "@elemaudio/core": "^3.2.1"
+    "@elemaudio/core": "^4.0.0",
+    "invariant": "^2.2.4"
   }
 }

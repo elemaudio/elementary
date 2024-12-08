@@ -6,6 +6,7 @@ node_modules
 .cljs_node_repl
 .cpcache
 .cache
+.DS_Store
 
 *.swp
 

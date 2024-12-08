@@ -11,7 +11,7 @@ test('maxhold basics', async function() {
   });
 
   // Graph
-  core.render(el.maxhold(el.in({channel: 0}), 0));
+  core.render(el.maxhold({}, el.in({channel: 0}), 0));
 
   // Ten blocks of data
   let inps = [new Float32Array(512 * 10)];

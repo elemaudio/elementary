@@ -35,29 +35,29 @@ public:
         scratchPointers.clear();
 
         for (int i = 0; i < (numInputChannels + numOutputChannels); ++i)
-            scratchBuffers.push_back(std::vector<float>(maxBlockSize));
+            scratchBuffers.push_back(std::vector<double>(maxBlockSize));
 
         for (int i = 0; i < (numInputChannels + numOutputChannels); ++i)
             scratchPointers.push_back(scratchBuffers[i].data());
 
         // Configure the runtime
-        runtime = std::make_unique<elem::Runtime<float>>(sampleRate, maxBlockSize);
+        runtime = std::make_unique<elem::Runtime<double>>(sampleRate, maxBlockSize);
 
         // Register extension nodes
         runtime->registerNodeType("convolve", [](elem::NodeId const id, double fs, int const bs) {
-            return std::make_shared<elem::ConvolutionNode<float>>(id, fs, bs);
+            return std::make_shared<elem::ConvolutionNode<double>>(id, fs, bs);
         });
 
         runtime->registerNodeType("fft", [](elem::NodeId const id, double fs, int const bs) {
-            return std::make_shared<elem::FFTNode<float>>(id, fs, bs);
+            return std::make_shared<elem::FFTNode<double>>(id, fs, bs);
         });
 
         runtime->registerNodeType("metro", [](elem::NodeId const id, double fs, int const bs) {
-            return std::make_shared<elem::MetronomeNode<float>>(id, fs, bs);
+            return std::make_shared<elem::MetronomeNode<double>>(id, fs, bs);
         });
 
         runtime->registerNodeType("time", [](elem::NodeId const id, double fs, int const bs) {
-            return std::make_shared<elem::SampleTimeNode<float>>(id, fs, bs);
+            return std::make_shared<elem::SampleTimeNode<double>>(id, fs, bs);
         });
     }
 
@@ -107,39 +107,78 @@ public:
         runtime->reset();
     }
 
-    bool updateSharedResourceMap(val path, val buffer, val errorCallback)
+    val gc()
     {
-        auto p = emValToValue(path);
-        auto b = emValToValue(buffer);
+        auto pruned = runtime->gc();
+        auto ret = elem::js::Array();
 
-        if (!p.isString()) {
-            errorCallback(val("Path must be a string type"));
-            return false;
+        for (auto& n : pruned) {
+            ret.push_back(elem::js::Value((double) n));
         }
 
-        if (!b.isArray() && !b.isFloat32Array()) {
-            errorCallback(val("Buffer argument must be an Array or Float32Array type"));
-            return false;
+        return valueToEmVal(ret);
+    }
+
+    val addSharedResource(val name, val buffer)
+    {
+        auto n = emValToValue(name);
+        auto buf = emValToValue(buffer);
+
+        if (!n.isString()) {
+            return valueToEmVal(elem::js::Object {
+                {"success", false},
+                {"message", "name must be a string type"},
+            });
         }
 
-        if (b.isArray()) {
-            if (auto f32vec = arrayToFloatVector(b.getArray())) {
-                return runtime->updateSharedResourceMap((elem::js::String) p, f32vec->data(), f32vec->size());
+        if (!buf.isFloat32Array() && !buf.isArray()) {
+            return valueToEmVal(elem::js::Object {
+                {"success", false},
+                {"message", "buffer must be an Array<Float32Array> or a Float32Array"},
+            });
+        }
+
+        if (buf.isArray()) {
+            auto& channels = buf.getArray();
+            std::vector<std::vector<float>> channelData;
+            std::vector<float*> channelPointers;
+
+            for (size_t i = 0; i < channels.size(); ++i) {
+                if (!channels[i].isFloat32Array()) {
+                    return valueToEmVal(elem::js::Object {
+                        {"success", false},
+                        {"message", "buffer must be an Array<Float32Array> or a Float32Array"},
+                    });
+                }
+
+                channelData.push_back(channels[i].getFloat32Array());
+                channelPointers.push_back(channelData[i].data());
             }
-        } else {
-            auto& f32vec = b.getFloat32Array();
-            return runtime->updateSharedResourceMap((elem::js::String) p, f32vec.data(), f32vec.size());
+
+            auto resource = std::make_unique<elem::AudioBufferResource>(channelPointers.data(), channelPointers.size(), channelData[0].size());
+            auto result = runtime->addSharedResource((elem::js::String) n, std::move(resource));
+
+            return valueToEmVal(elem::js::Object {
+                {"success", result},
+                {"message", result ? "Ok" : "cannot overwrite existing shared resource"},
+            });
         }
 
-        return false;
+        auto& f32vec = buf.getFloat32Array();
+        auto result = runtime->addSharedResource((elem::js::String) n, std::make_unique<elem::AudioBufferResource>(f32vec.data(), f32vec.size()));
+
+        return valueToEmVal(elem::js::Object {
+            {"success", result},
+            {"message", result ? "Ok" : "cannot overwrite existing shared resource"},
+        });
     }
 
-    void pruneSharedResourceMap()
+    void pruneSharedResources()
     {
-        runtime->pruneSharedResourceMap();
+        runtime->pruneSharedResources();
     }
 
-    val listSharedResourceMap()
+    val listSharedResources()
     {
         auto ret = val::array();
         size_t i = 0;
@@ -154,11 +193,18 @@ public:
     /** Audio block processing. */
     void process (int const numSamples)
     {
+        for (size_t i = numInputChannels; i < numOutputChannels; ++i) {
+            if (i < scratchBuffers.size()) {
+                auto& vec = scratchBuffers[i];
+                std::fill(vec.begin(), vec.end(), 0.0);
+            }
+        }
+
         // We just operate on our scratch data. Expect the JavaScript caller to hit
         // our getInputBufferData and getOutputBufferData to prepare and extract the actual
         // data for this processor
         runtime->process(
-            const_cast<const float**>(scratchPointers.data()),
+            const_cast<const double**>(scratchPointers.data()),
             numInputChannels,
             scratchPointers.data() + numInputChannels,
             numOutputChannels,
@@ -197,21 +243,6 @@ public:
 
 private:
     //==============================================================================
-    std::optional<std::vector<float>> arrayToFloatVector (elem::js::Array const& ar)
-    {
-        std::vector<float> ret (ar.size());
-
-        for (size_t i = 0; i < ar.size(); ++i) {
-            if (!ar[i].isNumber()) {
-                return {};
-            }
-
-            ret[i] = static_cast<float>((elem::js::Number) ar[i]);
-        }
-
-        return ret;
-    }
-
     elem::js::Value emValToValue (val const& v)
     {
         if (v.isUndefined())
@@ -329,9 +360,9 @@ private:
     }
 
     //==============================================================================
-    std::unique_ptr<elem::Runtime<float>> runtime;
-    std::vector<std::vector<float>> scratchBuffers;
-    std::vector<float*> scratchPointers;
+    std::unique_ptr<elem::Runtime<double>> runtime;
+    std::vector<std::vector<double>> scratchBuffers;
+    std::vector<double*> scratchPointers;
 
     int64_t sampleTime = 0;
     double sampleRate = 0;
@@ -348,9 +379,10 @@ EMSCRIPTEN_BINDINGS(Elementary) {
         .function("getOutputBufferData", &ElementaryAudioProcessor::getOutputBufferData)
         .function("postMessageBatch", &ElementaryAudioProcessor::postMessageBatch)
         .function("reset", &ElementaryAudioProcessor::reset)
-        .function("updateSharedResourceMap", &ElementaryAudioProcessor::updateSharedResourceMap)
-        .function("pruneSharedResourceMap", &ElementaryAudioProcessor::pruneSharedResourceMap)
-        .function("listSharedResourceMap", &ElementaryAudioProcessor::listSharedResourceMap)
+        .function("gc", &ElementaryAudioProcessor::gc)
+        .function("addSharedResource", &ElementaryAudioProcessor::addSharedResource)
+        .function("pruneSharedResources", &ElementaryAudioProcessor::pruneSharedResources)
+        .function("listSharedResources", &ElementaryAudioProcessor::listSharedResources)
         .function("process", &ElementaryAudioProcessor::process)
         .function("processQueuedEvents", &ElementaryAudioProcessor::processQueuedEvents)
         .function("setCurrentTime", &ElementaryAudioProcessor::setCurrentTime)

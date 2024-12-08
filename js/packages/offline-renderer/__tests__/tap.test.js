@@ -65,7 +65,7 @@ test('idle feedback taps', async function() {
   // Graph
   core.render(
     el.tapOut({name: 'test'}, el.add(
-      el.meter(el.tapIn({name: 'test'})),
+      el.meter({}, el.tapIn({name: 'test'})),
       1,
     )),
   );
@@ -86,7 +86,7 @@ test('idle feedback taps', async function() {
   // will become idle after the root node fade
   core.render(
     el.tapOut({name: 'test'}, el.add(
-      el.meter(el.tapIn({name: 'test'})),
+      el.meter({}, el.tapIn({name: 'test'})),
       -1,
     )),
   );

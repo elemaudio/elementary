@@ -1,20 +1,15 @@
 import {
   createNode,
   isNode,
-} from '../nodeUtils';
+  resolve,
+  ElemNode,
+  NodeRepr_t,
+} from "../nodeUtils";
 
-import type { ElemNode, NodeRepr_t } from '../nodeUtils';
+import * as co from "./core";
+import * as ma from "./math";
+import * as si from "./signals";
 
-import * as co from './core';
-import * as ma from './math';
-import * as si from './signals';
-
-
-type OptionalKeyProps = {
-  key?: string,
-}
-
-// NEED Signals library stuffs for tau2pole and db2gain yayay
 const el = {
   ...co,
   ...ma,
@@ -28,12 +23,12 @@ const el = {
  * same input both as the input to be compressed and as the sidechain signal itself
  * for standard compressor behavior.
  *
- * @param {Node | number} atkMs – attack time in milliseconds
- * @param {Node | number} relMs – release time in millseconds
- * @param {Node | number} threshold – decibel value above which the comp kicks in
- * @param {Node | number} ratio – ratio by which we squash signal above the threshold
- * @param {Node} sidechain – sidechain signal to drive the compressor
- * @param {Node} xn – input signal to filter
+ * @param {ElemNode} atkMs – attack time in milliseconds
+ * @param {ElemNode} relMs – release time in millseconds
+ * @param {ElemNode} threshold – decibel value above which the comp kicks in
+ * @param {ElemNode} ratio – ratio by which we squash signal above the threshold
+ * @param {ElemNode} sidechain – sidechain signal to drive the compressor
+ * @param {ElemNode} xn – input signal to filter
  */
 export function compress(
   attackMs: ElemNode,
@@ -42,13 +37,10 @@ export function compress(
   ratio: ElemNode,
   sidechain: ElemNode,
   xn: ElemNode,
-): NodeRepr_t;
-
-export function compress(atkMs, relMs, threshold, ratio, sidechain, xn) {
-
+): NodeRepr_t {
   const env = el.env(
-    el.tau2pole(el.mul(0.001, atkMs)),
-    el.tau2pole(el.mul(0.001, relMs)),
+    el.tau2pole(el.mul(0.001, attackMs)),
+    el.tau2pole(el.mul(0.001, releaseMs)),
     sidechain,
   );
 
@@ -58,7 +50,7 @@ export function compress(atkMs, relMs, threshold, ratio, sidechain, xn) {
   const adjustedRatio = el.sub(1, el.div(1, ratio));
 
   // Calculate gain reduction in dB
-  const gain = el.mul(adjustedRatio, el.sub(threshold, envDecibels)) // adjustedRatio * (threshold - envDecibels);
+  const gain = el.mul(adjustedRatio, el.sub(threshold, envDecibels)); // adjustedRatio * (threshold - envDecibels);
 
   // Ensuring gain is not positive
   const cleanGain = el.min(0, gain);
@@ -69,7 +61,6 @@ export function compress(atkMs, relMs, threshold, ratio, sidechain, xn) {
   return el.mul(xn, compressedGain);
 }
 
-
 /* A simple softknee compressor with parameterized attack and release times,
  * threshold, compression ratio and knee width.
  *
@@ -79,13 +70,13 @@ export function compress(atkMs, relMs, threshold, ratio, sidechain, xn) {
  * same input both as the input to be compressed and as the sidechain signal itself
  * for standard compressor behavior.
  *
- * @param {Node | number} atkMs – attack time in milliseconds
- * @param {Node | number} relMs – release time in millseconds
- * @param {Node | number} threshold – decibel value above which the comp kicks in
- * @param {Node | number} ratio – ratio by which we squash signal above the threshold
- * @param {Node | number} kneeWidth – width of the knee in decibels, 0 for hard knee
- * @param {Node} sidechain – sidechain signal to drive the compressor
- * @param {Node} xn – input signal to filter
+ * @param {ElemNode} atkMs – attack time in milliseconds
+ * @param {ElemNode} relMs – release time in millseconds
+ * @param {ElemNode} threshold – decibel value above which the comp kicks in
+ * @param {ElemNode} ratio – ratio by which we squash signal above the threshold
+ * @param {ElemNode} kneeWidth – width of the knee in decibels, 0 for hard knee
+ * @param {ElemNode} sidechain – sidechain signal to drive the compressor
+ * @param {ElemNode} xn – input signal to filter
  */
 export function skcompress(
   attackMs: ElemNode,
@@ -95,12 +86,10 @@ export function skcompress(
   kneeWidth: ElemNode,
   sidechain: ElemNode,
   xn: ElemNode,
-): NodeRepr_t;
-
-export function skcompress(atkMs, relMs, threshold, ratio, kneeWidth, sidechain, xn) {
+): NodeRepr_t {
   const env = el.env(
-    el.tau2pole(el.mul(0.001, atkMs)),
-    el.tau2pole(el.mul(0.001, relMs)),
+    el.tau2pole(el.mul(0.001, attackMs)),
+    el.tau2pole(el.mul(0.001, releaseMs)),
     sidechain,
   );
 
@@ -131,13 +120,10 @@ export function skcompress(atkMs, relMs, threshold, ratio, kneeWidth, sidechain,
       el.div(adjustedRatio, 2),
       el.mul(
         el.div(el.sub(envDecibels, lowerKneeBound), kneeWidth),
-        el.sub(lowerKneeBound, envDecibels)
-      )
+        el.sub(lowerKneeBound, envDecibels),
+      ),
     ),
-    el.mul(
-      adjustedRatio,
-      el.sub(threshold, envDecibels)
-    )
+    el.mul(adjustedRatio, el.sub(threshold, envDecibels)),
   );
 
   // Ensuring gain is not positive

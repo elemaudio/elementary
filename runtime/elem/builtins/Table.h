@@ -17,7 +17,7 @@ namespace elem
     struct TableNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources) override
         {
             if (key == "path") {
                 if (!val.isString())
@@ -35,7 +35,7 @@ namespace elem
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
@@ -48,8 +48,9 @@ namespace elem
             if (numChannels == 0 || activeBuffer == nullptr)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
-            auto const bufferSize = static_cast<int>(activeBuffer->size());
-            auto const bufferData = activeBuffer->data();
+            auto const bufferView = activeBuffer->getChannelData(0);
+            auto const bufferSize = static_cast<int>(bufferView.size());
+            auto const bufferData = bufferView.data();
 
             if (bufferSize == 0)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
@@ -70,8 +71,8 @@ namespace elem
             }
         }
 
-        SingleWriterSingleReaderQueue<SharedResourceBuffer<FloatType>> bufferQueue;
-        SharedResourceBuffer<FloatType> activeBuffer;
+        SingleWriterSingleReaderQueue<SharedResourcePtr> bufferQueue;
+        SharedResourcePtr activeBuffer;
     };
 
 } // namespace elem

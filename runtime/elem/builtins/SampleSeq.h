@@ -86,9 +86,26 @@ namespace elem
                 fade.setTargetGain(FloatType(0));
             }
 
-            void readAdding(FloatType* outputData, size_t numSamples) {
+            // Does the incoming time match what this reader is expecting?
+            //
+            // If we're not engaged, we don't have any expectations so we just say sure.
+            // If we are engaged, we try to map the incoming time onto a position in the
+            // buffer and see if that's far off from where we currently are.
+            bool isAlignedWithTime(double t) {
+                if (!fade.on())
+                    return true;
+
+                size_t newPos = static_cast<size_t>(((t - startTime) / sampleDuration) * (double) (bufferSize - 1u));
+                int delta = static_cast<int>(position) - static_cast<int>(newPos);
+                bool aligned = std::abs(delta) < 16;
+
+                return aligned;
+            }
+
+            template <typename DestType>
+            void readAdding(DestType* outputData, size_t numSamples) {
                 for (size_t i = 0; (i < numSamples) && (position < bufferSize); ++i) {
-                    outputData[i] += fade(buffer[position++]);
+                    outputData[i] += static_cast<DestType>(fade(buffer[position++]));
                 }
             }
 
@@ -161,7 +178,7 @@ namespace elem
         }
 
 
-        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap<FloatType>& resources) override
+        int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources) override
         {
             if constexpr (WithStretch) {
                 if (key == "shift") {
@@ -214,9 +231,6 @@ namespace elem
 
                 auto& seq = val.getArray();
 
-                if (seq.size() == 0)
-                    return ReturnCode::InvalidPropertyValue();
-
                 auto data = seqPool.allocate();
 
                 // The data array that we get from the pool may have been
@@ -260,14 +274,15 @@ namespace elem
                 // Here a value of 1.0 is considered an onset, and anything else
                 // considered an offset.
                 if (detail::fpEqual(prevEvent->second, FloatType(1.0))) {
-                    readers[activeReader].engage(prevEvent->first, t, const_cast<FloatType*>(activeBuffer->data()), activeBuffer->size());
+                    auto const bufferView = activeBuffer->getChannelData(0);
+                    readers[activeReader].engage(prevEvent->first, t, const_cast<float*>(bufferView.data()), bufferView.size());
                 }
             }
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
@@ -302,7 +317,7 @@ namespace elem
 
             // Next, if we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
-            if (numChannels < 1 || activeSeq == nullptr || activeBuffer == nullptr || sampleDur <= 0.0)
+            if (numChannels < 1 || activeSeq == nullptr || activeSeq->size() == 0 || activeBuffer == nullptr || sampleDur <= 0.0)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
             // We reference this a lot
@@ -316,12 +331,6 @@ namespace elem
             // Downsampling from a-rate to k-rate
             auto const t = static_cast<double>(inputData[0][0]);
 
-            // Time check
-            double const timeUnitsPerSample = sampleDur / (double) activeBuffer->size();
-            int64_t const sampleTime = t / timeUnitsPerSample;
-            bool const significantTimeChange = std::abs(sampleTime - nextExpectedBlockStart) > 16;
-            nextExpectedBlockStart = sampleTime + numSamples;
-
             // We update our event boundaries if we just took a new sequence, if we've stepped
             // forwards or backwards over the next event time, or if the incoming time step differs
             // excessively from what we expected
@@ -332,13 +341,26 @@ namespace elem
             // TODO: if the input time has changed significantly, need to address the input latency of
             // the phase vocoder by resetting it and then pushing stretch.inputLatency * stretchFactor
             // samples ahead of `timeInSamples(t)`
-            if (shouldUpdateBounds || significantTimeChange) {
+            if (shouldUpdateBounds || !readers[activeReader].isAlignedWithTime(t)) {
                 updateEventBoundaries(t);
             }
 
             if constexpr (WithStretch) {
-                // TODO: Account for fractional samples here by running an accumulator
-                auto const numSourceSamples = std::clamp(static_cast<size_t>((double) numSamples / stretchFactor.load()), (size_t) 0, scratchBuffer.size());
+                // Some fractional sample counting here. Every time we calculate the number of
+                // source samples, we inevitably leave a little rounding error. To ensure we
+                // average out correctly over time, we accumulate that rounding error and nudge
+                // our numSourceSamples once the accumulated error exceeds a full sample.
+                double const trueSourceSamples = (double) numSamples / stretchFactor.load();
+                size_t numSourceSamples = static_cast<size_t>(trueSourceSamples);
+
+                accFracSamples += (trueSourceSamples - (double) numSourceSamples);
+
+                if (accFracSamples >= 1.0) {
+                    accFracSamples -= 1.0;
+                    numSourceSamples++;
+                }
+
+                numSourceSamples = std::clamp(numSourceSamples, static_cast<size_t>(0), scratchBuffer.size());
 
                 // Clear and read
                 std::fill_n(scratchData, numSourceSamples, FloatType(0));
@@ -365,10 +387,10 @@ namespace elem
         typename Sequence::iterator prevEvent;
         typename Sequence::iterator nextEvent;
 
-        SingleWriterSingleReaderQueue<SharedResourceBuffer<FloatType>> bufferQueue;
-        SharedResourceBuffer<FloatType> activeBuffer;
+        SingleWriterSingleReaderQueue<SharedResourcePtr> bufferQueue;
+        SharedResourcePtr activeBuffer;
 
-        std::array<detail::BufferReader<FloatType>, 2> readers;
+        std::array<detail::BufferReader<float>, 2> readers;
         size_t activeReader = 0;
         int64_t nextExpectedBlockStart = 0;
 
@@ -376,6 +398,7 @@ namespace elem
         double rtSampleDuration = 0;
 
         signalsmith::stretch::SignalsmithStretch<FloatType> stretch;
+        double accFracSamples = 0;
         std::atomic<double> stretchFactor = 1.0;
         std::vector<FloatType> scratchBuffer;
     };

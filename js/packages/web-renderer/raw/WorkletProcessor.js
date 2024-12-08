@@ -1,6 +1,5 @@
 const EventTypes = {
   CREATE_NODE: 0,
-  DELETE_NODE: 1,
   APPEND_CHILD: 2,
   SET_PROPERTY: 3,
   ACTIVATE_ROOTS: 4,
@@ -63,9 +62,11 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
 
       if (validVFS) {
         for (let [key, val] of Object.entries(virtualFileSystem)) {
-          this._native.updateSharedResourceMap(key, val, (message) => {
-            this.port.postMessage(['error', message]);
-          });
+          let result = this._native.addSharedResource(key, val);
+
+          if (!result.success) {
+            this.port.postMessage(['error', result.message]);
+          }
         }
       }
     }
@@ -90,9 +91,14 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
           }]);
         case 'updateSharedResourceMap':
           for (let [key, val] of Object.entries(payload.resources)) {
-            this._native.updateSharedResourceMap(key, val, (message) => {
-              this.port.postMessage(['error', message]);
-            });
+            let result = this._native.addSharedResource(key, val);
+
+            if (!result.success) {
+              return this.port.postMessage(['reply', {
+                requestId,
+                result,
+              }]);
+            }
           }
 
           return this.port.postMessage(['reply', {
@@ -106,8 +112,15 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
             requestId,
             result: null,
           }]);
+        case 'gc':
+          let pruned = this._native.gc();
+
+          return this.port.postMessage(['reply', {
+            requestId,
+            result: pruned,
+          }]);
         case 'pruneVirtualFileSystem':
-          this._native.pruneSharedResourceMap();
+          this._native.pruneSharedResources();
 
           return this.port.postMessage(['reply', {
             requestId,
@@ -116,7 +129,7 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
         case 'listVirtualFileSystem':
           return this.port.postMessage(['reply', {
             requestId,
-            result: this._native.listSharedResourceMap(),
+            result: this._native.listSharedResources(),
           }]);
         case 'setCurrentTime':
           return this.port.postMessage(['reply', {

@@ -2,18 +2,12 @@ import {
   createNode,
   isNode,
   resolve,
-} from '../nodeUtils';
+  ElemNode,
+  NodeRepr_t,
+} from "../nodeUtils";
 
-import type {ElemNode, NodeRepr_t} from '../nodeUtils';
-
-import * as co from './core';
-import * as ma from './math';
-
-
-// Generic
-type OptionalKeyProps = {
-  key?: string,
-}
+import * as co from "./core";
+import * as ma from "./math";
 
 const el = {
   ...co,
@@ -28,7 +22,7 @@ export function ms2samps(t: ElemNode): NodeRepr_t {
 }
 
 /**
- * Computes a real pole position giving exponential decay over t, where t is the time (in seconds) to decay 60dB.
+ * Computes a real pole position giving exponential decay over t, where t is the time (in seconds) to decay by 1/e.
  */
 export function tau2pole(t: ElemNode): NodeRepr_t {
   return el.exp(el.div(-1.0, el.mul(t, el.sr())));
@@ -48,11 +42,7 @@ export function db2gain(db: ElemNode): NodeRepr_t {
  * smaller than -120dB this will just return -120dB).
  */
 export function gain2db(gain: ElemNode): NodeRepr_t {
-  return select(
-    el.ge(gain, 0),
-    el.max(-120, el.mul(20, el.log(gain))),
-    -120,
-  );
+  return select(el.ge(gain, 0), el.max(-120, el.mul(20, el.log(gain))), -120);
 }
 
 /**
@@ -63,10 +53,7 @@ export function gain2db(gain: ElemNode): NodeRepr_t {
  * a linear interpolation between a and b.
  */
 export function select(g: ElemNode, a: ElemNode, b: ElemNode): NodeRepr_t {
-  return el.add(
-    el.mul(g, a),
-    el.mul(el.sub(1, g), b),
-  );
+  return el.add(el.mul(g, a), el.mul(el.sub(1, g), b));
 }
 
 /**
@@ -78,9 +65,8 @@ export function select(g: ElemNode, a: ElemNode, b: ElemNode): NodeRepr_t {
  *
  * Expects exactly one child, the incoming phase.
  *
- * @param {Object} [props]
- * @param {core.Node|number} t - Phase signal
- * @returns {core.Node}
+ * @param {ElemNode} t - Phase signal
+ * @returns {NodeRepr_t}
  */
 export function hann(t: ElemNode): NodeRepr_t {
   return el.mul(0.5, el.sub(1, el.cos(el.mul(2.0 * Math.PI, t))));

@@ -39,7 +39,7 @@ test('events', async function() {
     events.push(e);
   });
 
-  core.render(el.meter(el.mul(2, 3)));
+  core.render(el.meter({}, el.mul(2, 3)));
   core.process(inps, outs);
 
   expect(events).toMatchSnapshot();
@@ -108,7 +108,9 @@ test('render stats', async function() {
   expect(stats).toMatchObject({
     edgesAdded: 3,
     nodesAdded: 4,
-    propsWritten: 3,
+    // Two "value" props on the const nodes, one "channel" prop on root,
+    // and then the "fadeInMs" and "fadeOutMs" on root
+    propsWritten: 5,
   });
 
   // Render with an invalid property and get a failure, rejecting the

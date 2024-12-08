@@ -57,9 +57,11 @@ export default class OfflineRenderer extends EventEmitter {
 
     if (validVFS) {
       for (let [key, val] of Object.entries(virtualFileSystem)) {
-        this._native.updateSharedResourceMap(key, val, (message) => {
-          this.emit('error', new Error(message));
-        });
+        let result = this._native.addSharedResource(key, val);
+
+        if (!result.success) {
+          this.emit('error', new Error(result.message));
+        }
       }
     }
 
@@ -133,32 +135,45 @@ export default class OfflineRenderer extends EventEmitter {
   updateVirtualFileSystem(vfs) {
     const valid = typeof vfs === 'object' && vfs !== null;
 
-    invariant(valid, "Virtual file system must be an object mapping string type keys to Array|Float32Array type values");
+    invariant(valid, "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values");
 
     Object.keys(vfs).forEach(function(key) {
       const validValue = typeof vfs[key] === 'object' &&
         (Array.isArray(vfs[key]) || (vfs[key] instanceof Float32Array));
 
-      invariant(validValue, "Virtual file system must be an object mapping string type keys to Array|Float32Array type values");
+      invariant(validValue, "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values");
     });
 
     for (let [key, val] of Object.entries(vfs)) {
-      this._native.updateSharedResourceMap(key, val, (message) => {
-        this.emit('error', new Error(message));
-      });
+      let result = this._native.addSharedResource(key, val);
+
+      if (!result.success) {
+        return result;
+      }
     }
+
+    return {
+      success: true,
+      message: 'Ok',
+    };
   }
 
   pruneVirtualFileSystem() {
-    this._native.pruneSharedResourceMap();
+    this._native.pruneSharedResources();
   }
 
   listVirtualFileSystem() {
-    return this._native.listSharedResourceMap();
+    return this._native.listSharedResources();
   }
 
   reset() {
     this._native.reset();
+  }
+
+  gc() {
+    let pruned = this._native.gc();
+    this._renderer.prune(pruned);
+    return pruned;
   }
 
   setCurrentTime(t) {

@@ -19,5 +19,5 @@ test('std lib should have sparseq2', async function() {
 
   expect(stats.nodesAdded).toEqual(3); // root, sparseq, const
   expect(stats.edgesAdded).toEqual(2);
-  expect(stats.propsWritten).toEqual(3); // root channel, sparseq seq, const value
+  expect(stats.propsWritten).toEqual(5); // root channel, fadeIn, fadeOut, sparseq seq, const value
 });

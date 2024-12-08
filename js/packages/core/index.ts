@@ -1,14 +1,15 @@
 import {
   renderWithDelegate,
-  stepGarbageCollector,
 } from './src/Reconciler.gen';
 
 import { updateNodeProps } from './src/Hash';
 
 import {
   createNode,
+  unpack,
   isNode,
   resolve,
+  NodeRepr_t,
 } from './nodeUtils';
 
 
@@ -16,12 +17,14 @@ import * as co from './lib/core';
 import * as dy from './lib/dynamics';
 import * as en from './lib/envelopes';
 import * as ma from './lib/math';
+import * as mc from './lib/mc';
 import * as fi from './lib/filters';
 import * as os from './lib/oscillators';
 import * as si from './lib/signals';
 
 export type { ElemNode, NodeRepr_t } from './nodeUtils';
 export { default as EventEmitter } from './src/Events';
+
 
 const stdlib = {
   ...co,
@@ -31,6 +34,7 @@ const stdlib = {
   ...ma,
   ...os,
   ...si,
+  mc,
   // Aliases for reserved keyword conflicts
   "const": co.constant,
   "in": ma.identity,
@@ -38,7 +42,6 @@ const stdlib = {
 
 const InstructionTypes = {
   CREATE_NODE: 0,
-  DELETE_NODE: 1,
   APPEND_CHILD: 2,
   SET_PROPERTY: 3,
   ACTIVATE_ROOTS: 4,
@@ -56,7 +59,6 @@ class Delegate {
   public nodeMap: Map<number, any>;
 
   private currentActiveRoots: Set<number>;
-  private terminalGeneration: number;
   private batch: any;
 
   constructor() {
@@ -74,7 +76,6 @@ class Delegate {
 
     this.batch = {
       createNode: [],
-      deleteNode: [],
       appendChild: [],
       setProperty: [],
       activateRoots: [],
@@ -83,21 +84,15 @@ class Delegate {
   }
 
   getNodeMap() { return this.nodeMap; }
-  getTerminalGeneration() { return 4; }
 
   createNode(hash, type) {
     this.nodesAdded++;
     this.batch.createNode.push([InstructionTypes.CREATE_NODE, hash, type]);
   }
 
-  deleteNode(hash) {
-    this.nodesRemoved++;
-    this.batch.deleteNode.push([InstructionTypes.DELETE_NODE, hash]);
-  }
-
-  appendChild(parentHash, childHash) {
+  appendChild(parentHash, childHash, childOutputChannel) {
     this.edgesAdded++;
-    this.batch.appendChild.push([InstructionTypes.APPEND_CHILD, parentHash, childHash]);
+    this.batch.appendChild.push([InstructionTypes.APPEND_CHILD, parentHash, childHash, childOutputChannel]);
   }
 
   setProperty(hash, key, value) {
@@ -127,7 +122,6 @@ class Delegate {
   getPackedInstructions() {
     return [
       ...this.batch.createNode,
-      ...this.batch.deleteNode,
       ...this.batch.appendChild,
       ...this.batch.setProperty,
       ...this.batch.activateRoots,
@@ -205,10 +199,14 @@ class Renderer {
   }
 
   render(...args) {
+    return this.renderWithOptions({ rootFadeInMs: 20, rootFadeOutMs: 20 }, ...args);
+  }
+
+  renderWithOptions(options: { rootFadeInMs: number, rootFadeOutMs: number }, ...args) {
     const t0 = now();
 
     this._delegate.clear();
-    renderWithDelegate(this._delegate as any, args.map(resolve));
+    renderWithDelegate(this._delegate as any, args.map(resolve), options.rootFadeInMs, options.rootFadeOutMs);
 
     const t1 = now();
 
@@ -226,16 +224,22 @@ class Renderer {
       };
     });
   }
+
+  prune(nodeIds) {
+    nodeIds.forEach((n) => {
+      this._delegate.nodeMap.delete(n);
+    });
+  }
 }
 
 export {
   Delegate,
   Renderer,
   createNode,
+  unpack,
   isNode,
   resolve,
   renderWithDelegate,
-  stepGarbageCollector,
   stdlib,
   stdlib as el,
 };

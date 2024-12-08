@@ -8,14 +8,14 @@ var symbol = "__ELEM_NODE__";
 
 function create(kind, props, children) {
   var childrenList = Belt_List.fromArray(children);
-  var childHashes = Belt_List.map(childrenList, (function (n) {
-          return n.hash;
-        }));
   return {
           symbol: symbol,
-          hash: HashUtils.hashNode(kind, props, childHashes),
+          hash: HashUtils.hashNode(kind, props, Belt_List.map(childrenList, (function (n) {
+                      return HashUtils.mixNumber(n.hash, n.outputChannel);
+                    }))),
           kind: kind,
           props: props,
+          outputChannel: 0,
           children: childrenList
         };
 }
@@ -42,6 +42,7 @@ function shallowCopy(node) {
           hash: node.hash,
           kind: node.kind,
           props: Object.assign({}, node.props),
+          outputChannel: node.outputChannel,
           generation: {
             contents: 0
           }

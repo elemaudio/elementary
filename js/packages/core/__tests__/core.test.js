@@ -1,7 +1,6 @@
 import {
   createNode,
   renderWithDelegate,
-  stepGarbageCollector,
   resolve,
   Renderer,
 } from '..';
@@ -15,7 +14,7 @@ class TestRenderer extends Renderer {
   render(...args) {
     this._delegate.clear();
 
-    renderWithDelegate(this._delegate, args.map(resolve));
+    renderWithDelegate(this._delegate, args.map(resolve), 20, 20);
 
     return {
       nodesAdded: this._delegate.nodesAdded,
@@ -27,14 +26,6 @@ class TestRenderer extends Renderer {
 
   getBatch() {
     return this._delegate.getPackedInstructions();
-  }
-
-  getTerminalGeneration() {
-    return this._delegate.getTerminalGeneration();
-  }
-
-  gc() {
-    stepGarbageCollector(this._delegate);
   }
 }
 
@@ -260,45 +251,6 @@ test('switch and switch back', function() {
   tr.render(renderVoice({key: 'bye', freq: 880}));
 
   tr.render(renderVoice({key: 'hi', freq: 440}));
-  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
-});
-
-test('garbage collection', function() {
-  let tr = new TestRenderer();
-
-  // First, render a sine tone with `sin`
-  tr.render(
-    createNode("sin", {}, [
-      createNode("mul", {}, [
-        2 * Math.PI,
-        createNode("phasor", {}, [440])
-      ])
-    ])
-  );
-
-  // Next we're going to render a sine tone using cosine. We'll expect to
-  // see most of the prior structure preserved.
-  tr.gc();
-
-  tr.render(
-    createNode("cos", {}, [
-      createNode("mul", {}, [
-        2 * Math.PI,
-        createNode("phasor", {}, [440])
-      ])
-    ])
-  );
-
-  expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
-  tr._delegate.clear();
-
-  // Now if we step the garbage collector enough we should see the sine node
-  // and its parent root get cleaned up now that they're no longer referenced
-  // in the active tree
-  for (let i = 0; i < tr.getTerminalGeneration() - 1; ++i) {
-    tr.gc();
-  }
-
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 

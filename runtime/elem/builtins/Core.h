@@ -4,6 +4,7 @@
 #include "../SingleWriterSingleReaderQueue.h"
 
 #include "helpers/Change.h"
+#include "helpers/GainFade.h"
 #include "helpers/RefCountedPool.h"
 
 
@@ -19,17 +20,14 @@ namespace elem
             return channelIndex.load();
         }
 
-        FloatType getTargetGain()
+        bool active()
         {
-            return targetGain.load();
+            return fade.on();
         }
 
         bool stillRunning()
         {
-            auto const t = targetGain.load();
-            auto const c = currentGain.load();
-
-            return (t >= 0.5 || (std::abs(c - t) >= std::numeric_limits<FloatType>::epsilon()));
+            return active() || !fade.settled();
         }
 
         int setProperty(std::string const& key, js::Value const& val) override
@@ -38,11 +36,28 @@ namespace elem
                 if (!val.isBool())
                     return ReturnCode::InvalidPropertyType();
 
-                targetGain.store(FloatType(val ? 1 : 0));
+                if (val)
+                    fade.fadeIn();
+                else
+                    fade.fadeOut();
             }
 
             if (key == "channel") {
                 channelIndex.store(static_cast<int>((js::Number) val));
+            }
+
+            if (key == "fadeInMs") {
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                fade.setFadeInTimeMs(GraphNode<FloatType>::getSampleRate(), (js::Number) val);
+            }
+
+            if (key == "fadeOutMs") {
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                fade.setFadeOutTimeMs(GraphNode<FloatType>::getSampleRate(), (js::Number) val);
             }
 
             return GraphNode<FloatType>::setProperty(key, val);
@@ -50,7 +65,7 @@ namespace elem
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
@@ -59,22 +74,11 @@ namespace elem
             if (numChannels < 1)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
-            auto const t = targetGain.load();
-            auto c = currentGain.load();
-
-            auto const direction = (t < c) ? FloatType(-1) : FloatType(1);
-            auto const step = direction * FloatType(20) / FloatType(GraphNode<FloatType>::getSampleRate());
-
-            for (size_t i = 0; i < numSamples; ++i) {
-                outputData[i] = inputData[0][i] * c;
-                c = std::clamp(c + step, FloatType(0), FloatType(1));
-            }
-
-            currentGain.store(c);
+            fade.process(inputData[0], outputData, numSamples);
         }
 
-        std::atomic<FloatType> targetGain = 1;
-        std::atomic<FloatType> currentGain = 0;
+        GainFade<FloatType> fade = {GraphNode<FloatType>::getSampleRate(), 20, 20, 0.0, 1.0};
+
         std::atomic<int> channelIndex = -1;
     };
 
@@ -94,7 +98,7 @@ namespace elem
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
@@ -148,7 +152,7 @@ namespace elem
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numSamples = ctx.numSamples;
 
             auto const v = value.load();
@@ -167,7 +171,7 @@ namespace elem
         using GraphNode<FloatType>::GraphNode;
 
         void process (BlockContext<FloatType> const& ctx) override {
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numSamples = ctx.numSamples;
 
             for (size_t i = 0; i < numSamples; ++i) {
@@ -182,7 +186,7 @@ namespace elem
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
@@ -217,7 +221,7 @@ namespace elem
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
@@ -249,7 +253,7 @@ namespace elem
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
@@ -300,7 +304,7 @@ namespace elem
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
@@ -363,7 +367,7 @@ namespace elem
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
@@ -455,7 +459,7 @@ namespace elem
 
         void process (BlockContext<FloatType> const& ctx) override {
             auto** inputData = ctx.inputData;
-            auto* outputData = ctx.outputData;
+            auto* outputData = ctx.outputData[0];
             auto numChannels = ctx.numInputChannels;
             auto numSamples = ctx.numSamples;
 
