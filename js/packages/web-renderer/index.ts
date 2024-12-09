@@ -5,11 +5,12 @@ import {
   Renderer,
 } from '@elemaudio/core';
 
-import { pkgVersion } from './version';
-
 /* @ts-ignore */
 import WorkletProcessor from './raw/WorkletProcessor';
 import WasmModule from './raw/elementary-wasm';
+
+// Injected at build time
+const pkgVersion = process.env.PKG_VERSION;
 
 export default class WebRenderer extends EventEmitter {
   private _worklet: any;
