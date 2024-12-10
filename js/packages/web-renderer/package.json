@@ -1,6 +1,6 @@
 {
   "name": "@elemaudio/web-renderer",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "type": "module",
   "description": "Official package for rendering Elementary Audio applications to Web Audio",
   "keywords": [
@@ -46,7 +46,7 @@
     "webdriverio": "^8.30.0"
   },
   "dependencies": {
-    "@elemaudio/core": "^4.0.0",
+    "@elemaudio/core": "^4.0.1",
     "invariant": "^2.2.4"
   }
 }
