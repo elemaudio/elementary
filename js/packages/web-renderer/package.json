@@ -1,6 +1,6 @@
 {
   "name": "@elemaudio/web-renderer",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "type": "module",
   "description": "Official package for rendering Elementary Audio applications to Web Audio",
   "keywords": [
@@ -15,34 +15,38 @@
   "author": "Nick Thompson <nick@elementary.audio>",
   "homepage": "https://www.elementary.audio",
   "license": "MIT",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist/index.js",
+    "dist/index.cjs",
     "dist/index.d.ts",
     "README.md",
     "LICENSE.md"
   ],
   "scripts": {
     "wasm": "./scripts/prebuild.sh",
-    "build": "rollup -c rollup.config.js",
+    "build": "tsup index.ts --format cjs,esm --dts --env.PKG_VERSION $npm_package_version",
     "test": "vitest run test --config=./test/vite.config.js"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^21.0.2",
-    "@rollup/plugin-node-resolve": "^13.1.3",
-    "@rollup/plugin-replace": "^4.0.0",
-    "@rollup/plugin-typescript": "^8.3.1",
     "@vitest/browser": "^1.2.2",
-    "rollup": "^2.70.0",
-    "rollup-pluginutils": "^2.8.2",
-    "terser": "^5.12.0",
+    "tsup": "^8.3.5",
     "vite": "^4.4.9",
     "vitest": "^1.2.2",
     "webdriverio": "^8.30.0"
   },
   "dependencies": {
-    "@elemaudio/core": "^4.0.0",
+    "@elemaudio/core": "^4.0.1",
     "invariant": "^2.2.4"
   }
 }

@@ -142,7 +142,7 @@ export function bleptriangle(rate: ElemNode): NodeRepr_t {
  * @returns {NodeRepr_t}
  */
 export function noise(props?: { key?: string; seed?: number }): NodeRepr_t {
-  return el.sub(el.mul(2, el.rand(a)), 1);
+  return el.sub(el.mul(2, el.rand(props)), 1);
 }
 
 /**
