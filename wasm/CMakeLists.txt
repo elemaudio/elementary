@@ -25,7 +25,7 @@ set(PRE "${CMAKE_CURRENT_SOURCE_DIR}/pre.js")
 # We use these flags for compiling our wasm bundle such that the exported Module
 # factory function asynchronously initializes the module. It's important for the browser
 # and node.js contexts, whereas we want synchronous initialization for the webaudio worklet
-set(EM_FLAGS_ASYNC "--pre-js ${PRE} -lembind --closure 1 -s WASM=1 -s WASM_ASYNC_COMPILATION=1 -s MODULARIZE=1 -s ENVIRONMENT=shell -s SINGLE_FILE=1 -s ALLOW_MEMORY_GROWTH=1")
+set(EM_FLAGS_ASYNC "-lembind --closure 1 -s WASM=1 -s WASM_ASYNC_COMPILATION=1 -s MODULARIZE=1 -s ENVIRONMENT=shell -s SINGLE_FILE=1 -s ALLOW_MEMORY_GROWTH=1")
 
 # We use these flags for compiling our wasm bundle such that the exported Module
 # factory function _synchronously_ initializes the module. We use this specifically in the
