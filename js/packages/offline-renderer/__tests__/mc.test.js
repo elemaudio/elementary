@@ -1,4 +1,4 @@
-import OfflineRenderer from "../index";
+import OfflineRenderer from "..";
 import { el } from "@elemaudio/core";
 
 test("mc table", async function () {
@@ -360,7 +360,6 @@ test("mc.sample again", async function () {
   );
 
   core.process(inps, outs);
-  console.log(outs[0]);
   expect(outs[0]).toMatchSnapshot();
 
   await core.render(
@@ -386,6 +385,5 @@ test("mc.sample again", async function () {
     core.process(inps, outs);
   }
 
-  console.log(outs[0]);
   expect(outs[0]).toMatchSnapshot();
 });

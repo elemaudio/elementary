@@ -1,4 +1,4 @@
-import OfflineRenderer from '../index';
+import OfflineRenderer from '..';
 import { el } from '@elemaudio/core';
 
 
