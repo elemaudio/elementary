@@ -7,10 +7,18 @@
 // not available. An alternative solution would be to upstream a change to the stretch
 // library to rely on an injected random device in C++ territory, so that for our case
 // we could inject some simple PRNG.
-globalThis.crypto = {
-  getRandomValues: (array) => {
+if (typeof globalThis?.crypto?.getRandomValues !== 'function') {
+  function _shimGetRandomValues(array) {
     for (var i = 0; i < array.length; i++) {
       array[i] = (Math.random() * 256) | 0;
     }
   }
-};
+
+  if (typeof globalThis.crypto === 'object') {
+    globalThis.crypto.getRandomValues = _shimGetRandomValues;
+  } else {
+    globalThis.crypto = {
+      getRandomValues: _shimGetRandomValues,
+    };
+  }
+}
