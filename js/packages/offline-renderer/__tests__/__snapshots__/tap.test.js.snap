@@ -1552,30 +1552,30 @@ Float32Array [
 `;
 
 exports[`idle feedback taps 1`] = `
-Array [
-  Array [
-    Object {
+[
+  [
+    {
       "max": 0,
       "min": 0,
       "source": undefined,
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "max": 1,
       "min": 1,
       "source": undefined,
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "max": 2,
       "min": 2,
       "source": undefined,
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "max": 3,
       "min": 3,
       "source": undefined,
@@ -1585,30 +1585,30 @@ Array [
 `;
 
 exports[`idle feedback taps 2`] = `
-Array [
-  Array [
-    Object {
+[
+  [
+    {
       "max": 4,
       "min": 4,
       "source": undefined,
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "max": 3,
       "min": 3,
       "source": undefined,
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "max": 2,
       "min": 2,
       "source": undefined,
     },
   ],
-  Array [
-    Object {
+  [
+    {
       "max": 1,
       "min": 1,
       "source": undefined,

@@ -6,7 +6,7 @@ import {
 } from '@elemaudio/core';
 
 // NEEDS WASM_ASYNC COMPILATION FLAG IN THE WASM BUILD SCRIPT
-import Module from './elementary-wasm';
+import Module from './elementary-wasm.cjs';
 
 export default class OfflineRenderer extends EventEmitter {
   private _module: any;

@@ -244,7 +244,7 @@ namespace elem
                 // Update the adjacency list to remove the parent pointers from each
                 // of the removed node's children.
                 for (auto& inlet : entry.inlets) {
-                    auto& childId = inlet.source;
+                    auto childId = inlet.source;
 
                     // It's possible we already removed the child in this same gc pass
                     if (nodeTable.count(childId) > 0) {
@@ -256,7 +256,8 @@ namespace elem
                                 [&](auto const& outlet) {
                                     return outlet.destination == nodeId;
                                 }
-                            )
+                            ),
+                            childEntry.outlets.end()
                         );
                     }
                 }

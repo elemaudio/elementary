@@ -259,11 +259,11 @@ namespace elem
                         if (shouldLoop) {
                             readPos = readStart + std::fmod(readPos - readStart, readStop - readStart);
                         } else {
-                            outputData[i][writeOffset + j] = FloatType(0);
+                            continue;
                         }
                     }
 
-                    outputData[i][writeOffset + j] = localFade(lerpRead(bufferView, readPos));
+                    outputData[i][writeOffset + j] += localFade(lerpRead(bufferView, readPos));
                 }
             }
 
