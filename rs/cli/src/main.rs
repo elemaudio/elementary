@@ -5,8 +5,9 @@ use std::{env, io::Error};
 
 use futures_util::{SinkExt, StreamExt, TryStreamExt};
 use log::info;
-use tinyaudio::prelude::*;
 use tokio::net::{TcpListener, TcpStream};
+
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 
 fn main() {
     let _ = env_logger::try_init();
@@ -15,25 +16,39 @@ fn main() {
         .unwrap_or_else(|| "127.0.0.1:8080".to_string());
 
     // Start the audio device
-    let params = OutputDeviceParameters {
-        channels_count: 2,
-        sample_rate: 44100,
-        channel_sample_count: 512,
-    };
+    let host = cpal::default_host();
+    let output_device = host
+        .default_output_device()
+        .expect("no output device available");
+    let mut supported_configs_range = output_device
+        .supported_output_configs()
+        .expect("error while querying configs");
+    let supported_config = supported_configs_range
+        .next()
+        .expect("no supported config?!")
+        .with_max_sample_rate();
 
+    // Start the Elem engine
     let (engine_main, engine_proc) = engine::new_engine(44100.0, 512);
-    let _device = run_output_device(params, {
-        move |data| {
-            for samples in data.chunks_mut(params.channels_count) {
+
+    // Hook up Elem engine with the device
+    let config: cpal::StreamConfig = supported_config.into();
+    let _stream = output_device.build_output_stream(
+        &config,
+        move |data: &mut [f32], _| {
+            let num_channels = config.channels as usize;
+            for samples in data.chunks_mut(num_channels) {
                 engine_proc.process(
                     samples.as_ptr(),
                     samples.as_mut_ptr(),
-                    params.channels_count,
+                    num_channels,
                     samples.len(),
                 );
             }
-        }
-    });
+        },
+        move |err| {},
+        None, // None=blocking, Some(Duration)=timeout
+    );
 
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
