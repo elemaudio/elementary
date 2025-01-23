@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
-    "cli",
-    "elem", "server",
+  "cli",
+  "elem",
+  "server",
 ]
