@@ -1,4 +1,4 @@
-use crate::node::{shallow_clone, NodeRepr, ShallowNodeRepr};
+use crate::node::{NodeRepr, ShallowNodeRepr};
 use crate::std::prelude::*;
 use serde_json::json;
 use std::cell::UnsafeCell;
@@ -156,7 +156,7 @@ pub struct MainHandle {
 impl MainHandle {
     pub fn new(inner: Arc<EngineInternal>) -> Self {
         Self {
-            inner: inner,
+            inner,
             node_map: BTreeMap::new(),
         }
     }
@@ -179,7 +179,7 @@ impl MainHandle {
             }
 
             // Mount
-            if !self.node_map.contains_key(&next.hash) {
+            self.node_map.entry(next.hash).or_insert_with(|| {
                 // Create node
                 instructions
                     .as_array_mut()
@@ -196,8 +196,8 @@ impl MainHandle {
                     ]));
                 }
 
-                self.node_map.insert(next.hash, shallow_clone(&next));
-            }
+                next.into()
+            });
 
             // Props
             for (name, value) in &next.props {

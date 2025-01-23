@@ -41,12 +41,14 @@ pub struct ShallowNodeRepr {
     children: Vec<i32>,
 }
 
-pub fn shallow_clone(node: &NodeRepr) -> ShallowNodeRepr {
-    ShallowNodeRepr {
-        hash: node.hash,
-        kind: node.kind.clone(),
-        props: node.props.clone(),
-        output_channel: node.output_channel,
-        children: node.children.iter().map(|n| n.hash).collect::<Vec<i32>>(),
+impl From<&NodeRepr> for ShallowNodeRepr {
+    fn from(node: &NodeRepr) -> ShallowNodeRepr {
+        ShallowNodeRepr {
+            hash: node.hash,
+            kind: node.kind.clone(),
+            props: node.props.clone(),
+            output_channel: node.output_channel,
+            children: node.children.iter().map(|n| n.hash).collect::<Vec<i32>>(),
+        }
     }
 }
