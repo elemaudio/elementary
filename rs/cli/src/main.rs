@@ -1,17 +1,44 @@
 use elem::engine;
 
+use std::env;
 use std::sync::{Arc, Mutex};
-use std::{env, io::Error};
 
 use futures_util::{SinkExt, StreamExt, TryStreamExt};
-use log::info;
 use tokio::net::{TcpListener, TcpStream};
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use tracing::{error, info};
 use tracing_subscriber;
 
-fn main() {
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum ElementaryCliError {
+    #[error("No input device available")]
+    NoInputDevice,
+    #[error("No output device available")]
+    NoOutputDevice,
+    #[error(transparent)]
+    MainThreadError(#[from] MainThreadError),
+    #[error(transparent)]
+    HelperThreadError(#[from] HelperThreadError),
+}
+
+#[derive(Error, Debug)]
+pub enum MainThreadError {
+    #[error("Event loop error: {0}")]
+    Generic(String),
+}
+
+#[derive(Error, Debug)]
+pub enum HelperThreadError {
+    #[error("Event poller error: {0}")]
+    EventPoller(String),
+    #[error("TCP listener error: {0}")]
+    TCPListener(String),
+}
+
+fn main() -> Result<(), ElementaryCliError> {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
         .init();
@@ -24,10 +51,19 @@ fn main() {
     let host = cpal::default_host();
     let output_device = host
         .default_output_device()
-        .expect("no output device available");
+        .ok_or(ElementaryCliError::NoOutputDevice)?;
+
+    if let Ok(output_device_name) = output_device.name() {
+        info!("Default output device found: {}", output_device_name);
+    }
+
     let input_device = host
         .default_input_device()
-        .expect("no input device available");
+        .ok_or(ElementaryCliError::NoInputDevice)?;
+
+    if let Ok(input_device_name) = input_device.name() {
+        info!("Default input device found: {}", input_device_name);
+    }
 
     let mut supported_configs_range = output_device
         .supported_output_configs()
@@ -63,23 +99,28 @@ fn main() {
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
-        .unwrap()
+        .map_err(|e| MainThreadError::Generic(e.to_string()))?
         .block_on(run_event_loop_main(addr, engine_main))
-        .expect("Failed to start event loop")
+        .map_err(|e| e.into())
 }
 
-async fn run_event_loop_main(addr: String, engine_main: engine::MainHandle) -> Result<(), Error> {
+async fn run_event_loop_main(
+    addr: String,
+    engine_main: engine::MainHandle,
+) -> Result<(), MainThreadError> {
     let shared_engine_main = Arc::new(Mutex::new(engine_main));
 
-    let (first, second) = tokio::join!(
+    let (event_poller_result, tcp_listener_result) = tokio::join!(
         tokio::spawn(run_event_poller(shared_engine_main.clone())),
         tokio::spawn(run_tcp_listener(addr, shared_engine_main.clone())),
     );
 
-    first.unwrap_or(second.unwrap_or(Ok(())))
+    todo!()
 }
 
-async fn run_event_poller(engine_main: Arc<Mutex<engine::MainHandle>>) -> Result<(), Error> {
+async fn run_event_poller(
+    engine_main: Arc<Mutex<engine::MainHandle>>,
+) -> Result<(), HelperThreadError> {
     let mut interval =
         tokio::time::interval(tokio::time::Duration::from_millis((1000.0 / 30.0) as u64));
 
@@ -99,7 +140,7 @@ async fn run_event_poller(engine_main: Arc<Mutex<engine::MainHandle>>) -> Result
 async fn run_tcp_listener(
     addr: String,
     engine_main: Arc<Mutex<engine::MainHandle>>,
-) -> Result<(), Error> {
+) -> Result<(), HelperThreadError> {
     // Create the TCP listener we'll accept connections on
     let try_socket = TcpListener::bind(&addr).await;
     let listener = try_socket.expect("Failed to bind");
