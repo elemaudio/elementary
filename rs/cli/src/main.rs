@@ -8,9 +8,14 @@ use log::info;
 use tokio::net::{TcpListener, TcpStream};
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use tracing::{error, info};
+use tracing_subscriber;
 
 fn main() {
-    let _ = env_logger::try_init();
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::INFO)
+        .init();
+
     let addr = env::args()
         .nth(1)
         .unwrap_or_else(|| "127.0.0.1:8080".to_string());
@@ -20,6 +25,10 @@ fn main() {
     let output_device = host
         .default_output_device()
         .expect("no output device available");
+    let input_device = host
+        .default_input_device()
+        .expect("no input device available");
+
     let mut supported_configs_range = output_device
         .supported_output_configs()
         .expect("error while querying configs");
