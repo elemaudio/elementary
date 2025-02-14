@@ -19,19 +19,13 @@ pub enum ElementaryCliError {
     #[error("No output device available")]
     NoOutputDevice,
     #[error(transparent)]
-    MainThreadError(#[from] MainThreadError),
-    #[error(transparent)]
-    HelperThreadError(#[from] HelperThreadError),
+    ThreadError(#[from] ThreadError),
 }
 
 #[derive(Error, Debug)]
-pub enum MainThreadError {
+pub enum ThreadError {
     #[error("Event loop error: {0}")]
-    Generic(String),
-}
-
-#[derive(Error, Debug)]
-pub enum HelperThreadError {
+    EventLoop(String),
     #[error("Event poller error: {0}")]
     EventPoller(String),
     #[error("TCP listener error: {0}")]
@@ -99,7 +93,7 @@ fn main() -> Result<(), ElementaryCliError> {
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
-        .map_err(|e| MainThreadError::Generic(e.to_string()))?
+        .map_err(|e| ThreadError::EventLoop(e.to_string()))?
         .block_on(run_event_loop_main(addr, engine_main))
         .map_err(|e| e.into())
 }
@@ -107,20 +101,22 @@ fn main() -> Result<(), ElementaryCliError> {
 async fn run_event_loop_main(
     addr: String,
     engine_main: engine::MainHandle,
-) -> Result<(), MainThreadError> {
+) -> Result<(), ThreadError> {
     let shared_engine_main = Arc::new(Mutex::new(engine_main));
 
-    let (event_poller_result, tcp_listener_result) = tokio::join!(
+    // If either of the threads fails, we stop the program
+    let res = tokio::try_join!(
         tokio::spawn(run_event_poller(shared_engine_main.clone())),
         tokio::spawn(run_tcp_listener(addr, shared_engine_main.clone())),
     );
 
-    todo!()
+    match res {
+        Ok((first, second)) => first.and(second),
+        Err(e) => todo!("One of the tasks panicked... should always return an error"),
+    }
 }
 
-async fn run_event_poller(
-    engine_main: Arc<Mutex<engine::MainHandle>>,
-) -> Result<(), HelperThreadError> {
+async fn run_event_poller(engine_main: Arc<Mutex<engine::MainHandle>>) -> Result<(), ThreadError> {
     let mut interval =
         tokio::time::interval(tokio::time::Duration::from_millis((1000.0 / 30.0) as u64));
 
@@ -140,7 +136,7 @@ async fn run_event_poller(
 async fn run_tcp_listener(
     addr: String,
     engine_main: Arc<Mutex<engine::MainHandle>>,
-) -> Result<(), HelperThreadError> {
+) -> Result<(), ThreadError> {
     // Create the TCP listener we'll accept connections on
     let try_socket = TcpListener::bind(&addr).await;
     let listener = try_socket.expect("Failed to bind");
