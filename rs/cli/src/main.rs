@@ -1,15 +1,35 @@
 use elem::engine;
 
+use clap::Parser;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{BuildStreamError, PlayStreamError};
+use cpal::{BuildStreamError, DeviceNameError, DevicesError, PlayStreamError};
 use futures_util::{SinkExt, StreamExt, TryStreamExt};
 use ringbuf::{traits::*, HeapRb};
-use std::env;
 use std::sync::{Arc, Mutex};
 use thiserror::Error;
 use tokio::net::{TcpListener, TcpStream};
-use tracing::{error, info};
-use tracing_subscriber;
+use tracing::{debug, error, info};
+use tracing_subscriber::{filter::LevelFilter, fmt, prelude::*};
+
+#[derive(Parser, Debug)]
+#[command(name = "elemcli", version, about, long_about = None)]
+struct Args {
+    /// Lists all available audio devices
+    #[arg(long)]
+    list_devices: bool,
+
+    /// Specifies the input audio device
+    #[arg(short, long, value_name = "INPUT_DEVICE")]
+    input: Option<String>,
+
+    /// Specifies the output audio device
+    #[arg(short, long, value_name = "OUTPUT_DEVICE")]
+    output: Option<String>,
+
+    /// Address at which to run the websocket
+    #[arg(short, long, default_value = "127.0.0.1:8080")]
+    addr: String,
+}
 
 #[derive(Error, Debug)]
 pub enum ElementaryCliError {
@@ -23,6 +43,10 @@ pub enum ElementaryCliError {
     DeviceStreamConstructionFailed(#[from] BuildStreamError),
     #[error("Could not play device stream: {0}")]
     DeviceStreamPlayFailed(#[from] PlayStreamError),
+    #[error(transparent)]
+    DeviceNameError(#[from] DeviceNameError),
+    #[error(transparent)]
+    DevicesEnumerationError(#[from] DevicesError),
 }
 
 #[derive(Error, Debug)]
@@ -36,31 +60,44 @@ pub enum ThreadError {
 }
 
 fn main() -> Result<(), ElementaryCliError> {
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
+    // User-facing logs at INFO layer
+    let info_layer = fmt::layer()
+        .without_time() // Remove the timestamp
+        .with_target(false) // Remove the target/module path
+        .with_level(false) // Remove the log level
+        .with_filter(LevelFilter::INFO);
+
+    // Other logs
+    let debug_layer = fmt::layer()
+        .with_target(true) // Include the target/module path
+        .with_level(true) // Include the log level
+        .with_filter(LevelFilter::WARN)
+        .with_filter(LevelFilter::ERROR)
+        .with_filter(LevelFilter::DEBUG);
+
+    tracing_subscriber::registry()
+        .with(info_layer)
+        .with(debug_layer)
         .init();
 
-    let addr = env::args()
-        .nth(1)
-        .unwrap_or_else(|| "127.0.0.1:8080".to_string());
+    let args = Args::parse();
 
     // Config parsing: input device, output device, bitrate, etc
     let host = cpal::default_host();
-    let output_device = host
-        .default_output_device()
-        .ok_or(ElementaryCliError::NoOutputDevice)?;
 
-    if let Ok(output_device_name) = output_device.name() {
-        info!("Default output device found: {}", output_device_name);
-    }
+    let output_device = if let Some(output_device_name) = args.output {
+        todo!("use this output instead of the default")
+    } else {
+        host.default_output_device()
+            .ok_or(ElementaryCliError::NoOutputDevice)?
+    };
 
-    let input_device = host
-        .default_input_device()
-        .ok_or(ElementaryCliError::NoInputDevice)?;
-
-    if let Ok(input_device_name) = input_device.name() {
-        info!("Default input device found: {}", input_device_name);
-    }
+    let input_device = if let Some(input_device_name) = args.input {
+        todo!("use this input instead of the default")
+    } else {
+        host.default_input_device()
+            .ok_or(ElementaryCliError::NoInputDevice)?
+    };
 
     let mut supported_configs_range = output_device
         .supported_output_configs()
@@ -71,6 +108,38 @@ fn main() -> Result<(), ElementaryCliError> {
         .with_max_sample_rate();
 
     let config: cpal::StreamConfig = supported_config.into();
+
+    // Different commands
+    if args.list_devices {
+        info!("Listing all devices...");
+        fn supports_output<D: DeviceTrait>(device: &D) -> bool {
+            device
+                .supported_output_configs()
+                .map(|mut iter| iter.next().is_some())
+                .unwrap_or(false)
+        }
+
+        fn supports_input<D: DeviceTrait>(device: &D) -> bool {
+            device
+                .supported_input_configs()
+                .map(|mut iter| iter.next().is_some())
+                .unwrap_or(false)
+        }
+
+        for device in host.devices()? {
+            let is_input = supports_input(&device);
+            let is_output = supports_output(&device);
+            let n = device.name()?;
+            match (is_input, is_output) {
+                (true, true) => info!("(in/out) {n}"),
+                (true, false) => info!("(in) {n}"),
+                (false, true) => info!("(out) {n}"),
+                (false, false) => (), // supports neither input nor output, so we don't show
+            }
+        }
+
+        return Ok(());
+    }
 
     // Establish a ring buffer to pump data from input to output The delay (implemented via the
     // ring buffer) acts as a safety margin to absorb timing mismatches between the input and
@@ -154,7 +223,7 @@ fn main() -> Result<(), ElementaryCliError> {
         .enable_all()
         .build()
         .map_err(|e| ThreadError::EventLoop(e.to_string()))?
-        .block_on(run_event_loop_main(addr, engine_main))
+        .block_on(run_event_loop_main(args.addr, engine_main))
         .map_err(|e| e.into())
 }
 
@@ -172,7 +241,7 @@ async fn run_event_loop_main(
 
     match res {
         Ok((first, second)) => first.and(second),
-        Err(e) => unreachable!("One of the event poller or TCP listener threads panicked... should always return an error?"),
+        Err(e) => unreachable!("One of the event poller or TCP listener threads panicked... should always return an error? {}", e),
     }
 }
 
