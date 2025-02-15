@@ -1,16 +1,15 @@
 use elem::engine;
 
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use cpal::{BuildStreamError, PlayStreamError};
+use futures_util::{SinkExt, StreamExt, TryStreamExt};
+use ringbuf::{traits::*, HeapRb};
 use std::env;
 use std::sync::{Arc, Mutex};
-
-use futures_util::{SinkExt, StreamExt, TryStreamExt};
+use thiserror::Error;
 use tokio::net::{TcpListener, TcpStream};
-
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use tracing::{error, info};
 use tracing_subscriber;
-
-use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum ElementaryCliError {
@@ -20,6 +19,10 @@ pub enum ElementaryCliError {
     NoOutputDevice,
     #[error(transparent)]
     ThreadError(#[from] ThreadError),
+    #[error("Could not construct device stream: {0}")]
+    DeviceStreamConstructionFailed(#[from] BuildStreamError),
+    #[error("Could not play device stream: {0}")]
+    DeviceStreamPlayFailed(#[from] PlayStreamError),
 }
 
 #[derive(Error, Debug)]
@@ -41,7 +44,7 @@ fn main() -> Result<(), ElementaryCliError> {
         .nth(1)
         .unwrap_or_else(|| "127.0.0.1:8080".to_string());
 
-    // Start the audio device
+    // Config parsing: input device, output device, bitrate, etc
     let host = cpal::default_host();
     let output_device = host
         .default_output_device()
@@ -67,28 +70,85 @@ fn main() -> Result<(), ElementaryCliError> {
         .expect("no supported config?!")
         .with_max_sample_rate();
 
-    // Start the Elem engine
+    let config: cpal::StreamConfig = supported_config.into();
+
+    // Establish a ring buffer to pump data from input to output The delay (implemented via the
+    // ring buffer) acts as a safety margin to absorb timing mismatches between the input and
+    // output streams. This ensures that there is always enough data in the buffer for the output
+    // stream to consume, even if the input and output streams are slightly out of sync. This
+    // prevents underflow (buffer running out of data) or overflow (buffer filling up too quickly),
+    // both of which can cause audible artifacts.
+    let latency_ms: f32 = 1000.0;
+    let latency_frames = (latency_ms / 1_000.0) * config.sample_rate.0 as f32;
+    let in_out_ring = HeapRb::new(latency_frames as usize);
+
+    let (mut producer, mut consumer) = in_out_ring.split();
+
+    // Start the Elem engine and derive handles to it
     let (engine_main, engine_proc) = engine::new_engine(44100.0, 512);
 
-    // Hook up Elem engine with the device
-    let config: cpal::StreamConfig = supported_config.into();
-    let _stream = output_device.build_output_stream(
-        &config,
-        move |data: &mut [f32], _| {
-            let num_channels = config.channels as usize;
-            for samples in data.chunks_mut(num_channels) {
-                engine_proc.process(
-                    samples.as_ptr(),
-                    samples.as_mut_ptr(),
-                    num_channels,
-                    samples.len(),
-                    std::ptr::null_mut::<()>(),
-                );
+    // Closure that indicates what to do when we get data on the default audio input.
+    // In our case, we push it to the `in_out_ring`, which is a ring buffer.
+    // If we can't push data to the ring buffer, then something's gone wrong
+    let input_data_fn = move |data: &[f32], _: &cpal::InputCallbackInfo| {
+        let mut output_fell_behind = false;
+        for &sample in data {
+            if producer.try_push(sample).is_err() {
+                output_fell_behind = true;
             }
-        },
-        move |err| {},
-        None, // None=blocking, Some(Duration)=timeout
-    );
+        }
+        if output_fell_behind {
+            error!("Output stream fell behind: try increasing latency");
+            // TODO: should we do something more substantial here?
+        }
+    };
+
+    // Closure periodically invoked by the default audio output.
+    // Whatever data we write to the `data` buffer will be 'shipped' to the output device.
+    let output_data_fn = move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
+        let num_channels = config.channels as usize;
+        // TODO: how should I think about getting input data from the ring buffer here?
+        // should I pass it to the `input_data` in `engine_proc`?
+        //
+        // let mut input_fell_behind = None;
+        //
+        // for sample in data {
+        //     *sample = match consumer.pop() {
+        //         Ok(s) => s,
+        //         Err(err) => {
+        //             input_fell_behind = Some(err);
+        //             0.0
+        //         }
+        //     };
+        // }
+        // if let Some(err) = input_fell_behind {
+        //     eprintln!(
+        //         "input stream fell behind: {:?}: try increasing latency",
+        //         err
+        //     );
+        // }
+        for samples in data.chunks_mut(num_channels) {
+            engine_proc.process(
+                samples.as_ptr(),
+                samples.as_mut_ptr(),
+                num_channels,
+                samples.len(),
+                std::ptr::null_mut::<()>(),
+            );
+        }
+    };
+
+    let err_fn = move |_err| {};
+
+    // Hook up Elem engine with the output device
+    let input_stream = input_device.build_input_stream(&config, input_data_fn, err_fn, None)?;
+    info!("Input stream established.");
+    let output_stream = output_device.build_output_stream(&config, output_data_fn, err_fn, None)?;
+    info!("Output stream established.");
+
+    // Necessary as streams will not automatically play on some platforms
+    input_stream.play()?;
+    output_stream.play()?;
 
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
@@ -112,7 +172,7 @@ async fn run_event_loop_main(
 
     match res {
         Ok((first, second)) => first.and(second),
-        Err(e) => todo!("One of the tasks panicked... should always return an error"),
+        Err(e) => unreachable!("One of the event poller or TCP listener threads panicked... should always return an error?"),
     }
 }
 
