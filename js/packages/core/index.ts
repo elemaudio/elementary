@@ -6,25 +6,22 @@ import { updateNodeProps } from './src/Hash';
 
 import {
   createNode,
-  unpack,
   isNode,
   resolve,
-  NodeRepr_t,
+  unpack
 } from './nodeUtils';
-
 
 import * as co from './lib/core';
 import * as dy from './lib/dynamics';
 import * as en from './lib/envelopes';
+import * as fi from './lib/filters';
 import * as ma from './lib/math';
 import * as mc from './lib/mc';
-import * as fi from './lib/filters';
 import * as os from './lib/oscillators';
 import * as si from './lib/signals';
 
 export type { ElemNode, NodeRepr_t } from './nodeUtils';
 export { default as EventEmitter } from './src/Events';
-
 
 const stdlib = {
   ...co,
@@ -195,7 +192,7 @@ class Renderer {
       return Promise.resolve(this._sendMessage(instructions));
     };
 
-    return [node, setter];
+    return [node, setter] as const;
   }
 
   render(...args) {
@@ -233,13 +230,13 @@ class Renderer {
 }
 
 export {
-  Delegate,
-  Renderer,
   createNode,
-  unpack,
-  isNode,
-  resolve,
-  renderWithDelegate,
-  stdlib,
+  Delegate,
   stdlib as el,
+  isNode,
+  Renderer,
+  renderWithDelegate,
+  resolve,
+  stdlib,
+  unpack
 };
