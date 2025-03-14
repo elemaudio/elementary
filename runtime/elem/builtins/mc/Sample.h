@@ -7,7 +7,7 @@
 #include "../helpers/Change.h"
 #include "../helpers/GainFade.h"
 #include "../helpers/FloatUtils.h"
-
+#include "../helpers/SampleProperties.h"
 
 namespace elem
 {
@@ -81,6 +81,19 @@ namespace elem
                 playbackRate.store((js::Number) val);
             }
 
+            if (key == Sample::kLoopStartOffset) {
+                if (auto const result = Sample::updateLoopProperty(val, loopStartOffset); result != ReturnCode::Ok()) {
+                    return result;
+                }
+            }
+
+            if (key == Sample::kLoopStopOffset) {
+                if (auto const result = Sample::updateLoopProperty(val, loopStopOffset); result != ReturnCode::Ok()) {
+                    return result;
+                }
+            }
+
+
             return GraphNode<FloatType>::setProperty(key, val);
         }
 
@@ -126,6 +139,8 @@ namespace elem
             auto const wantsLoop = mode == Mode::Loop;
             auto const ostart = startOffset.load();
             auto const ostop = stopOffset.load();
+            auto const oLoopStart = loopStartOffset.load();
+            auto const oLoopStop = loopStopOffset.load();
             auto const rate = playbackRate.load();
 
             size_t i = 0;
@@ -136,8 +151,8 @@ namespace elem
 
                 if (cv > FloatType(0.5)) {
                     // Read from [i, j]
-                    readers[0].sumInto(outputData, numOuts, i, j - i, rate);
-                    readers[1].sumInto(outputData, numOuts, i, j - i, rate);
+                    readers[0].sumInto(outputData, numOuts, i, j - i, rate, oLoopStart, oLoopStop);
+                    readers[1].sumInto(outputData, numOuts, i, j - i, rate, oLoopStart, oLoopStop);
 
                     // Update voice state
                     readers[currentReader & 1].noteOff();
@@ -150,8 +165,8 @@ namespace elem
                 // If we're in trigger mode then we can ignore falling edges
                 if (cv < FloatType(-0.5) && playbackMode != Mode::Trigger) {
                     // Read from [i, j]
-                    readers[0].sumInto(outputData, numOuts, i, j - i, rate);
-                    readers[1].sumInto(outputData, numOuts, i, j - i, rate);
+                    readers[0].sumInto(outputData, numOuts, i, j - i, rate, oLoopStart, oLoopStop);
+                    readers[1].sumInto(outputData, numOuts, i, j - i, rate, oLoopStart, oLoopStop);
 
                     // Update voice state
                     readers[currentReader & 1].noteOff();
@@ -162,8 +177,8 @@ namespace elem
                 }
             }
 
-            readers[0].sumInto(outputData, numOuts, i, j - i, rate);
-            readers[1].sumInto(outputData, numOuts, i, j - i, rate);
+            readers[0].sumInto(outputData, numOuts, i, j - i, rate, oLoopStart, oLoopStop);
+            readers[1].sumInto(outputData, numOuts, i, j - i, rate, oLoopStart, oLoopStop);
         }
 
         SingleWriterSingleReaderQueue<SharedResourcePtr> bufferQueue;
@@ -183,6 +198,8 @@ namespace elem
         std::atomic<Mode> mode = Mode::Trigger;
         std::atomic<size_t> startOffset = 0;
         std::atomic<size_t> stopOffset = 0;
+        std::atomic<size_t> loopStartOffset = Sample::kLoopOffsetNull;
+        std::atomic<size_t> loopStopOffset = Sample::kLoopOffsetNull;
         std::atomic<double> playbackRate = 1.0;
     };
 
@@ -236,18 +253,20 @@ namespace elem
             return lerp(static_cast<float>(alpha), data[left], data[right]);
         }
 
-        void sumInto(FloatType** outputData, size_t numOuts, size_t writeOffset, size_t numSamples, double playbackRate)
+        void sumInto(FloatType** outputData, size_t numOuts, size_t writeOffset, size_t numSamples, double playbackRate, size_t const loopStartOffset, size_t const loopStopOffset)
         {
             elem::GainFade<FloatType> localFade(gainFade);
 
-            double readStart = startOffset;
+            double const readStart = loopStartOffset != Sample::kLoopOffsetNull ? static_cast<double>(loopStartOffset) : startOffset;
+            const double stopOffsetFinal = loopStopOffset != Sample::kLoopOffsetNull ? static_cast<double>(loopStopOffset) : stopOffset;
+
             double readStop = 0;
 
             for (size_t i = 0; i < std::min(numOuts, sourceBuffer->numChannels()); ++i) {
                 auto bufferView = sourceBuffer->getChannelData(i);
                 size_t const sourceLength = bufferView.size();
 
-                readStop = static_cast<double>(sourceLength) - stopOffset;
+                readStop = static_cast<double>(sourceLength) - stopOffsetFinal;
 
                 // Reinitialize the local copy to match our member instance
                 localFade = gainFade;
