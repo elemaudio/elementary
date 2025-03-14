@@ -73,6 +73,8 @@ export function sample(
     mode?: string;
     startOffset?: number;
     stopOffset?: number;
+    loopStartOffset?: number;
+    loopStopOffset?: number;
   },
   trigger: ElemNode,
   rate: ElemNode,

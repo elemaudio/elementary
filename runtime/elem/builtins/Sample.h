@@ -5,6 +5,7 @@
 #include "../Types.h"
 
 #include "./helpers/Change.h"
+#include "./helpers/SampleProperties.h"
 
 
 namespace elem
@@ -72,6 +73,18 @@ namespace elem
                 stopOffset.store(static_cast<size_t>(vi));
             }
 
+            if (key == Sample::kLoopStartOffset) {
+                if (auto const result = Sample::updateLoopProperty(val, loopStartOffset); result != ReturnCode::Ok()) {
+                    return result;
+                }
+            }
+
+            if (key == Sample::kLoopStopOffset) {
+                if (auto const result = Sample::updateLoopProperty(val, loopStopOffset); result != ReturnCode::Ok()) {
+                    return result;
+                }
+            }
+
             return GraphNode<FloatType>::setProperty(key, val);
         }
 
@@ -109,6 +122,8 @@ namespace elem
             auto const wantsLoop = mode == Mode::Loop;
             auto const ostart = startOffset.load();
             auto const ostop = stopOffset.load();
+            auto const oLoopStart = loopStartOffset.load();
+            auto const oLoopStop = loopStopOffset.load();
 
             // Optionally accept a second input signal specifying the playback rate
             auto const hasPlaybackRateSignal = numChannels >= 2;
@@ -129,7 +144,8 @@ namespace elem
                 }
 
                 // Process both readers for the current sample
-                outputData[i] = readers[0].tick(ostart, ostop, rate, wantsLoop) + readers[1].tick(ostart, ostop, rate, wantsLoop);
+                outputData[i] = readers[0].tick(ostart, ostop, rate, wantsLoop, oLoopStart, oLoopStop)
+                              + readers[1].tick(ostart, ostop, rate, wantsLoop, oLoopStart, oLoopStop);
             }
         }
 
@@ -150,6 +166,8 @@ namespace elem
         std::atomic<Mode> mode = Mode::Trigger;
         std::atomic<size_t> startOffset = 0;
         std::atomic<size_t> stopOffset = 0;
+        std::atomic<size_t> loopStartOffset = Sample::kLoopOffsetNull;
+        std::atomic<size_t> loopStopOffset = Sample::kLoopOffsetNull;
     };
 
     // A helper struct for reading from sample data with variable rate using
@@ -176,7 +194,7 @@ namespace elem
             targetGain = FloatType(0);
         }
 
-        FloatType tick (size_t const startOffset, size_t const stopOffset, FloatType const stepSize, bool const wantsLoop)
+        FloatType tick (size_t const startOffset, size_t const stopOffset, FloatType const stepSize, bool const wantsLoop, size_t const loopStartOffset, size_t const loopStopOffset)
         {
             if (sourceBuffer == nullptr || pos < 0.0 || (gain == FloatType(0) && targetGain == FloatType(0)))
                 return FloatType(0);
@@ -185,12 +203,15 @@ namespace elem
             auto* sourceData = bufferView.data();
             size_t const sourceLength = bufferView.size();
 
-            if (pos >= (double) (sourceLength - stopOffset)) {
+            const size_t startOffsetFinal = loopStartOffset != Sample::kLoopOffsetNull ? loopStartOffset : startOffset;
+            const size_t stopOffsetFinal = loopStopOffset != Sample::kLoopOffsetNull ? loopStopOffset : stopOffset;
+
+            if (pos >= (double) (sourceLength - stopOffsetFinal)) {
                 if (!wantsLoop) {
                     return FloatType(0);
                 }
 
-                pos = (double) startOffset;
+                pos = (double) startOffsetFinal;
             }
 
             // Linear interpolation on the buffer read
