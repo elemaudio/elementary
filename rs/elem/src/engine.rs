@@ -2,7 +2,7 @@ use crate::node::{NodeRepr, ShallowNodeRepr};
 use crate::reconcile::reconcile;
 use crate::std::prelude::*;
 use std::cell::UnsafeCell;
-use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
+use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 
 pub trait FloatType: 'static {}
@@ -72,7 +72,7 @@ unsafe impl Send for EngineInternal {}
 unsafe impl Sync for EngineInternal {}
 
 impl EngineInternal {
-    pub fn add_shared_resource(
+    fn add_shared_resource(
         &self,
         name: &String,
         channels: usize,
@@ -90,7 +90,7 @@ impl EngineInternal {
         }
     }
 
-    pub fn apply_instructions(&self, instructions: &serde_json::Value) -> Result<i32, &str> {
+    fn apply_instructions(&self, instructions: &serde_json::Value) -> Result<i32, &str> {
         unsafe {
             let result = self
                 .inner
@@ -105,7 +105,7 @@ impl EngineInternal {
         }
     }
 
-    pub fn process_queued_events(&self) -> Result<serde_json::Value, &str> {
+    fn process_queued_events(&self) -> Result<serde_json::Value, &str> {
         unsafe {
             let batch = self
                 .inner
@@ -126,7 +126,7 @@ pub struct ProcessHandle {
 }
 
 impl ProcessHandle {
-    pub fn new(inner: Arc<EngineInternal>) -> Self {
+    fn new(inner: Arc<EngineInternal>) -> Self {
         Self { inner }
     }
 
@@ -163,7 +163,7 @@ pub struct MainHandle {
 }
 
 impl MainHandle {
-    pub fn new(inner: Arc<EngineInternal>) -> Self {
+    fn new(inner: Arc<EngineInternal>) -> Self {
         Self {
             inner,
             node_map: BTreeMap::new(),
