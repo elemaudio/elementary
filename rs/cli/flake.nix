@@ -47,11 +47,8 @@
             overlays = [ (import inputs.rust-overlay) ];
           };
 
-          packages.default = self'.packages.example;
+          packages.default = self'.packages.cli;
           devShells.default = self'.devShells.nightly;
-
-          packages.example = (rustPackage "foobar");
-          packages.example-base = (rustPackage "");
 
           devShells.nightly = (mkDevShell (pkgs.rust-bin.selectLatestNightlyWith
             (toolchain: toolchain.default)));
