@@ -19,9 +19,9 @@ export default class WebRenderer extends EventEmitter {
   private _renderer: Renderer;
   private _timer: any;
 
-  public context: AudioContext = null;
+  public context: BaseAudioContext = null;
 
-  async initialize(audioContext: AudioContext, workletOptions: AudioWorkletNodeOptions = {}, eventInterval: number = 16): Promise<AudioWorkletNode> {
+  async initialize(audioContext: BaseAudioContext, workletOptions: AudioWorkletNodeOptions = {}, eventInterval: number = 16): Promise<AudioWorkletNode> {
     invariant(typeof audioContext === 'object' && audioContext !== null, 'First argument to initialize must be a valid AudioContext instance.');
     invariant(typeof workletOptions === 'object' && workletOptions !== null, 'The optional second argument to initialize must be an object.');
 
@@ -32,7 +32,7 @@ export default class WebRenderer extends EventEmitter {
     // AudioContext twice, the browser will throw an error. We don't have any way to ask the AudioContext what
     // worklets it has already registered, so our only option here is to keep some state around to check for
     // ourselves. Writing to the AudioContext like this is hacky, but it works. An alternative would be keeping
-    // our own Map<AudioContext, boolean> but that feels like overkill.
+    // our own Map<BaseAudioContext, boolean> but that feels like overkill.
     //
     // @ts-ignore
     if (typeof audioContext._elemWorkletRegistry !== 'object') {
