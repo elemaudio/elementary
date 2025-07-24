@@ -269,6 +269,12 @@ namespace elem
                     }
                 }
 
+                // Clean up key mappings for the node being removed
+                std::erase_if(keyToNodeIdMap, [nodeId](const auto& pair) {
+                    return pair.second == nodeId;
+                });
+                
+                
                 it = nodeTable.erase(it);
             } else {
                 it++;
