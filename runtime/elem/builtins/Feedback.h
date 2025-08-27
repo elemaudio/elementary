@@ -27,7 +27,7 @@ namespace elem
                 if (!val.isString())
                     return ReturnCode::InvalidPropertyType();
 
-                auto ref = resources.getTapResource((js::String) val, [=]() {
+                auto ref = resources.getTapResource((js::String) val, [this]() {
                     return std::make_shared<AudioBufferResource>(1, GraphNode<FloatType>::getBlockSize());
                 });
 
@@ -77,7 +77,7 @@ namespace elem
                 if (!val.isString())
                     return ReturnCode::InvalidPropertyType();
 
-                auto ref = resources.getTapResource((js::String) val, [=]() {
+                auto ref = resources.getTapResource((js::String) val, [this]() {
                     return std::make_shared<AudioBufferResource>(1, GraphNode<FloatType>::getBlockSize());
                 });
 

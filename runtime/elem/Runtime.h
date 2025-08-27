@@ -150,6 +150,7 @@ namespace elem
 
         double sampleRate;
         int blockSize;
+
     };
 
     //==============================================================================
@@ -325,6 +326,7 @@ namespace elem
 
         if (nodeTable.find(nodeId) == nodeTable.end())
             return ReturnCode::NodeNotFound();
+
 
         // This is intentionally called on the non-realtime thread. It is the job
         // of the GraphNode to ensure thread safety between calls to setProperty
@@ -576,4 +578,4 @@ namespace elem
         return rseq;
     }
 
-} // namespace elem
+}  // namespace elem
