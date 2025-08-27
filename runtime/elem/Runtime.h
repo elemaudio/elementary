@@ -109,10 +109,6 @@ namespace elem
         // Returns a copy of the internal graph state representing all known nodes and properties
         js::Object snapshot();
 
-        // Returns a node ID given a property key
-        // This is useful for finding nodes by specific property keys
-        js::Value getNodeIdByKey(std::string const& key);
-
     private:
         //==============================================================================
         // The rendering interface
@@ -138,8 +134,6 @@ namespace elem
 
         //==============================================================================
         std::unordered_map<std::string, NodeFactoryFn> nodeFactory;
-        // Map of property keys to node IDs
-        std::unordered_map<std::string, NodeId> keyToNodeIdMap;
 
         struct GraphEntry {
             std::shared_ptr<GraphNode<FloatType>> node;
@@ -269,12 +263,6 @@ namespace elem
                     }
                 }
 
-                // Clean up key mappings for the node being removed
-                std::erase_if(keyToNodeIdMap, [nodeId](const auto& pair) {
-                    return pair.second == nodeId;
-                });
-                
-                
                 it = nodeTable.erase(it);
             } else {
                 it++;
@@ -338,14 +326,6 @@ namespace elem
 
         if (nodeTable.find(nodeId) == nodeTable.end())
             return ReturnCode::NodeNotFound();
-
-        // If the property is "key", update our key-to-nodeId mapping
-        if (prop == "key" && v.isString())
-        {
-            auto const key = (js::String)v;
-            keyToNodeIdMap[key] = nodeId;
-            ELEM_DBG("[Runtime::setProperty] Mapped key " << key << " to nodeId " << nodeIdToHex(nodeId));
-        }
 
 
         // This is intentionally called on the non-realtime thread. It is the job
@@ -596,21 +576,6 @@ namespace elem
         }
 
         return rseq;
-    }
-
-    template <typename FloatType>
-    js::Value Runtime<FloatType>::getNodeIdByKey(std::string const& key)
-    {
-        auto it = keyToNodeIdMap.find(key);
-        if (it != keyToNodeIdMap.end())
-        {
-            auto nodeId = it->second;
-            ELEM_DBG("[Runtime::getNodeIdByKey] Found nodeId " << nodeIdToHex(nodeId) << " for key " << key);
-            return js::Number(nodeId);
-        }
-
-        ELEM_DBG("[Runtime::getNodeIdByKey] No nodeId found for key " << key);
-        return js::Value();  // Return null/undefined value
     }
 
 }  // namespace elem
