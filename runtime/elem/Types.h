@@ -3,6 +3,10 @@
 #include <algorithm>
 #include <sstream>
 #include <unordered_map>
+#include <variant>
+#include <vector>
+#include <any>
+#include <typeindex>
 
 
 namespace elem
@@ -86,6 +90,72 @@ namespace elem
     };
 
     //==============================================================================
+    struct ParamValueEvent {
+        size_t paramIndex;
+        float value;
+    };
+
+    // TODO: AssignedMidiEvent which also has a voice index value
+    struct MidiEvent {
+        std::array<uint8_t, 3> message;
+        // choc::midi::ShortMessage message;
+    };
+
+    // Type-erased event structure that can hold any event type
+    struct Event {
+        size_t time;
+        std::any data;
+
+        template <typename T>
+        Event(size_t t, T&& d)
+            : time(t)
+            , data(std::forward<T>(d))
+        {}
+
+        template <typename T>
+        T* get_if() {
+            if (std::type_index(data.type()) == std::type_index(typeid(T))) {
+                return std::any_cast<T>(&data);
+            }
+
+            return nullptr;
+        }
+
+        template <typename T>
+        T const* get_if() const {
+            if (std::type_index(data.type()) == std::type_index(typeid(T))) {
+                return std::any_cast<T>(&data);
+            }
+
+            return nullptr;
+        }
+    };
+
+    struct BlockEvents {
+        std::vector<Event> storage;
+
+        // Helper for adding events
+        template <typename T>
+        inline void addEvent(size_t time, T&& data) {
+            storage.emplace_back(time, std::forward<T>(data));
+        }
+
+        // Helper to process events of a specific type
+        template <typename T, typename Handler>
+        inline void processEventsOfType(const BlockEvents& events, Handler&& handler) {
+            for (auto const& event : storage) {
+                if (auto* data = event.get_if<T>()) {
+                    handler(event.time, *data);
+                }
+            }
+        }
+
+        // Reset the internal storage
+        inline void clear() {
+            storage.clear();
+        }
+    };
+
     // A simple struct representing the inputs to a given GraphNode during the realtime
     // audio block processing step.
     template <typename FloatType>
@@ -98,6 +168,8 @@ namespace elem
         size_t numSamples;
         void* userData;
         bool active;
+        BlockEvents const& inputEvents;
+        BlockEvents& outputEvents;
     };
 
     //==============================================================================
