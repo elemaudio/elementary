@@ -56,6 +56,13 @@ namespace elem
             size_t numSamples,
             void* userData = nullptr);
 
+        // Run the internal audio processing callback with a BlockContext
+        //
+        // This allows invoking the process callback with a BlockContext
+        // directly. The BlockContext uses type-erased events, allowing
+        // the caller to pass any custom event types without template parameters.
+        void process(BlockContext<FloatType> const& ctx);
+
         //==============================================================================
         // Process queued events
         //
@@ -275,6 +282,26 @@ namespace elem
     template <typename FloatType>
     void Runtime<FloatType>::process(const FloatType** inputChannelData, size_t numInputChannels, FloatType** outputChannelData, size_t numOutputChannels, size_t numSamples, void* userData)
     {
+        BlockEvents emptyInputEvents;
+        // SmallVec!
+        BlockEvents emptyOutputEvents;
+
+        process(BlockContext<FloatType> {
+            inputChannelData,
+            numInputChannels,
+            outputChannelData,
+            numOutputChannels,
+            numSamples,
+            userData,
+            true,
+            emptyInputEvents,
+            emptyOutputEvents
+        });
+    }
+
+    template <typename FloatType>
+    void Runtime<FloatType>::process(BlockContext<FloatType> const& ctx)
+    {
         if (rseqQueue.size() > 0) {
             std::shared_ptr<GraphRenderSequence<FloatType>> rseq;
 
@@ -286,7 +313,7 @@ namespace elem
         }
 
         if (rtRenderSeq) {
-            rtRenderSeq->process(inputChannelData, numInputChannels, outputChannelData, numOutputChannels, numSamples, userData);
+            rtRenderSeq->process(ctx);
         }
     }
 

@@ -109,15 +109,17 @@ namespace elem
                 outputPtrs[i] = bufferMap.at({node->getId(), i});
             }
 
-            renderOps.push_back([=, outputPtrs = std::move(outputPtrs)](BlockContext<FloatType> const& ctx) mutable {
+            renderOps.push_back([=, outputPtrs = std::move(outputPtrs)](BlockContext<FloatType> const& rootCtx) mutable {
                 node->process(BlockContext<FloatType> {
-                    ctx.inputData,
-                    ctx.numInputChannels,
+                    rootCtx.inputData,
+                    rootCtx.numInputChannels,
                     outputPtrs.data(),
                     numOuts,
-                    ctx.numSamples,
-                    ctx.userData,
-                    ctx.active
+                    rootCtx.numSamples,
+                    rootCtx.userData,
+                    rootCtx.active,
+                    rootCtx.inputEvents,
+                    rootCtx.outputEvents
                 });
             });
         }
@@ -159,15 +161,17 @@ namespace elem
                 inputPtrs[j] = bufferMap.at({inlet.source, inlet.outletChannel});
             }
 
-            renderOps.push_back([=, outputPtrs = std::move(outputPtrs), inputPtrs = std::move(inputPtrs)](BlockContext<FloatType> const& ctx) mutable {
+            renderOps.push_back([=, outputPtrs = std::move(outputPtrs), inputPtrs = std::move(inputPtrs)](BlockContext<FloatType> const& rootCtx) mutable {
                 node->process(BlockContext<FloatType> {
                     const_cast<const FloatType**>(inputPtrs.data()),
                     numChildren,
                     outputPtrs.data(),
                     numOuts,
-                    ctx.numSamples,
-                    ctx.userData,
-                    ctx.active
+                    rootCtx.numSamples,
+                    rootCtx.userData,
+                    rootCtx.active,
+                    rootCtx.inputEvents,
+                    rootCtx.outputEvents
                 });
             });
         }
@@ -195,13 +199,13 @@ namespace elem
             }
         }
 
-        void process(BlockContext<FloatType>& ctx)
+        void process(BlockContext<FloatType> const& hostCtx)
         {
             size_t const outChan = rootPtr->getChannelNumber();
 
             // Nothing to do if this root has stopped running or if it's aimed at
             // an invalid output channel
-            if (!rootPtr->stillRunning() || outChan < 0u || outChan >= ctx.numOutputChannels)
+            if (!rootPtr->stillRunning() || outChan < 0u || outChan >= hostCtx.numOutputChannels)
             {
                 if (needsReset)
                 {
@@ -219,16 +223,25 @@ namespace elem
             needsReset = true;
 
             // Run the subsequence
-            ctx.active = rootPtr->active();
             for (size_t i = 0; i < renderOps.size(); ++i) {
-                renderOps[i](ctx);
+                renderOps[i](BlockContext<FloatType> {
+                    hostCtx.inputData,
+                    hostCtx.numInputChannels,
+                    hostCtx.outputData,
+                    hostCtx.numOutputChannels,
+                    hostCtx.numSamples,
+                    hostCtx.userData,
+                    rootPtr->active(),
+                    hostCtx.inputEvents,
+                    hostCtx.outputEvents
+                });
             }
 
             // Sum into the output buffer
             auto* data = bufferMap.at({rootPtr->getId(), 0});
 
-            for (size_t j = 0; j < ctx.numSamples; ++j) {
-                ctx.outputData[outChan][j] += data[j];
+            for (size_t j = 0; j < hostCtx.numSamples; ++j) {
+                hostCtx.outputData[outChan][j] += data[j];
             }
         }
 
@@ -268,34 +281,18 @@ namespace elem
             });
         }
 
-        void process(
-            const FloatType** inputChannelData,
-            size_t numInputChannels,
-            FloatType** outputChannelData,
-            size_t numOutputChannels,
-            size_t numSamples,
-            void* userData)
+        void process(BlockContext<FloatType> const& hostCtx)
         {
-            BlockContext<FloatType> ctx {
-                inputChannelData,
-                numInputChannels,
-                outputChannelData,
-                numOutputChannels,
-                numSamples,
-                userData,
-                true, // Will be rewritten by each root render sequence accordingly
-            };
-
             // Clear the output channels
-            for (size_t i = 0; i < numOutputChannels; ++i) {
-                for (size_t j = 0; j < numSamples; ++j) {
-                    outputChannelData[i][j] = FloatType(0);
+            for (size_t i = 0; i < hostCtx.numOutputChannels; ++i) {
+                for (size_t j = 0; j < hostCtx.numSamples; ++j) {
+                    hostCtx.outputData[i][j] = FloatType(0);
                 }
             }
 
             // Process subsequences
             for (auto& sq : subseqs) {
-                sq.process(ctx);
+                sq.process(hostCtx);
             }
 
             // Promote tap buffers.
@@ -308,7 +305,7 @@ namespace elem
             // the new tapOut node would clobber whatever's in the tap table because it promotes before
             // it gets a chance to see what its corresponding tapIn is providing.
             for (auto& sq : subseqs) {
-                sq.promoteTapBuffers(numSamples);
+                sq.promoteTapBuffers(hostCtx.numSamples);
             }
         }
 
