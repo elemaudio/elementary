@@ -167,6 +167,7 @@ namespace elem
         : bufferAllocator(blockSize)
         , sampleRate(sampleRate)
         , blockSize(blockSize)
+        , renderSeqPool(4, static_cast<size_t>(blockSize))
     {
         DefaultNodeTypes<FloatType>::forEach([this](std::string const& type, NodeFactoryFn&& fn) {
             registerNodeType(type, std::move(fn));
@@ -550,13 +551,10 @@ namespace elem
     std::shared_ptr<GraphRenderSequence<FloatType>> Runtime<FloatType>::buildRenderSequence()
     {
         // Grab a fresh render sequence
-        auto rseq = renderSeqPool.allocate();
+        auto rseq = renderSeqPool.allocate(static_cast<size_t>(blockSize));
 
         // Clear in case it was already used
         rseq->reset();
-
-        // Reset our buffer allocator
-        bufferAllocator.reset();
 
         // Here we iterate all current roots and visit the graph from each
         // root, pushing onto the render sequence.
@@ -588,15 +586,14 @@ namespace elem
         }
 
         for (auto& ptr : sortedRoots) {
-            RootRenderSequence<FloatType> rrs(rseq->bufferMap, ptr);
+            RootRenderSequence<FloatType> rrs(rseq->bufferPool, ptr);
 
             std::vector<NodeId> visitOrder;
             traverse(visited, visitOrder, ptr->getId());
 
             std::for_each(visitOrder.begin(), visitOrder.end(), [&](NodeId const& nid) {
                 auto& entry = nodeTable.at(nid);
-
-                rrs.push(bufferAllocator, entry.node, entry.inlets, entry.outlets);
+                rrs.push(entry.node, entry.inlets, entry.outlets);
             });
 
             rseq->push(std::move(rrs));

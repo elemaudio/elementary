@@ -1,9 +1,11 @@
 #pragma once
 
+#include <algorithm>
 #include <list>
 #include <unordered_map>
 
 #include "DefaultNodeTypes.h"
+#include "FloatBufferPool.h"
 #include "Types.h"
 
 
@@ -85,12 +87,12 @@ namespace elem
     class RootRenderSequence
     {
     public:
-        RootRenderSequence(std::unordered_map<std::pair<NodeId, size_t>, FloatType*, BufferMapKeyHash>& bm, std::shared_ptr<RootNode<FloatType>>& root)
+        RootRenderSequence(FloatBufferPool<FloatType>& pool, std::shared_ptr<RootNode<FloatType>>& root)
             : rootPtr(root)
-            , bufferMap(bm)
+            , m_bufferPool(pool)
         {}
 
-        void push(BufferAllocator<FloatType>& ba, std::shared_ptr<GraphNode<FloatType>>& node, std::vector<OutletConnection> const& outlets)
+        void push(std::shared_ptr<GraphNode<FloatType>>& node, std::vector<OutletConnection> const& outlets)
         {
             // First we update our node and tap registry to make sure we can easily visit them
             // for tap promotion and event propagation
@@ -101,34 +103,29 @@ namespace elem
             }
 
             // Next we prepare the render operation
-            auto const numOuts = getRequiredOutputChannels(outlets);
-            std::vector<FloatType*> outputPtrs(numOuts);
+            auto outputChannels = m_bufferPool.produce(node->getId(), outlets);
+            // auto outputEvents = midiBufferPool.produce(numParents);
 
-            for (size_t i = 0; i < numOuts; ++i) {
-                bufferMap.insert({{node->getId(), i}, ba.next()});
-                outputPtrs[i] = bufferMap.at({node->getId(), i});
-            }
-
-            renderOps.push_back([=, outputPtrs = std::move(outputPtrs)](BlockContext<FloatType> const& rootCtx) mutable {
+            renderOps.push_back([node, outputChannels = std::move(outputChannels)](BlockContext<FloatType> const& rootCtx) mutable {
                 node->process(BlockContext<FloatType> {
                     rootCtx.inputData,
                     rootCtx.numInputChannels,
-                    outputPtrs.data(),
-                    numOuts,
+                    outputChannels.data(),
+                    outputChannels.size(),
                     rootCtx.numSamples,
                     rootCtx.userData,
                     rootCtx.active,
                     rootCtx.inputEvents,
-                    rootCtx.outputEvents
+                    rootCtx.outputEvents,
                 });
             });
         }
 
-        void push(BufferAllocator<FloatType>& ba, std::shared_ptr<GraphNode<FloatType>>& node, std::vector<InletConnection> const& inlets, std::vector<OutletConnection> const& outlets)
+        void push(std::shared_ptr<GraphNode<FloatType>>& node, std::vector<InletConnection> const& inlets, std::vector<OutletConnection> const& outlets)
         {
             // Check if we're dealing with a leaf node
             if (inlets.size() == 0) {
-                return push(ba, node, outlets);
+                return push(node, outlets);
             }
 
             // First we update our node and tap registry to make sure we can easily visit them
@@ -139,34 +136,23 @@ namespace elem
                 tapList.push_back(tap);
             }
 
-            // Next we prepare the render operation
-            auto const numOuts = getRequiredOutputChannels(outlets);
-            std::vector<FloatType*> outputPtrs(numOuts);
-
-            for (size_t i = 0; i < numOuts; ++i) {
-                bufferMap.insert({{node->getId(), i}, ba.next()});
-                outputPtrs[i] = bufferMap.at({node->getId(), i});
-            }
-
-            // Allocate room for the child pointers here, gets moved into the lambda capture group below
-            std::vector<FloatType*> inputPtrs(inlets.size());
-            auto const numChildren = inlets.size();
-
             // Gives the node a chance to prepare anything that might dynamically depend on
             // the number of input signals
-            node->setProperty("_internal:numChildren", elem::js::Number(numChildren));
+            node->setProperty("_internal:numChildren", elem::js::Number(inlets.size()));
 
-            for (size_t j = 0; j < numChildren; ++j) {
-                auto const& inlet = inlets[j];
-                inputPtrs[j] = bufferMap.at({inlet.source, inlet.outletChannel});
-            }
+            // Next we prepare the render operation
+            auto outputChannels = m_bufferPool.produce(node->getId(), outlets);
+            auto inputChannels = m_bufferPool.consume(inlets);
 
-            renderOps.push_back([=, outputPtrs = std::move(outputPtrs), inputPtrs = std::move(inputPtrs)](BlockContext<FloatType> const& rootCtx) mutable {
+            // auto inputEvents = midiBufferPool.consume(inlets);
+            // auto outputEvents = midiBufferPool.produce(numParents);
+
+            renderOps.push_back([node, outputChannels = std::move(outputChannels), inputChannels = std::move(inputChannels)](BlockContext<FloatType> const& rootCtx) mutable {
                 node->process(BlockContext<FloatType> {
-                    const_cast<const FloatType**>(inputPtrs.data()),
-                    numChildren,
-                    outputPtrs.data(),
-                    numOuts,
+                    const_cast<const FloatType**>(inputChannels.data()),
+                    inputChannels.size(),
+                    outputChannels.data(),
+                    outputChannels.size(),
                     rootCtx.numSamples,
                     rootCtx.userData,
                     rootCtx.active,
@@ -238,7 +224,7 @@ namespace elem
             }
 
             // Sum into the output buffer
-            auto* data = bufferMap.at({rootPtr->getId(), 0});
+            auto* data = m_bufferPool.peek(rootPtr->getId(), 0);
 
             for (size_t j = 0; j < hostCtx.numSamples; ++j) {
                 hostCtx.outputData[outChan][j] += data[j];
@@ -249,7 +235,7 @@ namespace elem
         std::shared_ptr<RootNode<FloatType>> rootPtr;
         std::vector<std::shared_ptr<GraphNode<FloatType>>> nodeList;
         std::vector<std::shared_ptr<TapOutNode<FloatType>>> tapList;
-        std::unordered_map<std::pair<NodeId, size_t>, FloatType*, BufferMapKeyHash>& bufferMap;
+        FloatBufferPool<FloatType>& m_bufferPool;
 
         using RenderOperation = std::function<void(BlockContext<FloatType> const& context)>;
         std::vector<RenderOperation> renderOps;
@@ -261,12 +247,15 @@ namespace elem
     class GraphRenderSequence
     {
     public:
-        GraphRenderSequence() = default;
+        GraphRenderSequence(size_t blockSize)
+        : bufferPool(blockSize)
+        {
+        }
 
         void reset()
         {
             subseqs.clear();
-            bufferMap.clear();
+            bufferPool.clear();
         }
 
         void push(RootRenderSequence<FloatType>&& sq)
@@ -309,7 +298,7 @@ namespace elem
             }
         }
 
-        std::unordered_map<std::pair<NodeId, size_t>, FloatType*, BufferMapKeyHash> bufferMap;
+        FloatBufferPool<FloatType> bufferPool;
 
     private:
         std::vector<RootRenderSequence<FloatType>> subseqs;
