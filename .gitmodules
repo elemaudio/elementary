@@ -7,3 +7,6 @@
 [submodule "runtime/elem/third-party/signalsmith-stretch"]
 	path = runtime/elem/third-party/signalsmith-stretch
 	url = https://github.com/Signalsmith-Audio/signalsmith-stretch.git
+[submodule "runtime/elem/third-party/choc"]
+	path = runtime/elem/third-party/choc
+	url = https://github.com/Tracktion/choc.git
