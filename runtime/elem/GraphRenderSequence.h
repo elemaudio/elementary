@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "DefaultNodeTypes.h"
+#include "BlockEventsBufferPool.h"
 #include "FloatBufferPool.h"
 #include "Types.h"
 
@@ -87,9 +88,10 @@ namespace elem
     class RootRenderSequence
     {
     public:
-        RootRenderSequence(FloatBufferPool<FloatType>& pool, std::shared_ptr<RootNode<FloatType>>& root)
+        RootRenderSequence(FloatBufferPool<FloatType>& pool, BlockEventsBufferPool& eventsPool, std::shared_ptr<RootNode<FloatType>>& root)
             : rootPtr(root)
             , m_bufferPool(pool)
+            , m_eventsBufferPool(eventsPool)
         {}
 
         void push(std::shared_ptr<GraphNode<FloatType>>& node, std::vector<OutletConnection> const& outlets)
@@ -104,9 +106,9 @@ namespace elem
 
             // Next we prepare the render operation
             auto outputChannels = m_bufferPool.produce(node->getId(), outlets);
-            // auto outputEvents = midiBufferPool.produce(numParents);
+            auto& outputEvents = m_eventsBufferPool.produce(node->getId(), outlets);
 
-            renderOps.push_back([node, outputChannels = std::move(outputChannels)](BlockContext<FloatType> const& rootCtx) mutable {
+            renderOps.push_back([node, &outputEvents, outputChannels = std::move(outputChannels)](BlockContext<FloatType> const& rootCtx) mutable {
                 node->process(BlockContext<FloatType> {
                     rootCtx.inputData,
                     rootCtx.numInputChannels,
@@ -116,7 +118,7 @@ namespace elem
                     rootCtx.userData,
                     rootCtx.active,
                     rootCtx.inputEvents,
-                    rootCtx.outputEvents,
+                    outputEvents,
                 });
             });
         }
@@ -144,10 +146,10 @@ namespace elem
             auto outputChannels = m_bufferPool.produce(node->getId(), outlets);
             auto inputChannels = m_bufferPool.consume(inlets);
 
-            // auto inputEvents = midiBufferPool.consume(inlets);
-            // auto outputEvents = midiBufferPool.produce(numParents);
+            auto& inputEvents = m_eventsBufferPool.consume(inlets);
+            auto& outputEvents = m_eventsBufferPool.produce(node->getId(), outlets);
 
-            renderOps.push_back([node, outputChannels = std::move(outputChannels), inputChannels = std::move(inputChannels)](BlockContext<FloatType> const& rootCtx) mutable {
+            renderOps.push_back([node, &inputEvents, &outputEvents, outputChannels = std::move(outputChannels), inputChannels = std::move(inputChannels)](BlockContext<FloatType> const& rootCtx) mutable {
                 node->process(BlockContext<FloatType> {
                     const_cast<const FloatType**>(inputChannels.data()),
                     inputChannels.size(),
@@ -156,8 +158,8 @@ namespace elem
                     rootCtx.numSamples,
                     rootCtx.userData,
                     rootCtx.active,
-                    rootCtx.inputEvents,
-                    rootCtx.outputEvents
+                    inputEvents,
+                    outputEvents,
                 });
             });
         }
@@ -236,6 +238,7 @@ namespace elem
         std::vector<std::shared_ptr<GraphNode<FloatType>>> nodeList;
         std::vector<std::shared_ptr<TapOutNode<FloatType>>> tapList;
         FloatBufferPool<FloatType>& m_bufferPool;
+        BlockEventsBufferPool& m_eventsBufferPool;
 
         using RenderOperation = std::function<void(BlockContext<FloatType> const& context)>;
         std::vector<RenderOperation> renderOps;
@@ -299,6 +302,7 @@ namespace elem
         }
 
         FloatBufferPool<FloatType> bufferPool;
+        BlockEventsBufferPool eventsBufferPool;
 
     private:
         std::vector<RootRenderSequence<FloatType>> subseqs;
