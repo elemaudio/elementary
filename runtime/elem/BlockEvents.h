@@ -17,6 +17,10 @@ struct ParamValueEvent {
 
 struct MidiEvent {
     choc::midi::ShortMessage message;
+
+    MidiEvent(uint8_t byte0, uint8_t byte1, uint8_t byte2)
+        : message(byte0, byte1, byte2)
+    {}
 };
 
 struct AssignedMidiEvent {
@@ -73,7 +77,7 @@ struct BlockEvents {
 
     // Helper to process events of a specific type
     template <typename T, typename Handler>
-    inline void processEventsOfType(const BlockEvents& events, Handler&& handler) {
+    inline void processEventsOfType(Handler&& handler) const {
         for (auto const& event : storage) {
             if (auto* data = event.get_if<T>()) {
                 handler(event.time, *data);

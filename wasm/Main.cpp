@@ -190,6 +190,14 @@ public:
         return ret;
     }
 
+    void pushMidiEvent(int time, int value) {
+        uint8_t byte2 = static_cast<uint8_t>(value & 0xFF);
+        uint8_t byte1 = static_cast<uint8_t>((value >> 8) & 0xFF);
+        uint8_t byte0 = static_cast<uint8_t>((value >> 16) & 0xFF);
+
+        inputEvents.addEvent(static_cast<size_t>(time), elem::MidiEvent(byte0, byte1, byte2));
+    }
+
     /** Audio block processing. */
     void process (int const numSamples)
     {
@@ -203,16 +211,23 @@ public:
         // We just operate on our scratch data. Expect the JavaScript caller to hit
         // our getInputBufferData and getOutputBufferData to prepare and extract the actual
         // data for this processor
-        runtime->process(
+        runtime->process(elem::BlockContext<double> {
             const_cast<const double**>(scratchPointers.data()),
             numInputChannels,
             scratchPointers.data() + numInputChannels,
             numOutputChannels,
-            numSamples,
-            static_cast<void*>(&sampleTime)
-        );
+            static_cast<size_t>(numSamples),
+            static_cast<void*>(&sampleTime),
+            true,
+            inputEvents,
+            outputEvents,
+        });
 
         sampleTime += static_cast<int64_t>(numSamples);
+
+        // Prepare to receive new events before the next call
+        inputEvents.clear();
+        outputEvents.clear();
     }
 
     /** Callback events. */
@@ -369,6 +384,9 @@ private:
 
     size_t numInputChannels = 0;
     size_t numOutputChannels = 2;
+
+    elem::BlockEvents inputEvents;
+    elem::BlockEvents outputEvents;
 };
 
 EMSCRIPTEN_BINDINGS(Elementary) {
@@ -383,6 +401,7 @@ EMSCRIPTEN_BINDINGS(Elementary) {
         .function("addSharedResource", &ElementaryAudioProcessor::addSharedResource)
         .function("pruneSharedResources", &ElementaryAudioProcessor::pruneSharedResources)
         .function("listSharedResources", &ElementaryAudioProcessor::listSharedResources)
+        .function("pushMidiEvent", &ElementaryAudioProcessor::pushMidiEvent)
         .function("process", &ElementaryAudioProcessor::process)
         .function("processQueuedEvents", &ElementaryAudioProcessor::processQueuedEvents)
         .function("setCurrentTime", &ElementaryAudioProcessor::setCurrentTime)
