@@ -12,6 +12,7 @@
 #include "builtins/filters/SVFShelf.h"
 #include "builtins/Capture.h"
 #include "builtins/Math.h"
+#include "builtins/MIDI.h"
 #include "builtins/Oscillators.h"
 #include "builtins/Noise.h"
 #include "builtins/Sample.h"
@@ -141,6 +142,9 @@ namespace elem
             callback("scope",           GenericNodeFactory<ScopeNode<FloatType>>());
             callback("snapshot",        GenericNodeFactory<SnapshotNode<FloatType>>());
             callback("capture",         GenericNodeFactory<CaptureNode<FloatType>>());
+
+            // MIDI Event nodes
+            callback("midinotein",      GenericNodeFactory<MidiNoteInNode<FloatType>>());
         }
     };
 
