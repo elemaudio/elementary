@@ -28,23 +28,38 @@ struct AssignedMidiEvent {
     size_t voiceIndex;
 };
 
-// Type-erased event structure that can hold any event type
+// Type-erased event structure that can hold any event type within a certain
+// size. The event struct holds its data strictly in stack-allocated space.
 struct BlockEvent {
     size_t time;
-    // TODO: Could allocate on large types?? Convert to a stack managed
-    // pattern here...
-    std::any data;
+
+    static constexpr size_t kMaxObjectSize = 64;
+    alignas(std::max_align_t) char data[kMaxObjectSize];
+    std::type_index typeIndex;
+    void(*destructor)(void*) = nullptr;
 
     template <typename T>
     BlockEvent(size_t t, T&& d)
         : time(t)
-        , data(std::forward<T>(d))
-    {}
+        , typeIndex(std::type_index(typeid(T)))
+    {
+        static_assert(sizeof(T) <= kMaxObjectSize, "Type too large for BlockEvent buffer");
+        static_assert(alignof(T) <= alignof(std::max_align_t), "Type alignment too strict");
+
+        new(data) T(std::forward<T>(d));
+        destructor = [](void* ptr) { static_cast<T*>(ptr)->~T(); };
+    }
+
+    ~BlockEvent() {
+        if (destructor) {
+            destructor(data);
+        }
+    }
 
     template <typename T>
     T* get_if() {
-        if (std::type_index(data.type()) == std::type_index(typeid(T))) {
-            return std::any_cast<T>(&data);
+        if (std::type_index(typeid(T)) == typeIndex) {
+            return reinterpret_cast<T*>(&data);
         }
 
         return nullptr;
@@ -52,8 +67,8 @@ struct BlockEvent {
 
     template <typename T>
     T const* get_if() const {
-        if (std::type_index(data.type()) == std::type_index(typeid(T))) {
-            return std::any_cast<T>(&data);
+        if (std::type_index(typeid(T)) == typeIndex) {
+            return reinterpret_cast<T const*>(&data);
         }
 
         return nullptr;
