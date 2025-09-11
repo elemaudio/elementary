@@ -8,7 +8,6 @@ const EventTypes = {
   RESET: 7,
 };
 
-
 // A recursive function looking for transferable objects per the Web Worker API
 // @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects
 //
@@ -18,7 +17,7 @@ const EventTypes = {
 function findTransferables(val, transferables = []) {
   if (val instanceof Float32Array) {
     transferables.push(val.buffer);
-  } else if (typeof val === 'object') {
+  } else if (typeof val === "object") {
     if (Array.isArray(val)) {
       for (let i = 0; i < val.length; ++i) {
         findTransferables(val[i], transferables);
@@ -38,10 +37,16 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
     super(options);
 
     const numInputChannels = options.numberOfInputs;
-    const numOutputChannels = options.outputChannelCount.reduce((acc, next) => acc + next, 0);
+    const numOutputChannels = options.outputChannelCount.reduce(
+      (acc, next) => acc + next,
+      0,
+    );
 
     this._module = Module();
-    this._native = new this._module.ElementaryAudioProcessor(numInputChannels, numOutputChannels);
+    this._native = new this._module.ElementaryAudioProcessor(
+      numInputChannels,
+      numOutputChannels,
+    );
 
     // The `sampleRate` variable is a globally defined constant in the AudioWorkletGlobalScope.
     // We also manually set a block size of 128 samples here, per the Web Audio API spec.
@@ -49,14 +54,16 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
     // See: https://webaudio.github.io/web-audio-api/#rendering-loop
     this._native.prepare(sampleRate, 128);
 
-    const hasProcOpts = options.hasOwnProperty('processorOptions') &&
-      typeof options.processorOptions === 'object' &&
+    const hasProcOpts =
+      options.hasOwnProperty("processorOptions") &&
+      typeof options.processorOptions === "object" &&
       options.processorOptions !== null;
 
     if (hasProcOpts) {
-      const {virtualFileSystem, ...other} = options.processorOptions;
+      const { virtualFileSystem, ...other } = options.processorOptions;
 
-      const validVFS = typeof virtualFileSystem === 'object' &&
+      const validVFS =
+        typeof virtualFileSystem === "object" &&
         virtualFileSystem !== null &&
         Object.keys(virtualFileSystem).length > 0;
 
@@ -65,96 +72,140 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
           let result = this._native.addSharedResource(key, val);
 
           if (!result.success) {
-            this.port.postMessage(['error', result.message]);
+            this.port.postMessage(["error", result.message]);
           }
         }
       }
     }
 
     this.port.onmessage = (e) => {
-      let {requestId, requestType, payload} = e.data;
+      let { requestId, requestType, payload } = e.data;
 
       switch (requestType) {
-        case 'processQueuedEvents':
+        case "processQueuedEvents":
           this._native.processQueuedEvents((evtBatch) => {
             if (evtBatch.length > 0) {
               let transferables = findTransferables(evtBatch);
-              this.port.postMessage(['events', evtBatch], transferables);
+              this.port.postMessage(["events", evtBatch], transferables);
             }
           });
 
           break;
-        case 'renderInstructions':
-          return this.port.postMessage(['reply', {
-            requestId,
-            result: this._native.postMessageBatch(payload.batch),
-          }]);
-        case 'updateSharedResourceMap':
+        case "renderInstructions":
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: this._native.postMessageBatch(payload.batch),
+            },
+          ]);
+        case "updateSharedResourceMap":
           for (let [key, val] of Object.entries(payload.resources)) {
             let result = this._native.addSharedResource(key, val);
 
             if (!result.success) {
-              return this.port.postMessage(['reply', {
-                requestId,
-                result,
-              }]);
+              return this.port.postMessage([
+                "reply",
+                {
+                  requestId,
+                  result,
+                },
+              ]);
             }
           }
 
-          return this.port.postMessage(['reply', {
-            requestId,
-            result: null,
-          }]);
-        case 'reset':
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: null,
+            },
+          ]);
+        case "reset":
           this._native.reset();
 
-          return this.port.postMessage(['reply', {
-            requestId,
-            result: null,
-          }]);
-        case 'gc':
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: null,
+            },
+          ]);
+        case "gc":
           let pruned = this._native.gc();
 
-          return this.port.postMessage(['reply', {
-            requestId,
-            result: pruned,
-          }]);
-        case 'pruneVirtualFileSystem':
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: pruned,
+            },
+          ]);
+        case "pruneVirtualFileSystem":
           this._native.pruneSharedResources();
 
-          return this.port.postMessage(['reply', {
-            requestId,
-            result: null,
-          }]);
-        case 'listVirtualFileSystem':
-          return this.port.postMessage(['reply', {
-            requestId,
-            result: this._native.listSharedResources(),
-          }]);
-        case 'setCurrentTime':
-          return this.port.postMessage(['reply', {
-            requestId,
-            result: this._native.setCurrentTime(payload.time),
-          }]);
-        case 'setCurrentTimeMs':
-          return this.port.postMessage(['reply', {
-            requestId,
-            result: this._native.setCurrentTimeMs(payload.time),
-          }]);
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: null,
+            },
+          ]);
+        case "listVirtualFileSystem":
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: this._native.listSharedResources(),
+            },
+          ]);
+        case "setCurrentTime":
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: this._native.setCurrentTime(payload.time),
+            },
+          ]);
+        case "setCurrentTimeMs":
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: this._native.setCurrentTimeMs(payload.time),
+            },
+          ]);
+        case "pushMidiEvent":
+          let packedValue = 0 | 0;
+
+          packedValue |= payload.value[0] << 16;
+          packedValue |= payload.value[1] << 8;
+          packedValue |= payload.value[2];
+
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: this._native.pushMidiEvent(payload.time, packedValue),
+            },
+          ]);
         default:
           break;
       }
     };
 
-    this.port.postMessage(['load', {
-      sampleRate,
-      blockSize: 128,
-      numInputChannels,
-      numOutputChannels,
-    }]);
+    this.port.postMessage([
+      "load",
+      {
+        sampleRate,
+        blockSize: 128,
+        numInputChannels,
+        numOutputChannels,
+      },
+    ]);
   }
 
-  process (inputs, outputs, parameters) {
+  process(inputs, outputs, parameters) {
     if (inputs.length > 0) {
       let m = 0;
 
@@ -172,9 +223,8 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
       }
     }
 
-    const numSamples = (outputs.length > 0 && outputs[0].length > 0)
-      ? outputs[0][0].length
-      : 0;
+    const numSamples =
+      outputs.length > 0 && outputs[0].length > 0 ? outputs[0][0].length : 0;
 
     this._native.process(numSamples);
 
@@ -200,4 +250,7 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
   }
 }
 
-registerProcessor(`ElementaryAudioWorkletProcessor@${__PKG_VERSION__}`, ElementaryAudioWorkletProcessor);
+registerProcessor(
+  `ElementaryAudioWorkletProcessor@${__PKG_VERSION__}`,
+  ElementaryAudioWorkletProcessor,
+);

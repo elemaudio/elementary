@@ -1,13 +1,10 @@
-import invariant from 'invariant';
+import invariant from "invariant";
 
-import {
-  EventEmitter,
-  Renderer,
-} from '@elemaudio/core';
+import { EventEmitter, Renderer } from "@elemaudio/core";
 
 /* @ts-ignore */
-import WorkletProcessor from './raw/WorkletProcessor';
-import WasmModule from './raw/elementary-wasm';
+import WorkletProcessor from "./raw/WorkletProcessor";
+import WasmModule from "./raw/elementary-wasm";
 
 // Injected at build time
 const pkgVersion = process.env.PKG_VERSION;
@@ -21,9 +18,19 @@ export default class WebRenderer extends EventEmitter {
 
   public context: BaseAudioContext = null;
 
-  async initialize(audioContext: BaseAudioContext, workletOptions: AudioWorkletNodeOptions = {}, eventInterval: number = 16): Promise<AudioWorkletNode> {
-    invariant(typeof audioContext === 'object' && audioContext !== null, 'First argument to initialize must be a valid AudioContext instance.');
-    invariant(typeof workletOptions === 'object' && workletOptions !== null, 'The optional second argument to initialize must be an object.');
+  async initialize(
+    audioContext: BaseAudioContext,
+    workletOptions: AudioWorkletNodeOptions = {},
+    eventInterval: number = 16,
+  ): Promise<AudioWorkletNode> {
+    invariant(
+      typeof audioContext === "object" && audioContext !== null,
+      "First argument to initialize must be a valid AudioContext instance.",
+    );
+    invariant(
+      typeof workletOptions === "object" && workletOptions !== null,
+      "The optional second argument to initialize must be an object.",
+    );
 
     // Hold a reference here for easier access to the underlying AudioContext
     this.context = audioContext;
@@ -35,7 +42,7 @@ export default class WebRenderer extends EventEmitter {
     // our own Map<BaseAudioContext, boolean> but that feels like overkill.
     //
     // @ts-ignore
-    if (typeof audioContext._elemWorkletRegistry !== 'object') {
+    if (typeof audioContext._elemWorkletRegistry !== "object") {
       // @ts-ignore
       audioContext._elemWorkletRegistry = {};
     }
@@ -44,11 +51,15 @@ export default class WebRenderer extends EventEmitter {
     const workletRegistry = audioContext._elemWorkletRegistry;
 
     if (!workletRegistry.hasOwnProperty(pkgVersion)) {
-      const blob = new Blob([WasmModule, WorkletProcessor], {type: 'text/javascript'});
+      const blob = new Blob([WasmModule, WorkletProcessor], {
+        type: "text/javascript",
+      });
       const blobUrl = URL.createObjectURL(blob);
 
       if (!audioContext.audioWorklet) {
-        throw new Error("BaseAudioContext.audioWorklet is missing; are you running in a secure context (https)?");
+        throw new Error(
+          "BaseAudioContext.audioWorklet is missing; are you running in a secure context (https)?",
+        );
       }
 
       // This neat trick with the Blob URL allows me to inject the module without
@@ -62,11 +73,18 @@ export default class WebRenderer extends EventEmitter {
     this._promiseMap = new Map();
     this._nextRequestId = 0;
 
-    this._worklet = new AudioWorkletNode(audioContext, `ElementaryAudioWorkletProcessor@${pkgVersion}`, Object.assign({
-      numberOfInputs: 0,
-      numberOfOutputs: 1,
-      outputChannelCount: [2],
-    }, workletOptions));
+    this._worklet = new AudioWorkletNode(
+      audioContext,
+      `ElementaryAudioWorkletProcessor@${pkgVersion}`,
+      Object.assign(
+        {
+          numberOfInputs: 0,
+          numberOfOutputs: 1,
+          outputChannelCount: [2],
+        },
+        workletOptions,
+      ),
+    );
 
     // We defer the resolution of this method's result until we get the load
     // event back from the worklet. That way, if the user is awaiting the result
@@ -76,9 +94,9 @@ export default class WebRenderer extends EventEmitter {
       this._worklet.port.onmessage = (e) => {
         const [type, payload] = e.data;
 
-        if (type === 'load') {
+        if (type === "load") {
           this._renderer = new Renderer(async (batch) => {
-            return await this._sendWorkletRequest('renderInstructions', {
+            return await this._sendWorkletRequest("renderInstructions", {
               batch,
             });
           });
@@ -87,15 +105,15 @@ export default class WebRenderer extends EventEmitter {
           return this.emit(type, payload);
         }
 
-        if (type === 'events') {
+        if (type === "events") {
           return payload.forEach((e) => {
             this.emit(e.type, e.event);
           });
         }
 
-        if (type === 'reply') {
-          const {requestId, result} = payload;
-          const {resolve, reject} = this._promiseMap.get(requestId);
+        if (type === "reply") {
+          const { requestId, result } = payload;
+          const { resolve, reject } = this._promiseMap.get(requestId);
 
           this._promiseMap.delete(requestId);
 
@@ -106,14 +124,17 @@ export default class WebRenderer extends EventEmitter {
       // TODO: Clean up? Unsubscribe option?
       this._timer = window.setInterval(() => {
         this._worklet.port.postMessage({
-          requestType: 'processQueuedEvents',
+          requestType: "processQueuedEvents",
         });
       }, eventInterval);
     });
   }
 
   _sendWorkletRequest(requestType, payload) {
-    invariant(this._worklet, 'Can\'t send request before worklet is ready. Have you initialized your WebRenderer instance?');
+    invariant(
+      this._worklet,
+      "Can't send request before worklet is ready. Have you initialized your WebRenderer instance?",
+    );
 
     let requestId = this._nextRequestId++;
 
@@ -133,7 +154,7 @@ export default class WebRenderer extends EventEmitter {
   }
 
   async render(...args) {
-    const {result, ...stats} = await this._renderer.render(...args);
+    const { result, ...stats } = await this._renderer.render(...args);
 
     if (!result.success) {
       return Promise.reject(result);
@@ -143,49 +164,63 @@ export default class WebRenderer extends EventEmitter {
   }
 
   async updateVirtualFileSystem(vfs) {
-    const valid = typeof vfs === 'object' && vfs !== null;
+    const valid = typeof vfs === "object" && vfs !== null;
 
-    invariant(valid, "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values");
+    invariant(
+      valid,
+      "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values",
+    );
 
-    Object.keys(vfs).forEach(function(key) {
-      const validValue = typeof vfs[key] === 'object' &&
-        (Array.isArray(vfs[key]) || (vfs[key] instanceof Float32Array));
+    Object.keys(vfs).forEach(function (key) {
+      const validValue =
+        typeof vfs[key] === "object" &&
+        (Array.isArray(vfs[key]) || vfs[key] instanceof Float32Array);
 
-      invariant(validValue, "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values");
+      invariant(
+        validValue,
+        "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values",
+      );
     });
 
-    return await this._sendWorkletRequest('updateSharedResourceMap', {
+    return await this._sendWorkletRequest("updateSharedResourceMap", {
       resources: vfs,
     });
   }
 
   async pruneVirtualFileSystem() {
-    return await this._sendWorkletRequest('pruneVirtualFileSystem', {});
+    return await this._sendWorkletRequest("pruneVirtualFileSystem", {});
   }
 
   async listVirtualFileSystem() {
-    return await this._sendWorkletRequest('listVirtualFileSystem', {});
+    return await this._sendWorkletRequest("listVirtualFileSystem", {});
   }
 
   async reset() {
-    return await this._sendWorkletRequest('reset', {});
+    return await this._sendWorkletRequest("reset", {});
   }
 
   async gc() {
-    let pruned = await this._sendWorkletRequest('gc', {});
+    let pruned = await this._sendWorkletRequest("gc", {});
     this._renderer.prune(pruned);
     return pruned;
   }
 
   async setCurrentTime(t) {
-    return await this._sendWorkletRequest('setCurrentTime', {
-      time: t
+    return await this._sendWorkletRequest("setCurrentTime", {
+      time: t,
     });
   }
 
   async setCurrentTimeMs(t) {
-    return await this._sendWorkletRequest('setCurrentTimeMs', {
-      time: t
+    return await this._sendWorkletRequest("setCurrentTimeMs", {
+      time: t,
+    });
+  }
+
+  async pushMidiEvent(time, value) {
+    return await this._sendWorkletRequest("pushMidiEvent", {
+      time,
+      value,
     });
   }
 }
