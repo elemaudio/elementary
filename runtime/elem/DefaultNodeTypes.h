@@ -144,7 +144,9 @@ namespace elem
             callback("capture",         GenericNodeFactory<CaptureNode<FloatType>>());
 
             // MIDI Event nodes
-            callback("midinotein",      GenericNodeFactory<MidiNoteInNode<FloatType>>());
+            callback("midinotein",          GenericNodeFactory<MidiNoteInNode<FloatType>>());
+            callback("midinoteallocate",    GenericNodeFactory<MidiNoteAllocateNode<FloatType>>());
+            callback("midinoteunpack",      GenericNodeFactory<MidiNoteUnpackNode<FloatType>>());
         }
     };
 
