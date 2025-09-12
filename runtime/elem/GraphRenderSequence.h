@@ -109,6 +109,8 @@ namespace elem
             auto& outputEvents = m_eventsBufferPool.produce(node->getId(), outlets);
 
             renderOps.push_back([node, &outputEvents, outputChannels = std::move(outputChannels)](BlockContext<FloatType> const& rootCtx) mutable {
+                outputEvents.clear();
+
                 node->process(BlockContext<FloatType> {
                     rootCtx.inputData,
                     rootCtx.numInputChannels,
@@ -146,10 +148,15 @@ namespace elem
             auto outputChannels = m_bufferPool.produce(node->getId(), outlets);
             auto inputChannels = m_bufferPool.consume(inlets);
 
-            auto& inputEvents = m_eventsBufferPool.consume(inlets);
+            // Always produce before consume! Otherwise the pool might hand out the same buffer
+            // for input and output events, which would get cleared at the beginning of the op
+            // below.
             auto& outputEvents = m_eventsBufferPool.produce(node->getId(), outlets);
+            auto& inputEvents = m_eventsBufferPool.consume(inlets);
 
             renderOps.push_back([node, &inputEvents, &outputEvents, outputChannels = std::move(outputChannels), inputChannels = std::move(inputChannels)](BlockContext<FloatType> const& rootCtx) mutable {
+                outputEvents.clear();
+
                 node->process(BlockContext<FloatType> {
                     const_cast<const FloatType**>(inputChannels.data()),
                     inputChannels.size(),
