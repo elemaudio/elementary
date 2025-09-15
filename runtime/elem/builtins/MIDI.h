@@ -128,14 +128,12 @@ namespace elem
 
         int setProperty(std::string const& key, js::Value const& val) override
         {
-            // TODO: Filter by channel too?
-            if (key == "voice") {
+            if (key == "channel") {
                 if (!val.isNumber())
                     return ReturnCode::InvalidPropertyType();
 
-                auto v = static_cast<size_t>(std::max(0.0, (js::Number) val));
-                targetVoiceIndex.store(v);
-                filterByVoice.store(true);
+                auto v = static_cast<int32_t>(std::max(0.0, (js::Number) val));
+                channelFilter.store(v);
             }
 
             return GraphNode<FloatType>::setProperty(key, val);
@@ -143,8 +141,7 @@ namespace elem
 
         void process (BlockContext<FloatType> const& ctx) override {
             size_t framesProcessed = 0;
-            auto voiceFilter = filterByVoice.load();
-            auto voiceIndex = targetVoiceIndex.load();
+            int32_t const targetChannel = channelFilter.load();
 
             ctx.inputEvents.template processEventsOfType<MidiEvent>([&](size_t time, MidiEvent const& event) {
                 if (time >= ctx.numSamples)
@@ -153,7 +150,7 @@ namespace elem
                 if (!event.message.isNoteOn() && !event.message.isNoteOff())
                     return;
 
-                if (voiceFilter && (voiceIndex != event.message.getChannel0to15()))
+                if ((targetChannel >= 0) && (targetChannel != static_cast<int32_t>(event.message.getChannel0to15())))
                     return;
 
                 auto framesRemaining = ctx.numSamples - framesProcessed;
@@ -179,9 +176,7 @@ namespace elem
             }
         }
 
-        std::atomic<size_t> targetVoiceIndex = 0;
-        std::atomic<bool> filterByVoice = false;
-
+        std::atomic<int32_t> channelFilter = -1;
         FloatType noteFreq = 0;
         FloatType noteVelocity = 0;
     };
