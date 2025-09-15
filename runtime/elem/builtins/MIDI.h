@@ -122,6 +122,11 @@ namespace elem
         int64_t steadyClock = 0;
     };
 
+    // Maps incoming midi note events into audio signal data.
+    //
+    // This will constantly emit a pair of audio signals representing
+    // the note frequency (in Hz) and note velocity (0-1) of the most
+    // recent midi note that it has processed.
     template <typename FloatType>
     struct MidiNoteUnpackNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
@@ -179,6 +184,41 @@ namespace elem
         std::atomic<int32_t> channelFilter = -1;
         FloatType noteFreq = 0;
         FloatType noteVelocity = 0;
+    };
+
+    // A simple pitch utility for midi events.
+    //
+    // For every incoming midi note event, this will nudge the associated
+    // note value according to the steps property.
+    template <typename FloatType>
+    struct MidiNoteShiftNode : public GraphNode<FloatType> {
+        using GraphNode<FloatType>::GraphNode;
+
+        int setProperty(std::string const& key, js::Value const& val) override
+        {
+            if (key == "steps") {
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                auto v = static_cast<int32_t>((js::Number) val);
+                steps.store(v);
+            }
+
+            return GraphNode<FloatType>::setProperty(key, val);
+        }
+
+        void process (BlockContext<FloatType> const& ctx) override {
+            auto const s = steps.load();
+
+            ctx.inputEvents.template processEventsOfType<MidiEvent>([&](size_t time, MidiEvent const& event) {
+                auto* bytes = event.message.data();
+                auto newNoteValue = std::max(0, std::min(127, static_cast<int32_t>(bytes[1]) + s));
+                auto shiftedEvent = MidiEvent(bytes[0], static_cast<uint8_t>(newNoteValue), bytes[2]);
+                ctx.outputEvents.addEvent(time, std::move(shiftedEvent));
+            });
+        }
+
+        std::atomic<int32_t> steps = 0;
     };
 
 } // namespace elem

@@ -27,21 +27,6 @@ struct MidiEvent {
     {}
 };
 
-struct AssignedMidiEvent {
-    choc::midi::ShortMessage message;
-    size_t voiceIndex;
-
-    AssignedMidiEvent(uint8_t byte0, uint8_t byte1, uint8_t byte2)
-        : message(byte0, byte1, byte2)
-        , voiceIndex(0)
-    {}
-
-    AssignedMidiEvent(choc::midi::ShortMessage const& msg)
-        : message(msg)
-        , voiceIndex(0)
-    {}
-};
-
 // Type-erased event structure that can hold any event type within a certain
 // size. The event struct holds its data strictly in stack-allocated space.
 struct BlockEvent {

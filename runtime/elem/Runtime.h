@@ -284,7 +284,6 @@ namespace elem
     void Runtime<FloatType>::process(const FloatType** inputChannelData, size_t numInputChannels, FloatType** outputChannelData, size_t numOutputChannels, size_t numSamples, void* userData)
     {
         BlockEvents emptyInputEvents;
-        // SmallVec!
         BlockEvents emptyOutputEvents;
 
         process(BlockContext<FloatType> {
