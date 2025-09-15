@@ -24,7 +24,7 @@ namespace elem
     // Maps incoming MidiEvents to AssignedMidiEvents with polyphonic
     // voice assignment.
     //
-    // This uses MPE style voice allocation; where assigned voice is designated
+    // This uses MPE style voice allocation, where assigned voice is designated
     // by channel number. That means that we clobber the incoming channel number
     // assigned to the original event and rewrite it with a new number corresponding
     // to the assigned voice.
@@ -55,42 +55,71 @@ namespace elem
                     auto outEvent = MidiEvent((bytes[0] & 0xf0) | static_cast<uint8_t>(voiceIndex), bytes[1], bytes[2]);
 
                     ctx.outputEvents.addEvent(time, std::move(outEvent));
-                    voiceMap[voiceIndex] = bytes[1];
+                    voiceMap[voiceIndex].note = static_cast<int32_t>(bytes[1]);
+                    voiceMap[voiceIndex].lastModified = steadyClock + time;
                 }
 
                 if (event.message.isNoteOff()) {
-                    auto assignedVoice = std::find(voiceMap.begin(), voiceMap.end(), bytes[1]);
+                    auto assignedVoice = std::find_if(voiceMap.begin(), voiceMap.end(),
+                        [&bytes](const Assignment& a) { return a.note == static_cast<int32_t>(bytes[1]); });
 
                     if (assignedVoice != voiceMap.end()) {
                         auto voiceIndex = std::distance(voiceMap.begin(), assignedVoice);
                         auto outEvent = MidiEvent((bytes[0] & 0xf0) | static_cast<uint8_t>(voiceIndex), bytes[1], bytes[2]);
 
                         ctx.outputEvents.addEvent(time, std::move(outEvent));
+
                         // Clear the mapping
-                        //
-                        // TODO: Technically 0 is a valid midi note; maybe just use an int
-                        // and let -1 be "unallocated"?
-                        voiceMap[voiceIndex] = 0;
+                        voiceMap[voiceIndex].note = -1;
+                        voiceMap[voiceIndex].lastModified = steadyClock + time;
                     }
                 }
             });
+
+            steadyClock += ctx.numSamples;
         }
 
         size_t getFreeVoice() {
-            auto out = nextFreeVoice;
+            // The first free voice is the one in voiceMap that has note == -1
+            // and whose lastModified timestamp is the oldest (i.e. smallest value).
+            auto nv = numVoices.load();
+            size_t bestIndex = 0;
+            int64_t oldestTime = std::numeric_limits<int64_t>::max();
 
-            // TODO: This is round robin, need better
-            if (++nextFreeVoice >= (numVoices.load() - 1))
-                nextFreeVoice = 0;
+            for (size_t i = 0; i < nv; ++i) {
+                if (voiceMap[i].note == -1 && voiceMap[i].lastModified < oldestTime) {
+                    bestIndex = i;
+                    oldestTime = voiceMap[i].lastModified;
+                }
+            }
 
-            return out;
+            // If we found a free voice, return it
+            if (voiceMap[bestIndex].note == -1) {
+                return bestIndex;
+            }
+
+            // If there is no free voice, we want whichever voiceMap entry has the
+            // oldest lastModified timestamp, regardless of note value.
+            for (size_t i = 0; i < nv; ++i) {
+                if (voiceMap[i].lastModified < oldestTime) {
+                    bestIndex = i;
+                    oldestTime = voiceMap[i].lastModified;
+                }
+            }
+
+            return bestIndex;
         }
 
         // Maps the ith voice to the ith position in the array, where we capture
         // the note value the voice was last assigned
-        std::array<uint8_t, 16> voiceMap;
+        struct Assignment {
+            int32_t note = -1;
+            int64_t lastModified = 0;
+        };
+
+        std::array<Assignment, 16> voiceMap;
         std::atomic<size_t> numVoices = 1;
-        size_t nextFreeVoice = 0;
+        int64_t steadyClock = 0;
     };
 
     template <typename FloatType>
