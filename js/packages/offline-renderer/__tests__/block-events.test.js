@@ -12,7 +12,7 @@ test("block events", async function () {
   });
 
   // Graph
-  core.render(...unpack(createNode("midinotein", {}, []), 2));
+  core.render(...unpack(createNode("midinoteunpack", {}, []), 2));
 
   // Ten blocks of data
   let inps = [];

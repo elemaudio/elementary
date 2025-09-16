@@ -8,6 +8,8 @@
 #include <utility>
 
 #include "BlockEvents.h"
+#include "third-party/choc/choc/containers/choc_SmallVector.h"
+#include "third-party/choc/choc/memory/choc_ObjectPointer.h"
 #include "third-party/choc/choc/memory/choc_PoolAllocator.h"
 #include "third-party/choc/choc/platform/choc_Assert.h"
 #include "Types.h"
@@ -59,7 +61,7 @@ public:
     //
     // If more than one inlet produces block events, this will provision a new
     // struct from the pool, merge the events into one, and return that.
-    BlockEvents& consume(std::vector<InletConnection> const& inlets);
+    choc::SmallVector<choc::ObjectPointer<BlockEvents>, 16> consume(std::vector<InletConnection> const& inlets);
 
     // Reset internal state
     void clear();
@@ -94,17 +96,16 @@ inline BlockEvents& BlockEventsBufferPool::produce(int32_t nodeId, std::vector<O
     return buffer;
 }
 
-inline BlockEvents& BlockEventsBufferPool::consume(std::vector<InletConnection> const& inlets)
+inline choc::SmallVector<choc::ObjectPointer<BlockEvents>, 16> BlockEventsBufferPool::consume(std::vector<InletConnection> const& inlets)
 {
     auto childIds = detail::getDistinctNodeIds(inlets);
+    auto out = choc::SmallVector<choc::ObjectPointer<BlockEvents>, 16>();
 
     // We shouldn't be trying to consume from the pool if the node has no children, instead
     // the rendering algorithm should pick the host events
     CHOC_ASSERT(childIds.size() > 0);
 
-    // If there's just one child we can just pluck its buffer from the map
-    if (childIds.size() == 1) {
-        auto childId = *childIds.begin();
+    for (auto const& childId : childIds) {
         CHOC_ASSERT(m_assignments.count(childId) > 0);
 
         auto& value = m_assignments.at(childId);
@@ -116,18 +117,10 @@ inline BlockEvents& BlockEventsBufferPool::consume(std::vector<InletConnection> 
             m_assignments.erase(childId);
         }
 
-        return buffer;
+        out.emplace_back(buffer);
     }
 
-    // Else, we take a new temporary block and sum into it
-    //
-    // We can just put the buffer immediately back in the free list
-    // because this node is the only consumer of this temporary block
-    auto& buffer = getEventsBuffer();
-    m_freeList.push(buffer);
-
-    // TODO: Consume each child id and sum into `buffer` before returning
-    return buffer;
+    return out;
 }
 
 inline void BlockEventsBufferPool::clear()

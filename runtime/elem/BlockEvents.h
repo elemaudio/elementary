@@ -21,10 +21,6 @@ struct MidiEvent {
     MidiEvent(uint8_t byte0, uint8_t byte1, uint8_t byte2)
         : message(byte0, byte1, byte2)
     {}
-
-    MidiEvent(MidiEvent const& other)
-        : message(other.message)
-    {}
 };
 
 // Type-erased event structure that can hold any event type within a certain
@@ -35,7 +31,6 @@ struct BlockEvent {
     static constexpr size_t kMaxObjectSize = 64;
     alignas(std::max_align_t) char data[kMaxObjectSize];
     std::type_index typeIndex;
-    void(*destructor)(void*) = nullptr;
 
     template <typename T>
     BlockEvent(size_t t, T&& d)
@@ -44,15 +39,9 @@ struct BlockEvent {
     {
         static_assert(sizeof(T) <= kMaxObjectSize, "Type too large for BlockEvent buffer");
         static_assert(alignof(T) <= alignof(std::max_align_t), "Type alignment too strict");
+        static_assert(std::is_trivially_copyable_v<T>, "Type must be trivially copyable");
 
         new(data) T(std::forward<T>(d));
-        destructor = [](void* ptr) { static_cast<T*>(ptr)->~T(); };
-    }
-
-    ~BlockEvent() {
-        if (destructor) {
-            destructor(data);
-        }
     }
 
     template <typename T>
@@ -71,6 +60,10 @@ struct BlockEvent {
         }
 
         return nullptr;
+    }
+
+    bool operator>(const BlockEvent& other) const {
+        return time > other.time;
     }
 };
 
@@ -102,6 +95,26 @@ struct BlockEvents {
     // Reset the internal storage
     inline void clear() {
         storage.clear();
+    }
+
+    // Sort events by time
+    inline void sort() {
+        auto size = storage.size();
+
+        for (size_t i = 1; i < size; ++i) {
+            auto key = storage[i];  // Element to be inserted
+            int j = i - 1;   // Start comparing with the element before
+
+            // Move elements of storage[0..i-1] that are greater than key
+            // one position ahead of their current position
+            while (j >= 0 && storage[j] > key) {
+                storage[j + 1] = storage[j];  // Shift element to the right
+                j--;                   // Move to the next element on the left
+            }
+
+            // Insert the key at its correct position
+            storage[j + 1] = key;
+        }
     }
 };
 

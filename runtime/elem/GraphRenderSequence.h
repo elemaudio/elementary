@@ -152,10 +152,21 @@ namespace elem
             // for input and output events, which would get cleared at the beginning of the op
             // below.
             auto& outputEvents = m_eventsBufferPool.produce(node->getId(), outlets);
-            auto& inputEvents = m_eventsBufferPool.consume(inlets);
+            auto inputEvents = m_eventsBufferPool.consume(inlets);
 
-            renderOps.push_back([node, &inputEvents, &outputEvents, outputChannels = std::move(outputChannels), inputChannels = std::move(inputChannels)](BlockContext<FloatType> const& rootCtx) mutable {
+            renderOps.push_back([node, &outputEvents, inputEvents = std::move(inputEvents), outputChannels = std::move(outputChannels), inputChannels = std::move(inputChannels)](BlockContext<FloatType> const& rootCtx) mutable {
+                BlockEvents aggregateInputEvents;
                 outputEvents.clear();
+
+                // Aggregate
+                for (auto& evts : inputEvents) {
+                    for (auto& e : evts->storage) {
+                        aggregateInputEvents.storage.push_back(e);
+                    }
+                }
+
+                // Sort
+                aggregateInputEvents.sort();
 
                 node->process(BlockContext<FloatType> {
                     const_cast<const FloatType**>(inputChannels.data()),
@@ -165,7 +176,7 @@ namespace elem
                     rootCtx.numSamples,
                     rootCtx.userData,
                     rootCtx.active,
-                    inputEvents,
+                    aggregateInputEvents,
                     outputEvents,
                 });
             });
