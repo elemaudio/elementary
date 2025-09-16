@@ -223,4 +223,12 @@ export default class WebRenderer extends EventEmitter {
       value,
     });
   }
+
+  async pushParamValueEvent(time: number, index: number, value: number) {
+    return await this._sendWorkletRequest("pushParamValueEvent", {
+      time,
+      index,
+      value,
+    });
+  }
 }

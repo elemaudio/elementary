@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../BlockEvents.h"
 #include "../GraphNode.h"
 
 

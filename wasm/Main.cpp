@@ -198,6 +198,10 @@ public:
         inputEvents.addEvent(static_cast<size_t>(time), elem::MidiEvent(byte0, byte1, byte2));
     }
 
+    void pushParamValueEvent(int time, int index, double value) {
+        inputEvents.addEvent(static_cast<size_t>(time), elem::ParamValueEvent(static_cast<size_t>(index), value));
+    }
+
     /** Audio block processing. */
     void process (int const numSamples)
     {
@@ -402,6 +406,7 @@ EMSCRIPTEN_BINDINGS(Elementary) {
         .function("pruneSharedResources", &ElementaryAudioProcessor::pruneSharedResources)
         .function("listSharedResources", &ElementaryAudioProcessor::listSharedResources)
         .function("pushMidiEvent", &ElementaryAudioProcessor::pushMidiEvent)
+        .function("pushParamValueEvent", &ElementaryAudioProcessor::pushParamValueEvent)
         .function("process", &ElementaryAudioProcessor::process)
         .function("processQueuedEvents", &ElementaryAudioProcessor::processQueuedEvents)
         .function("setCurrentTime", &ElementaryAudioProcessor::setCurrentTime)
