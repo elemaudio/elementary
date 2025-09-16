@@ -7,9 +7,9 @@ import { createNode, isNode, resolve, unpack } from "./nodeUtils";
 import * as co from "./lib/core";
 import * as dy from "./lib/dynamics";
 import * as en from "./lib/envelopes";
+import * as ev from "./lib/event-nodes";
 import * as fi from "./lib/filters";
 import * as ma from "./lib/math";
-import * as mi from "./lib/midi";
 import * as mc from "./lib/mc";
 import * as os from "./lib/oscillators";
 import * as si from "./lib/signals";
@@ -21,9 +21,9 @@ const stdlib = {
   ...co,
   ...dy,
   ...en,
+  ...ev,
   ...fi,
   ...ma,
-  ...mi,
   ...os,
   ...si,
   mc,

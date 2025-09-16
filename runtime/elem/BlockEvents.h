@@ -13,6 +13,10 @@ namespace elem
 struct ParamValueEvent {
     size_t paramIndex;
     float value;
+
+    ParamValueEvent(size_t index, float v)
+        : paramIndex(index), value(v)
+    {}
 };
 
 struct MidiEvent {

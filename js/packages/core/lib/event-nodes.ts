@@ -76,3 +76,16 @@ export function midinoteshift(
 ): NodeRepr_t {
   return createNode("midinoteshift", props, children.map(resolve));
 }
+
+/**
+ * Emits audio rate signals carrying the current value of the parameter
+ * identified by the given parameter index.
+ *
+ * @param {Object} props
+ * @param {string} [props.key] - An optional unique identifier for the node
+ * @param {number} props.index - Parameter index for which to follow events
+ * @returns {NodeRepr_t}
+ */
+export function param(props: { key?: string; index: number }): NodeRepr_t {
+  return createNode("param", props, []);
+}

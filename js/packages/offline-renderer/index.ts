@@ -100,6 +100,10 @@ export default class OfflineRenderer extends EventEmitter {
     this._native.pushMidiEvent(time, packedValue);
   }
 
+  pushParamValueEvent(time: number, index: number, value: number) {
+    this._native.pushParamValueEvent(time, index, value);
+  }
+
   process(inputs: Array<Float32Array>, outputs: Array<Float32Array>) {
     if (!Array.isArray(inputs) || inputs.length !== this._numInputChannels)
       throw new Error(

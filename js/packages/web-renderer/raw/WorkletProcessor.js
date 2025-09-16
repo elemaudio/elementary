@@ -189,6 +189,18 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
               result: this._native.pushMidiEvent(payload.time, packedValue),
             },
           ]);
+        case "pushParamValueEvent":
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: this._native.pushParamValueEvent(
+                payload.time,
+                payload.index,
+                payload.value,
+              ),
+            },
+          ]);
         default:
           break;
       }
