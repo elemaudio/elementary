@@ -1,5 +1,5 @@
 import OfflineRenderer from "..";
-import { el, createNode, unpack } from "@elemaudio/core";
+import { el } from "@elemaudio/core";
 
 test("block events", async function () {
   let core = new OfflineRenderer();
@@ -12,7 +12,7 @@ test("block events", async function () {
   });
 
   // Graph
-  core.render(...unpack(createNode("midinoteunpack", {}, []), 2));
+  core.render(...el.midinoteunpack({}));
 
   // Ten blocks of data
   let inps = [];

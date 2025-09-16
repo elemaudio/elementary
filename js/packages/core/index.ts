@@ -1,27 +1,21 @@
-import {
-  renderWithDelegate,
-} from './src/Reconciler.gen';
+import { renderWithDelegate } from "./src/Reconciler.gen";
 
-import { updateNodeProps } from './src/Hash';
+import { updateNodeProps } from "./src/Hash";
 
-import {
-  createNode,
-  isNode,
-  resolve,
-  unpack
-} from './nodeUtils';
+import { createNode, isNode, resolve, unpack } from "./nodeUtils";
 
-import * as co from './lib/core';
-import * as dy from './lib/dynamics';
-import * as en from './lib/envelopes';
-import * as fi from './lib/filters';
-import * as ma from './lib/math';
-import * as mc from './lib/mc';
-import * as os from './lib/oscillators';
-import * as si from './lib/signals';
+import * as co from "./lib/core";
+import * as dy from "./lib/dynamics";
+import * as en from "./lib/envelopes";
+import * as fi from "./lib/filters";
+import * as ma from "./lib/math";
+import * as mi from "./lib/midi";
+import * as mc from "./lib/mc";
+import * as os from "./lib/oscillators";
+import * as si from "./lib/signals";
 
-export type { ElemNode, NodeRepr_t } from './nodeUtils';
-export { default as EventEmitter } from './src/Events';
+export type { ElemNode, NodeRepr_t } from "./nodeUtils";
+export { default as EventEmitter } from "./src/Events";
 
 const stdlib = {
   ...co,
@@ -29,12 +23,13 @@ const stdlib = {
   ...en,
   ...fi,
   ...ma,
+  ...mi,
   ...os,
   ...si,
   mc,
   // Aliases for reserved keyword conflicts
-  "const": co.constant,
-  "in": ma.identity,
+  const: co.constant,
+  in: ma.identity,
 };
 
 const InstructionTypes = {
@@ -80,7 +75,9 @@ class Delegate {
     };
   }
 
-  getNodeMap() { return this.nodeMap; }
+  getNodeMap() {
+    return this.nodeMap;
+  }
 
   createNode(hash, type) {
     this.nodesAdded++;
@@ -89,12 +86,22 @@ class Delegate {
 
   appendChild(parentHash, childHash, childOutputChannel) {
     this.edgesAdded++;
-    this.batch.appendChild.push([InstructionTypes.APPEND_CHILD, parentHash, childHash, childOutputChannel]);
+    this.batch.appendChild.push([
+      InstructionTypes.APPEND_CHILD,
+      parentHash,
+      childHash,
+      childOutputChannel,
+    ]);
   }
 
   setProperty(hash, key, value) {
     this.propsWritten++;
-    this.batch.setProperty.push([InstructionTypes.SET_PROPERTY, hash, key, value]);
+    this.batch.setProperty.push([
+      InstructionTypes.SET_PROPERTY,
+      hash,
+      key,
+      value,
+    ]);
   }
 
   activateRoots(roots) {
@@ -103,7 +110,8 @@ class Delegate {
     // because it may be that we're asked to activate a subset of the current
     // active roots, in which case we need the instruction to prompt the engine
     // to deactivate the now excluded roots.
-    let alreadyActive = roots.length === this.currentActiveRoots.size &&
+    let alreadyActive =
+      roots.length === this.currentActiveRoots.size &&
       roots.every((root) => this.currentActiveRoots.has(root));
 
     if (!alreadyActive) {
@@ -129,7 +137,7 @@ class Delegate {
 
 // A quick shim for platforms which do not support the `performance` global
 function now() {
-  if (typeof performance === 'undefined') {
+  if (typeof performance === "undefined") {
     return Date.now();
   }
 
@@ -173,11 +181,13 @@ class Renderer {
   // In other words, don't share refs between different renderer instances.
   createRef(kind, props, children) {
     let key = `__refKey:${this._nextRefId++}`;
-    let node = createNode(kind, Object.assign({key}, props), children);
+    let node = createNode(kind, Object.assign({ key }, props), children);
 
     let setter = (newProps) => {
       if (!this._delegate.nodeMap.has(node.hash)) {
-        throw new Error('Cannot update a ref that has not been mounted; make sure you render your node first')
+        throw new Error(
+          "Cannot update a ref that has not been mounted; make sure you render your node first",
+        );
       }
 
       const nodeMapCopy = this._delegate.nodeMap.get(node.hash);
@@ -196,14 +206,25 @@ class Renderer {
   }
 
   render(...args) {
-    return this.renderWithOptions({ rootFadeInMs: 20, rootFadeOutMs: 20 }, ...args);
+    return this.renderWithOptions(
+      { rootFadeInMs: 20, rootFadeOutMs: 20 },
+      ...args,
+    );
   }
 
-  renderWithOptions(options: { rootFadeInMs: number, rootFadeOutMs: number }, ...args) {
+  renderWithOptions(
+    options: { rootFadeInMs: number; rootFadeOutMs: number },
+    ...args
+  ) {
     const t0 = now();
 
     this._delegate.clear();
-    renderWithDelegate(this._delegate as any, args.map(resolve), options.rootFadeInMs, options.rootFadeOutMs);
+    renderWithDelegate(
+      this._delegate as any,
+      args.map(resolve),
+      options.rootFadeInMs,
+      options.rootFadeOutMs,
+    );
 
     const t1 = now();
 
@@ -238,5 +259,5 @@ export {
   renderWithDelegate,
   resolve,
   stdlib,
-  unpack
+  unpack,
 };

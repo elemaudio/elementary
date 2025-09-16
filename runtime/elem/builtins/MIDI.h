@@ -118,7 +118,7 @@ namespace elem
         };
 
         std::array<Assignment, 16> voiceMap;
-        std::atomic<size_t> numVoices = 1;
+        std::atomic<size_t> numVoices = 16;
         int64_t steadyClock = 0;
     };
 
