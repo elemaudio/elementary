@@ -1,6 +1,5 @@
 #pragma once
 
-#include <any>
 #include <typeindex>
 
 #include "third-party/choc/choc/containers/choc_SmallVector.h"
@@ -33,7 +32,7 @@ struct BlockEvent {
     size_t time;
 
     static constexpr size_t kMaxObjectSize = 64;
-    alignas(std::max_align_t) char data[kMaxObjectSize];
+    alignas(std::max_align_t) std::byte data[kMaxObjectSize];
     std::type_index typeIndex;
 
     template <typename T>

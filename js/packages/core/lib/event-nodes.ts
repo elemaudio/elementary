@@ -54,8 +54,11 @@ export function midinoteallocate(
 export function midinoteunpack(
   props: { key?: string; channel?: number },
   ...children: Array<ElemNode>
-): Array<NodeRepr_t> {
-  return unpack(createNode("midinoteunpack", props, children.map(resolve)), 2);
+): [NodeRepr_t, NodeRepr_t] {
+  return unpack(
+    createNode("midinoteunpack", props, children.map(resolve)),
+    2,
+  ) as [NodeRepr_t, NodeRepr_t];
 }
 
 /**
