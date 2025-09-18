@@ -12,6 +12,8 @@
 #include "Value.h"
 #include "JSON.h"
 
+#include "third-party/choc/choc/platform/choc_Assert.h"
+
 
 #ifndef ELEM_DBG
   #ifdef NDEBUG
@@ -541,6 +543,11 @@ namespace elem
             auto const& connection = children.at(i);
             traverse(visited, visitOrder, connection.source);
         }
+
+        // These asserts check cases that shouldn't be possible, but they're
+        // here as a sanity check
+        CHOC_ASSERT(std::find(visitOrder.begin(), visitOrder.end(), n) == visitOrder.end());
+        CHOC_ASSERT(visited.count(n) == 0);
 
         visitOrder.push_back(n);
         visited.insert(n);

@@ -277,6 +277,7 @@ namespace elem
         {
             subseqs.clear();
             bufferPool.clear();
+            eventsBufferPool.clear();
         }
 
         void push(RootRenderSequence<FloatType>&& sq)
