@@ -13,7 +13,7 @@ el__build() {
     mkdir -p "/elembuild/wasm/"
     pushd "/elembuild/wasm/"
 
-    ELEM_BUILD_ASYNC="${ELEM_BUILD_ASYNC:-0}" emcmake cmake \
+    emcmake cmake \
         -DCMAKE_BUILD_TYPE=Release \
         -DONLY_BUILD_WASM=ON \
         -DCMAKE_CXX_FLAGS="-O3" \
@@ -25,6 +25,7 @@ el__build() {
     # source dir so that it exists outside the container
     mkdir -p /src/build/out/
     cp /elembuild/wasm/wasm/elementary-wasm.js /src/build/out/elementary-wasm.js
+    cp /elembuild/wasm/wasm/elementary-wasm.wasm /src/build/out/elementary-wasm.wasm
 
     popd
 }
@@ -40,32 +41,30 @@ el__main() {
     else
         # Else we're running our top-level main, for which we, by default, invoke
         # the build command from within an emscripten/emsdk docker container.
-        local OUTPUT_FILENAME=""
-        local ELEM_BUILD_ASYNC=0
+        local OUTPUT_DIR=""
 
-        while getopts ao: opt; do
+        while getopts o: opt; do
             case $opt in
-                o)  OUTPUT_FILENAME="$OPTARG";;
-                a)  ELEM_BUILD_ASYNC=1;;
+                o)  OUTPUT_DIR="$OPTARG";;
             esac
         done
 
         shift "$((OPTIND - 1))"
 
-        if [ -z "$OUTPUT_FILENAME" ]; then
+        if [ -z "$OUTPUT_DIR" ]; then
             echo "Error: where are we outputting to?"
             exit 1
         fi
 
         docker run \
           -v $(pwd):/src \
-          --env ELEM_BUILD_ASYNC="$ELEM_BUILD_ASYNC" \
           docker.io/emscripten/emsdk:4.0.15 \
           ./scripts/build-wasm.sh build
 
         # Then we copy the resulting file over to the website directory where
         # we need it
-        cp $ROOT_DIR/build/out/elementary-wasm.js $OUTPUT_FILENAME
+        cp $ROOT_DIR/build/out/elementary-wasm.js $OUTPUT_DIR
+        cp $ROOT_DIR/build/out/elementary-wasm.wasm $OUTPUT_DIR
     fi
 }
 

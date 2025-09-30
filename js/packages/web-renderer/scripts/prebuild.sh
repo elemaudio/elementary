@@ -8,5 +8,5 @@ CURRENT_DIR="$(pwd)"
 
 
 pushd "$ROOT_DIR"
-./scripts/build-wasm.sh -o "$CURRENT_DIR/raw/elementary-wasm.js"
+./scripts/build-wasm.sh -o "$CURRENT_DIR/raw/"
 popd
