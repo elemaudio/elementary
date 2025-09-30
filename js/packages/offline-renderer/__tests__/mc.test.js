@@ -175,7 +175,7 @@ test("mc capture", async function () {
     core.process(inps, outs);
   }
 
-  let eventCallback = jest.fn();
+  let eventCallback = vi.fn();
   core.on("mc.capture", eventCallback);
 
   setGateProps({ value: 1 });

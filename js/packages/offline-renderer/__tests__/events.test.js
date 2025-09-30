@@ -1,8 +1,7 @@
-import OfflineRenderer from '..';
-import { el } from '@elemaudio/core';
+import OfflineRenderer from "..";
+import { el } from "@elemaudio/core";
 
-
-test('event propagation', async function() {
+test("event propagation", async function () {
   let core = new OfflineRenderer();
 
   await core.initialize({
@@ -12,8 +11,8 @@ test('event propagation', async function() {
   });
 
   // Event handling
-  let callback = jest.fn();
-  core.on('meter', callback);
+  let callback = vi.fn();
+  core.on("meter", callback);
 
   // Graph
   core.render(el.meter({}, 0));
@@ -28,7 +27,7 @@ test('event propagation', async function() {
   // node to fire on each block, thus we should see 4 calls to the meter
   // callback
   expect(callback.mock.calls).toHaveLength(4);
-  expect(callback.mock.calls.map(x => x[0])).toMatchSnapshot();
+  expect(callback.mock.calls.map((x) => x[0])).toMatchSnapshot();
 
   callback.mockClear();
 
@@ -41,5 +40,5 @@ test('event propagation', async function() {
   // We just pushed four more blocks of data, we would expect the same
   // as above but this time the meter should be reporting the new value 1
   expect(callback.mock.calls).toHaveLength(4);
-  expect(callback.mock.calls.map(x => x[0])).toMatchSnapshot();
+  expect(callback.mock.calls.map((x) => x[0])).toMatchSnapshot();
 });

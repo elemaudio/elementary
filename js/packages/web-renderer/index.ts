@@ -2,10 +2,6 @@ import invariant from "invariant";
 
 import { EventEmitter, Renderer } from "@elemaudio/core";
 
-/* @ts-ignore */
-import WorkletProcessor from "./raw/WorkletProcessor";
-import WasmModule from "./raw/elementary-wasm";
-
 // Injected at build time
 const pkgVersion = process.env.PKG_VERSION;
 
@@ -51,27 +47,28 @@ export default class WebRenderer extends EventEmitter {
     const workletRegistry = audioContext._elemWorkletRegistry;
 
     if (!workletRegistry.hasOwnProperty(pkgVersion)) {
-      const blob = new Blob([WasmModule, WorkletProcessor], {
-        type: "text/javascript",
-      });
-      const blobUrl = URL.createObjectURL(blob);
-
       if (!audioContext.audioWorklet) {
         throw new Error(
           "BaseAudioContext.audioWorklet is missing; are you running in a secure context (https)?",
         );
       }
 
-      // This neat trick with the Blob URL allows me to inject the module without
-      // needing to serve it from somewhere on the file system. The files loaded
-      // from the raw/* directory are loaded as raw, minified strings.
-      await audioContext.audioWorklet.addModule(blobUrl);
+      // This resolves to the dist directory at runtime
+      const workletScriptUrl = new URL("./index.worklet.js", import.meta.url);
+      await audioContext.audioWorklet.addModule(workletScriptUrl);
 
       workletRegistry[pkgVersion] = true;
     }
 
     this._promiseMap = new Map();
     this._nextRequestId = 0;
+
+    const wasmBinaryUrl = new URL("./elementary-wasm.wasm", import.meta.url);
+    const wasmBinary = await fetch(wasmBinaryUrl).then((response) =>
+      response.arrayBuffer(),
+    );
+
+    const { processorOptions, ...otherOptions } = workletOptions;
 
     this._worklet = new AudioWorkletNode(
       audioContext,
@@ -81,8 +78,14 @@ export default class WebRenderer extends EventEmitter {
           numberOfInputs: 0,
           numberOfOutputs: 1,
           outputChannelCount: [2],
+          processorOptions: Object.assign(
+            {
+              wasmBinary,
+            },
+            processorOptions,
+          ),
         },
-        workletOptions,
+        otherOptions,
       ),
     );
 
@@ -100,6 +103,13 @@ export default class WebRenderer extends EventEmitter {
               batch,
             });
           });
+
+          // TODO: Clean up? Unsubscribe option?
+          this._timer = window.setInterval(() => {
+            this._worklet.port.postMessage({
+              requestType: "processQueuedEvents",
+            });
+          }, eventInterval);
 
           resolve(this._worklet);
           return this.emit(type, payload);
@@ -120,13 +130,6 @@ export default class WebRenderer extends EventEmitter {
           return resolve(result);
         }
       };
-
-      // TODO: Clean up? Unsubscribe option?
-      this._timer = window.setInterval(() => {
-        this._worklet.port.postMessage({
-          requestType: "processQueuedEvents",
-        });
-      }, eventInterval);
     });
   }
 

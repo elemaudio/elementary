@@ -1,8 +1,7 @@
-import OfflineRenderer from '..';
-import { el } from '@elemaudio/core';
+import OfflineRenderer from "..";
+import { el } from "@elemaudio/core";
 
-
-test('feedback taps', async function() {
+test("feedback taps", async function () {
   let core = new OfflineRenderer();
 
   await core.initialize({
@@ -12,10 +11,10 @@ test('feedback taps', async function() {
 
   // Graph
   core.render(
-    el.tapOut({name: 'test'}, el.add(
-      el.tapIn({name: 'test'}),
-      el.in({channel: 0}),
-    )),
+    el.tapOut(
+      { name: "test" },
+      el.add(el.tapIn({ name: "test" }), el.in({ channel: 0 })),
+    ),
   );
 
   // Ten blocks of data
@@ -49,7 +48,7 @@ test('feedback taps', async function() {
   expect(outs[0]).toMatchSnapshot();
 });
 
-test('idle feedback taps', async function() {
+test("idle feedback taps", async function () {
   let core = new OfflineRenderer();
 
   await core.initialize({
@@ -59,15 +58,15 @@ test('idle feedback taps', async function() {
   });
 
   // Event handling
-  let callback = jest.fn();
-  core.on('meter', callback);
+  let callback = vi.fn();
+  core.on("meter", callback);
 
   // Graph
   core.render(
-    el.tapOut({name: 'test'}, el.add(
-      el.meter({}, el.tapIn({name: 'test'})),
-      1,
-    )),
+    el.tapOut(
+      { name: "test" },
+      el.add(el.meter({}, el.tapIn({ name: "test" })), 1),
+    ),
   );
 
   // Render four blocks
@@ -78,17 +77,16 @@ test('idle feedback taps', async function() {
   expect(callback.mock.calls).toMatchSnapshot();
   callback.mockClear();
 
-
   // Render a new graph and we should see the feedback
   // path begin winding down. This demonstrates that only
   // the updated graph is feeding into the `test` feedback
   // path, not the nodes from the deactivated roots that
   // will become idle after the root node fade
   core.render(
-    el.tapOut({name: 'test'}, el.add(
-      el.meter({}, el.tapIn({name: 'test'})),
-      -1,
-    )),
+    el.tapOut(
+      { name: "test" },
+      el.add(el.meter({}, el.tapIn({ name: "test" })), -1),
+    ),
   );
 
   // Render four blocks
