@@ -63,12 +63,15 @@ export default class WebRenderer extends EventEmitter {
     this._promiseMap = new Map();
     this._nextRequestId = 0;
 
-    const wasmBinaryUrl = new URL("./elementary-wasm.wasm", import.meta.url);
+    const { processorOptions = {}, ...otherOptions } = workletOptions;
+
+    const wasmBinaryUrl =
+      processorOptions.wasmBinaryUrl ??
+      new URL("./elementary-wasm.wasm", import.meta.url);
+
     const wasmBinary = await fetch(wasmBinaryUrl).then((response) =>
       response.arrayBuffer(),
     );
-
-    const { processorOptions, ...otherOptions } = workletOptions;
 
     this._worklet = new AudioWorkletNode(
       audioContext,

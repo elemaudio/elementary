@@ -1,3 +1,4 @@
+import invariant from "invariant";
 import Module from "./raw/elementary-wasm.js";
 
 const EventTypes = {
@@ -44,14 +45,10 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
       0,
     );
 
-    const hasProcOpts2 =
-      options.hasOwnProperty("processorOptions") &&
-      typeof options.processorOptions === "object" &&
-      options.processorOptions !== null;
+    const { wasmBinary, virtualFileSystem, ...other } =
+      options.processorOptions;
 
-    const wasmBinary = hasProcOpts2
-      ? options.processorOptions.wasmBinary
-      : null;
+    invariant(wasmBinary instanceof ArrayBuffer, "Invalid wasm binary");
 
     Module({
       instantiateWasm: async function (imports, receiveInstance) {
@@ -78,26 +75,17 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
       // See: https://webaudio.github.io/web-audio-api/#rendering-loop
       this._native.prepare(sampleRate, 128);
 
-      const hasProcOpts =
-        options.hasOwnProperty("processorOptions") &&
-        typeof options.processorOptions === "object" &&
-        options.processorOptions !== null;
+      const validVFS =
+        typeof virtualFileSystem === "object" &&
+        virtualFileSystem !== null &&
+        Object.keys(virtualFileSystem).length > 0;
 
-      if (hasProcOpts) {
-        const { virtualFileSystem, ...other } = options.processorOptions;
+      if (validVFS) {
+        for (let [key, val] of Object.entries(virtualFileSystem)) {
+          let result = this._native.addSharedResource(key, val);
 
-        const validVFS =
-          typeof virtualFileSystem === "object" &&
-          virtualFileSystem !== null &&
-          Object.keys(virtualFileSystem).length > 0;
-
-        if (validVFS) {
-          for (let [key, val] of Object.entries(virtualFileSystem)) {
-            let result = this._native.addSharedResource(key, val);
-
-            if (!result.success) {
-              this.port.postMessage(["error", result.message]);
-            }
+          if (!result.success) {
+            this.port.postMessage(["error", result.message]);
           }
         }
       }
