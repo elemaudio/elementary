@@ -1,4 +1,3 @@
-import invariant from "invariant";
 import Module from "./raw/elementary-wasm.js";
 
 const EventTypes = {
@@ -48,7 +47,9 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
     const { wasmBinary, virtualFileSystem, ...other } =
       options.processorOptions;
 
-    invariant(wasmBinary instanceof ArrayBuffer, "Invalid wasm binary");
+    if (!(wasmBinary instanceof ArrayBuffer)) {
+      throw new Error("Invalid wasm binary");
+    }
 
     Module({
       instantiateWasm: async function (imports, receiveInstance) {
