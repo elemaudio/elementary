@@ -281,6 +281,16 @@ private:
             // mapping from emscripten::val to a simple std::vector.
             return elem::js::Value(convertJSArrayToNumberVector<float>(v));
         }
+        if (v.instanceof(val::global("ArrayBuffer"))) {
+            // For raw ArrayBuffer, we need to create a Uint8Array view first
+            auto uint8View = val::global("Uint8Array").new_(v);
+            return elem::js::Value(elem::js::Uint8Array(convertJSArrayToNumberVector<uint8_t>(uint8View)));
+        }
+        if (v.instanceof(val::global("Uint8Array"))) {
+            // This conversion function is part of the emscripten namespace for
+            // mapping from emscripten::val to a simple std::vector.
+            return elem::js::Value(elem::js::Uint8Array(convertJSArrayToNumberVector<uint8_t>(v)));
+        }
 
         if (v.isArray())
         {
@@ -359,6 +369,21 @@ private:
             }
 
             return ret;
+        }
+
+        if (v.isUint8Array())
+        {
+            auto& va = v.getUint8Array();
+
+            // Create a Uint8Array directly
+            auto uint8Array = val::global("Uint8Array").new_(va.size());
+
+            for (size_t i = 0; i < va.size(); ++i)
+            {
+                uint8Array.set(i, val(va[i]));
+            }
+
+            return uint8Array;
         }
 
         if (v.isObject())

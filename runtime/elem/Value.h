@@ -29,6 +29,7 @@ namespace js
     using Object = std::map<String, Value>;
     using Array = std::vector<Value>;
     using Float32Array = std::vector<float>;
+    using Uint8Array = std::vector<uint8_t>;
     using Function = std::function<Value(Array)>;
 
     //==============================================================================
@@ -52,6 +53,7 @@ namespace js
         Value (String const& v)         : var(v) {}
         Value (Array const& v)          : var(v) {}
         Value (Float32Array const& v)   : var(v) {}
+        Value (Uint8Array const& v)     : var(v) {}
         Value (Object const& v)         : var(v) {}
         Value (Function const& v)       : var(v) {}
 
@@ -81,6 +83,7 @@ namespace js
         bool isString()         const { return std::holds_alternative<String>(var); }
         bool isArray()          const { return std::holds_alternative<Array>(var); }
         bool isFloat32Array()   const { return std::holds_alternative<Float32Array>(var); }
+        bool isUint8Array()     const { return std::holds_alternative<Uint8Array>(var); }
         bool isObject()         const { return std::holds_alternative<Object>(var); }
         bool isFunction()       const { return std::holds_alternative<Function>(var); }
 
@@ -94,11 +97,13 @@ namespace js
         // Object value getters
         Array const& getArray()                 const { return std::get<Array>(var); }
         Float32Array const& getFloat32Array()   const { return std::get<Float32Array>(var); }
+        Uint8Array const& getUint8Array()       const { return std::get<Uint8Array>(var); }
         Object const& getObject()               const { return std::get<Object>(var); }
         Function const& getFunction()           const { return std::get<Function>(var); }
 
         Array& getArray()                   { return std::get<Array>(var); }
         Float32Array& getFloat32Array()     { return std::get<Float32Array>(var); }
+        Uint8Array& getUint8Array()         { return std::get<Uint8Array>(var); }
         Object& getObject()                 { return std::get<Object>(var); }
         Function& getFunction()             { return std::get<Function>(var); }
 
@@ -160,6 +165,24 @@ namespace js
                 auto s = ss.str();
                 return s.substr(0, s.size() - 2) + "]";
             }
+            if (isUint8Array())
+            {
+                auto& ab = getUint8Array();
+                std::stringstream ss;
+                ss << "[";
+
+                for (size_t i = 0; i < std::min((size_t) 3, ab.size()); ++i)
+                    ss << std::to_string(ab[i]) << ", ";
+
+                if (ab.size() > 3)
+                {
+                    ss << "...]";
+                    return ss.str();
+                }
+
+                auto s = ss.str();
+                return s.substr(0, s.size() - 2) + "]";
+            }
             if (isObject())
             {
                 std::stringstream ss;
@@ -191,6 +214,7 @@ namespace js
             Object,
             Array,
             Float32Array,
+            Uint8Array,
             Function>;
 
         VarType var;
