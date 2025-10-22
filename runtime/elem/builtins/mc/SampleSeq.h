@@ -267,10 +267,15 @@ namespace elem
                 || (prevEvent != seqEnd && before(t, prevEvent->first))
                 || (nextEvent != seqEnd && after(t, nextEvent->first));
 
+            double const timeUnitsPerSample = sampleDur / (double) activeBuffer->numSamples();
+            int64_t const sampleTime = t / timeUnitsPerSample;
+            bool const significantTimeChange = std::abs(sampleTime - nextExpectedBlockStart) > 16;
+            nextExpectedBlockStart = sampleTime + numSamples;
+
             // TODO: if the input time has changed significantly, need to address the input latency of
             // the phase vocoder by resetting it and then pushing stretch.inputLatency * stretchFactor
             // samples ahead of `timeInSamples(t)`
-            if (shouldUpdateBounds || !readers[activeReader].isAlignedWithTime(t)) {
+            if (shouldUpdateBounds || significantTimeChange) {
                 updateEventBoundaries(t);
             }
 
