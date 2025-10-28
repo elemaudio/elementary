@@ -32,7 +32,7 @@ struct BlockEvent {
     size_t time;
 
     static constexpr size_t kMaxObjectSize = 64;
-    alignas(std::max_align_t) std::byte data[kMaxObjectSize];
+    alignas(uint64_t) std::byte data[kMaxObjectSize];
     std::type_index typeIndex;
 
     template <typename T>
@@ -41,7 +41,7 @@ struct BlockEvent {
         , typeIndex(std::type_index(typeid(T)))
     {
         static_assert(sizeof(T) <= kMaxObjectSize, "Type too large for BlockEvent buffer");
-        static_assert(alignof(T) <= alignof(std::max_align_t), "Type alignment too strict");
+        static_assert(alignof(T) <= alignof(uint64_t), "Type alignment too strict");
         static_assert(std::is_trivially_copyable_v<T>, "Type must be trivially copyable");
 
         new(data) T(std::forward<T>(d));
