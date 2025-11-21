@@ -138,19 +138,21 @@ namespace js
 
             bool binary(json::binary_t& /* val */) override
             {
-                throw std::runtime_error("Deserializing binary is not supported.");
+                // not implemented
+                return false;
             }
 
             bool parse_error(std::size_t /* position */, const std::string& /* last_token */, const json::exception& ex) override
             {
-                throw std::runtime_error("Parse error:" + std::string(ex.what()));
+                // not implemented
+                return false;
             }
         };
 
         sax_event_consumer sec;
 
         if (!json::sax_parse(str, &sec))
-            throw std::runtime_error("Failed to parse json string.");
+            return Value();
 
         return sec.top;
     }
@@ -237,8 +239,6 @@ namespace js
             if (v.isArray())        return (void) detail::serialize(output, v.getArray());
             if (v.isFloat32Array()) return (void) detail::serialize(output, v.getFloat32Array());
             if (v.isObject())       return (void) detail::serialize(output, v.getObject());
-
-            throw std::runtime_error("Failed to serialize Value: unsupported type.");
         }
 
     }
