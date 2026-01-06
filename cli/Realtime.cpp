@@ -81,6 +81,11 @@ void audioCallback(ma_device* pDevice, void* pOutput, const void* /* pInput */, 
 }
 
 int RealtimeMain(int argc, char** argv, std::function<void(elem::Runtime<float>&)> initCallback) {
+    auto printUsage = [](const char* exe) {
+        std::cout << "Usage: " << exe << " <script.js>" << std::endl;
+        std::cout << "Runs an Elementary graph from a JavaScript file." << std::endl;
+    };
+
     // First, initialize our audio device
     ma_result result;
 
@@ -130,8 +135,17 @@ int RealtimeMain(int argc, char** argv, std::function<void(elem::Runtime<float>&
     (void) ctx.evaluate(kConsoleShimScript);
 
     // Then we'll try to read the user's JavaScript file from disk
+    if (argc >= 2) {
+        auto arg = std::string(argv[1]);
+        if (arg == "-h" || arg == "--help") {
+            printUsage(argv[0]);
+            return 0;
+        }
+    }
+
     if (argc < 2) {
         std::cout << "Missing argument: what file do you want to run?" << std::endl;
+        printUsage(argv[0]);
         return 1;
     }
 
