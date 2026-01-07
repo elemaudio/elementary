@@ -1,175 +1,24 @@
 #pragma once
 
-#include "../GraphNode.h"
-#include "../SingleWriterSingleReaderQueue.h"
-#include "../Types.h"
-
-#include "helpers/RefCountedPool.h"
-#include "../third-party/signalsmith-stretch/signalsmith-stretch.h"
-
 #include <map>
 #include <iostream>
 
+#include "../GraphNode.h"
+#include "../SingleWriterSingleReaderQueue.h"
+#include "../Types.h"
+#include "helpers/BufferReader.h"
+#include "helpers/RefCountedPool.h"
+
+#include "../third-party/signalsmith-stretch/signalsmith-stretch.h"
 
 namespace elem
 {
-
-    namespace detail
-    {
-        template <typename FloatType>
-        FloatType lerp (FloatType alpha, FloatType x, FloatType y) {
-            return x + alpha * (y - x);
-        }
-
-        template <typename FloatType>
-        FloatType fpEqual (FloatType x, FloatType y) {
-            return std::abs(x - y) <= FloatType(1e-6);
-        }
-
-        template <typename FloatType>
-        struct GainFade {
-            GainFade() = default;
-
-            void setTargetGain (FloatType g) {
-                targetGain = g;
-
-                if (targetGain < currentGain) {
-                    step = FloatType(-1) * std::abs(step);
-                } else {
-                    step = std::abs(step);
-                }
-            }
-
-            FloatType operator() (FloatType x) {
-                if (currentGain == targetGain)
-                    return (currentGain * x);
-
-                auto y = x * currentGain;
-                currentGain = std::clamp(currentGain + step, FloatType(0), FloatType(1));
-
-                return y;
-            }
-
-            bool on() {
-                return fpEqual(targetGain, FloatType(1));
-            }
-
-            bool silent() {
-                return fpEqual(targetGain, FloatType(0)) && fpEqual(currentGain, FloatType(0));
-            }
-
-            void reset() {
-                currentGain = FloatType(0);
-                targetGain = FloatType(0);
-            }
-
-            FloatType currentGain = 0;
-            FloatType targetGain = 0;
-            FloatType step = 0.02; // TODO
-        };
-
-        template <typename FloatType>
-        struct BufferReader {
-            BufferReader() = default;
-
-            void engage (double start, double currentTime, FloatType* _buffer, size_t _size) {
-                startTime = start;
-                buffer = _buffer;
-                bufferSize = _size;
-                fade.setTargetGain(FloatType(1));
-
-                position = static_cast<size_t>(((currentTime - startTime) / sampleDuration) * (double) (bufferSize - 1u));
-                position = std::clamp<size_t>(position, 0, bufferSize);
-            }
-
-            void disengage() {
-                fade.setTargetGain(FloatType(0));
-            }
-
-            // Does the incoming time match what this reader is expecting?
-            //
-            // If we're not engaged, we don't have any expectations so we just say sure.
-            // If we are engaged, we try to map the incoming time onto a position in the
-            // buffer and see if that's far off from where we currently are.
-            bool isAlignedWithTime(double t) {
-                if (!fade.on())
-                    return true;
-
-                size_t newPos = static_cast<size_t>(((t - startTime) / sampleDuration) * (double) (bufferSize - 1u));
-                int delta = static_cast<int>(position) - static_cast<int>(newPos);
-                bool aligned = std::abs(delta) < 16;
-
-                return aligned;
-            }
-
-            template <typename DestType>
-            void readAdding(DestType* outputData, size_t numSamples) {
-                for (size_t i = 0; (i < numSamples) && (position < bufferSize); ++i) {
-                    outputData[i] += static_cast<DestType>(fade(buffer[position++]));
-                }
-            }
-
-            FloatType read (FloatType const* buffer, size_t size, double t)
-            {
-                if (fade.silent() || sampleDuration <= FloatType(0))
-                    return FloatType(0);
-
-                // An allocated but inactive reader is currently fading out at the point in time
-                // from which we jumped to allocate a new reader
-                double const pos = fade.on()
-                    ? (t - startTime) / sampleDuration
-                    : (stepStopTime() - startTime) / sampleDuration;
-
-                // While we're still active, track last position so that we can stop effectively
-                if (fade.on()) {
-                    dt = t - lastTimeStep;
-                    lastTimeStep = t;
-                }
-
-                // Deallocate if we've run out of bounds
-                if (pos < 0.0 || pos >= 1.0) {
-                    disengage();
-                    return FloatType(0);
-                }
-
-                // Instead of clamping here, we could accept loop points in the sample and
-                // mod the playback position within those loop points. Property loop: [start, stop]
-                auto l = static_cast<size_t>(pos * (double) (size - 1u));
-                auto r = std::min(size, l + 1u);
-                auto const alpha = FloatType((pos * (double) (size - 1u)) - static_cast<double>(l));
-
-                return fade(lerp(alpha, buffer[l], buffer[r]));
-            }
-
-            FloatType stepStopTime() {
-                lastTimeStep += dt;
-                return lastTimeStep;
-            }
-
-            void reset (double sampleDur) {
-                fade.reset();
-
-                sampleDuration = sampleDur;
-                startTime = 0.0;
-                dt = 0.0;
-            }
-
-            GainFade<FloatType> fade;
-            FloatType* buffer = nullptr;
-            size_t bufferSize = 0;
-            size_t position = 0;
-
-            double sampleDuration = 0;
-            double startTime = 0;
-            double lastTimeStep = 0;
-            double dt = 0;
-        };
-    }
 
     template <typename FloatType, bool WithStretch = false>
     struct SampleSeqNode : public GraphNode<FloatType> {
         SampleSeqNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
+            , readers({BufferReader<FloatType>(sr, 8.0), BufferReader<FloatType>(sr, 8.0)})
         {
             if constexpr (WithStretch) {
                 stretch.presetDefault(1, sr);
@@ -273,9 +122,9 @@ namespace elem
 
                 // Here a value of 1.0 is considered an onset, and anything else
                 // considered an offset.
-                if (detail::fpEqual(prevEvent->second, FloatType(1.0))) {
+                if (fpEqual(prevEvent->second, FloatType(1.0))) {
                     auto const bufferView = activeBuffer->getChannelData(0);
-                    readers[activeReader].engage(prevEvent->first, t, const_cast<float*>(bufferView.data()), bufferView.size());
+                    readers[activeReader].engage(prevEvent->first, t, bufferView.size());
                 }
             }
         }
@@ -338,10 +187,15 @@ namespace elem
                 || (prevEvent != seqEnd && before(t, prevEvent->first))
                 || (nextEvent != seqEnd && after(t, nextEvent->first));
 
+            double const timeUnitsPerSample = sampleDur / (double) activeBuffer->numSamples();
+            int64_t const sampleTime = t / timeUnitsPerSample;
+            bool const significantTimeChange = std::abs(sampleTime - nextExpectedBlockStart) > 16;
+            nextExpectedBlockStart = sampleTime + numSamples;
+
             // TODO: if the input time has changed significantly, need to address the input latency of
             // the phase vocoder by resetting it and then pushing stretch.inputLatency * stretchFactor
             // samples ahead of `timeInSamples(t)`
-            if (shouldUpdateBounds || !readers[activeReader].isAlignedWithTime(t)) {
+            if (shouldUpdateBounds || significantTimeChange) {
                 updateEventBoundaries(t);
             }
 
@@ -365,16 +219,16 @@ namespace elem
                 // Clear and read
                 std::fill_n(scratchData, numSourceSamples, FloatType(0));
 
-                readers[0].readAdding(scratchData, numSourceSamples);
-                readers[1].readAdding(scratchData, numSourceSamples);
+                readers[0].readAdding(activeBuffer.get(), &scratchData, 1, numSourceSamples);
+                readers[1].readAdding(activeBuffer.get(), &scratchData, 1, numSourceSamples);
 
                 stretch.process(&scratchData, numSourceSamples, &outputData, numSamples);
             } else {
                 // Clear and read
                 std::fill_n(outputData, numSamples, FloatType(0));
 
-                readers[0].readAdding(outputData, numSamples);
-                readers[1].readAdding(outputData, numSamples);
+                readers[0].readAdding(activeBuffer.get(), &outputData, 1, numSamples);
+                readers[1].readAdding(activeBuffer.get(), &outputData, 1, numSamples);
             }
         }
 
@@ -390,7 +244,7 @@ namespace elem
         SingleWriterSingleReaderQueue<SharedResourcePtr> bufferQueue;
         SharedResourcePtr activeBuffer;
 
-        std::array<detail::BufferReader<float>, 2> readers;
+        std::array<BufferReader<FloatType>, 2> readers;
         size_t activeReader = 0;
         int64_t nextExpectedBlockStart = 0;
 
