@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <optional>
 
 #include "GainFade.h"
 #include "elem/SharedResource.h"
@@ -35,8 +36,8 @@ namespace elem
             DestType** outputData;
             size_t numChannels;
             size_t numSamples;
-            int startOffset = -1;
-            int stopOffset = -1;
+            std::optional<uint64_t> startOffset;
+            std::optional<uint64_t> stopOffset;
             bool shouldLoop = false;
         };
 
@@ -52,8 +53,12 @@ namespace elem
                 return;
             }
 
-            auto const startOffset = ctx.startOffset >= 0 ? std::min(ctx.startOffset, static_cast<int>(bufferSize)) : 0;
-            auto const stopOffset = ctx.stopOffset >= 0 ? std::min(ctx.stopOffset, static_cast<int>(bufferSize)) : 0;
+            auto const _startOffset = ctx.startOffset.value_or(0);
+            auto const _stopOffset = ctx.stopOffset.value_or(0);
+            auto const startOffset = _startOffset >= 0 ? 
+                std::min(_startOffset, static_cast<uint64_t>(bufferSize)) : 0;
+            auto const stopOffset = _stopOffset >= 0 ? 
+                std::min(_stopOffset, static_cast<uint64_t>(bufferSize)) : 0;
 
             auto pos = position;
             elem::GainFade<FloatType> localFade(fade);
