@@ -30,28 +30,75 @@ namespace elem
         }
 
         template <typename DestType>
-        void readAdding(SharedResource* resource, DestType** outputData, size_t numChannels, size_t numSamples) {
+        struct ReadContext {
+            SharedResource* source;
+            DestType** outputData;
+            size_t numChannels;
+            size_t numSamples;
+            int startOffset = -1;
+            int stopOffset = -1;
+            bool shouldLoop = false;
+        };
+
+        template <typename DestType>
+        void readAdding(ReadContext<DestType> const& ctx) {
+            if (ctx.source == nullptr || position < 0.0 || fade.fadedOut()) {
+                return;
+            }
+
+            auto const numChannels = std::min(ctx.numChannels, ctx.source->numChannels());
+            auto const bufferSize = ctx.source->numSamples();
+            if (numChannels == 0 || bufferSize == 0) {
+                return;
+            }
+
+            auto const startOffset = ctx.startOffset >= 0 ? std::min(ctx.startOffset, static_cast<int>(bufferSize)) : 0;
+            auto const stopOffset = ctx.stopOffset >= 0 ? std::min(ctx.stopOffset, static_cast<int>(bufferSize)) : 0;
+
+            auto pos = position;
             elem::GainFade<FloatType> localFade(fade);
 
-            for (size_t j = 0; j < std::min(numChannels, resource->numChannels()); ++j) {
-                auto bufferView = resource->getChannelData(j);
-                auto bufferSize = bufferView.size();
-                auto* sourceData = bufferView.data();
-
-                // Reinitialize the local copy to match our member instance
+            for (size_t j = 0; j < numChannels; ++j) {
+                pos = position;
                 localFade = fade;
+                auto bufferView = ctx.source->getChannelData(j);
+                auto* sourceData = bufferView.data();
+                size_t const sourceLength = bufferView.size();
+    
+                for (size_t i = 0; i < ctx.numSamples; ++i) {
+                    if (pos >= (double) (sourceLength - stopOffset)) {
+                        if (!ctx.shouldLoop) {
+                            break;
+                        }
+                        pos = (double) startOffset;
+                    }
+        
+                    // Linear interpolation on the buffer read
+                    auto readLeft = static_cast<size_t>(pos);
+                    auto readRight = readLeft + 1;
+                    auto const frac = FloatType(pos - (double) readLeft);
+        
+                    if (readLeft >= sourceLength)
+                        readLeft -= sourceLength;
+        
+                    if (readRight >= sourceLength)
+                        readRight -= sourceLength;
 
-                for (size_t i = 0; (i < numSamples) && ((position + i) < bufferSize); ++i) {
-                    outputData[j][i] += static_cast<DestType>(localFade(sourceData[position + i]));
+                    auto const left = sourceData[readLeft];
+                    auto const right = sourceData[readRight];
+        
+                    // Now we can read the next sample out of the buffer with linear
+                    // interpolation for sub-sample reads.
+                    auto const out = localFade(left + frac * (right - left));
+                    ctx.outputData[j][i] += static_cast<DestType>(out);
+                    ++pos;
                 }
             }
 
-            // Here we have a localFade instance that has finished running over a block, which
-            // represents where our class instance should now be
+            // Now update the position member to match the updated local position
+            position = pos;
+            // Similarly, update the fade member to have the latest state
             fade = localFade;
-
-            // And update our position
-            position += numSamples;
         }
 
         void reset (double sampleDur) {

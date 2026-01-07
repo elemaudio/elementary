@@ -16,6 +16,8 @@ namespace elem
 
     template <typename FloatType, bool WithStretch = false>
     struct SampleSeqNode : public GraphNode<FloatType> {
+        using ReaderContext = typename BufferReader<FloatType>::template ReadContext<FloatType>;
+
         SampleSeqNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
             , readers({BufferReader<FloatType>(sr, 8.0), BufferReader<FloatType>(sr, 8.0)})
@@ -219,16 +221,36 @@ namespace elem
                 // Clear and read
                 std::fill_n(scratchData, numSourceSamples, FloatType(0));
 
-                readers[0].readAdding(activeBuffer.get(), &scratchData, 1, numSourceSamples);
-                readers[1].readAdding(activeBuffer.get(), &scratchData, 1, numSourceSamples);
+                readers[0].readAdding(ReaderContext{
+                    .source = activeBuffer.get(),
+                    .outputData = &scratchData,
+                    .numChannels = 1,
+                    .numSamples = numSourceSamples,
+                });
+                readers[1].readAdding(ReaderContext{
+                    .source = activeBuffer.get(),
+                    .outputData = &scratchData,
+                    .numChannels = 1,
+                    .numSamples = numSourceSamples,
+                });
 
                 stretch.process(&scratchData, numSourceSamples, &outputData, numSamples);
             } else {
                 // Clear and read
                 std::fill_n(outputData, numSamples, FloatType(0));
 
-                readers[0].readAdding(activeBuffer.get(), &outputData, 1, numSamples);
-                readers[1].readAdding(activeBuffer.get(), &outputData, 1, numSamples);
+                readers[0].readAdding(ReaderContext{
+                    .source = activeBuffer.get(),
+                    .outputData = &outputData,
+                    .numChannels = 1,
+                    .numSamples = numSamples,
+                });
+                readers[1].readAdding(ReaderContext{
+                    .source = activeBuffer.get(),
+                    .outputData = &outputData,
+                    .numChannels = 1,
+                    .numSamples = numSamples,
+                });
             }
         }
 

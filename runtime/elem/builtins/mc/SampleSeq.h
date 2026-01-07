@@ -12,9 +12,11 @@ namespace elem
 
     template <typename FloatType, bool WithStretch = false>
     struct StereoSampleSeqNode : public GraphNode<FloatType> {
+        using ReaderContext = typename BufferReader<FloatType>::template ReadContext<FloatType>;
+
         StereoSampleSeqNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
-            , readers({BufferReader<float>(sr, 8.0), BufferReader<float>(sr, 8.0)})
+            , readers({BufferReader<FloatType>(sr, 8.0), BufferReader<FloatType>(sr, 8.0)})
         {
             if constexpr (WithStretch) {
                 stretch.presetDefault(2, sr);
@@ -227,8 +229,18 @@ namespace elem
                 std::array<FloatType*, 2> ptrs {{scratchData, scratchData + (numSamples * 4)}};
                 auto** scratchPtrs = ptrs.data();
 
-                readers[0].readAdding(activeBuffer.get(), scratchPtrs, ctx.numOutputChannels, numSourceSamples);
-                readers[1].readAdding(activeBuffer.get(), scratchPtrs, ctx.numOutputChannels, numSourceSamples);
+                readers[0].readAdding(ReaderContext{
+                    .source = activeBuffer.get(),
+                    .outputData = scratchPtrs,
+                    .numChannels = ctx.numOutputChannels,
+                    .numSamples = numSourceSamples,
+                });
+                readers[1].readAdding(ReaderContext{
+                    .source = activeBuffer.get(),
+                    .outputData = scratchPtrs,
+                    .numChannels = ctx.numOutputChannels,
+                    .numSamples = numSourceSamples,
+                });
 
                 stretch.process(scratchPtrs, static_cast<int>(numSourceSamples), outputData, static_cast<int>(numSamples));
             } else {
@@ -237,8 +249,18 @@ namespace elem
                     std::fill_n(outputData[i], numSamples, FloatType(0));
                 }
 
-                readers[0].readAdding(activeBuffer.get(), outputData, ctx.numOutputChannels, numSamples);
-                readers[1].readAdding(activeBuffer.get(), outputData, ctx.numOutputChannels, numSamples);
+                readers[0].readAdding(ReaderContext{
+                    .source = activeBuffer.get(),
+                    .outputData = outputData,
+                    .numChannels = ctx.numOutputChannels,
+                    .numSamples = numSamples,
+                });
+                readers[1].readAdding(ReaderContext{
+                    .source = activeBuffer.get(),
+                    .outputData = outputData,
+                    .numChannels = ctx.numOutputChannels,
+                    .numSamples = numSamples,
+                });
             }
         }
 
@@ -254,7 +276,7 @@ namespace elem
         SingleWriterSingleReaderQueue<SharedResourcePtr> bufferQueue;
         SharedResourcePtr activeBuffer;
 
-        std::array<BufferReader<float>, 2> readers;
+        std::array<BufferReader<FloatType>, 2> readers;
         size_t activeReader = 0;
         int64_t nextExpectedBlockStart = 0;
 
