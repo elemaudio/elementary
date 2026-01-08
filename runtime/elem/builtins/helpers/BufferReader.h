@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <optional>
 
@@ -9,22 +10,16 @@
 
 namespace elem
 {
-
     template <typename FloatType>
     struct BufferReader {
         BufferReader(double sampleRate, double fadeTime)
             : fade(sampleRate, fadeTime, fadeTime)
-        {
-        }
+        {}
 
-        void engage (double start, double currentTime, size_t _bufferSize) {
-            startTime = start;
-            bufferSize = _bufferSize;
+        void engage (double _position) {
             fade.fadeIn();
-
-            position = static_cast<size_t>(((currentTime - startTime) / sampleDuration) * (double) (bufferSize - 1u));
-            position = std::clamp<size_t>(position, 0, bufferSize);
-        }
+            position = _position;
+       }
 
         void disengage() {
             fade.fadeOut();
@@ -36,14 +31,15 @@ namespace elem
             DestType** outputData;
             size_t numChannels;
             size_t numSamples;
-            std::optional<uint64_t> startOffset;
-            std::optional<uint64_t> stopOffset;
+            std::optional<uint64_t> startOffsetSamples;
+            std::optional<uint64_t> stopOffsetSamples;
             bool shouldLoop = false;
+            double playbackRate = 1.0;
         };
 
         template <typename DestType>
         void readAdding(ReadContext<DestType> const& ctx) {
-            if (ctx.source == nullptr || position < 0.0 || fade.fadedOut()) {
+            if (ctx.source == nullptr || fade.fadedOut()) {
                 return;
             }
 
@@ -53,71 +49,77 @@ namespace elem
                 return;
             }
 
-            auto const _startOffset = ctx.startOffset.value_or(0);
-            auto const _stopOffset = ctx.stopOffset.value_or(0);
+            auto const _startOffset = ctx.startOffsetSamples.value_or(0);
+            auto const _stopOffset = ctx.stopOffsetSamples.value_or(0);
             auto const startOffset = _startOffset >= 0 ? 
                 std::min(_startOffset, static_cast<uint64_t>(bufferSize)) : 0;
             auto const stopOffset = _stopOffset >= 0 ? 
                 std::min(_stopOffset, static_cast<uint64_t>(bufferSize)) : 0;
+            auto const sampleLength = bufferSize - startOffset - stopOffset;
 
-            auto pos = position;
             elem::GainFade<FloatType> localFade(fade);
+            double pos = position;
 
             for (size_t j = 0; j < numChannels; ++j) {
                 pos = position;
                 localFade = fade;
-                auto bufferView = ctx.source->getChannelData(j);
-                auto* sourceData = bufferView.data();
-                size_t const sourceLength = bufferView.size();
-    
+
+                // Here we take a subview of the buffer that ignores samples before the start offset and after the stop offset.
+                // This view then gets passed into lerpRead() below. This means we can treat a pos of 0 as `startOffset` and a 
+                // pos of 1 as `startOffset + sampleLength`.
+                auto bufferView = BufferView<float>::subview(ctx.source->getChannelData(j).data(),
+                                                             startOffset, sampleLength);
                 for (size_t i = 0; i < ctx.numSamples; ++i) {
-                    if (pos >= (double) (sourceLength - stopOffset)) {
+                    if (pos >= 1.0) {
                         if (!ctx.shouldLoop) {
                             break;
                         }
-                        pos = (double) startOffset;
+                        // Restart the loop. Note there is no crossfade happening yet,
+                        // so loops may be discontinuous.
+                        pos = pos - 1.0;
                     }
         
-                    // Linear interpolation on the buffer read
-                    auto readLeft = static_cast<size_t>(pos);
-                    auto readRight = readLeft + 1;
-                    auto const frac = FloatType(pos - (double) readLeft);
-        
-                    if (readLeft >= sourceLength)
-                        readLeft -= sourceLength;
-        
-                    if (readRight >= sourceLength)
-                        readRight -= sourceLength;
+                    auto const out = static_cast<DestType>(localFade(lerpRead(bufferView, pos)));
+                    ctx.outputData[j][i] += out;
 
-                    auto const left = sourceData[readLeft];
-                    auto const right = sourceData[readRight];
-        
-                    // Now we can read the next sample out of the buffer with linear
-                    // interpolation for sub-sample reads.
-                    auto const out = localFade(left + frac * (right - left));
-                    ctx.outputData[j][i] += static_cast<DestType>(out);
-                    ++pos;
+                    pos += (ctx.playbackRate / static_cast<double>(sampleLength));
                 }
             }
 
-            // Now update the position member to match the updated local position
-            position = pos;
-            // Similarly, update the fade member to have the latest state
+            // Update the fade member to have the latest state
             fade = localFade;
+            position = pos;
         }
 
-        void reset (double sampleDur) {
-            fade.reset();
+        // Linearly interpolates between the two samples adjacent to the given position.
+        // @param pos must be a normalized value between 0 and 1.
+        static FloatType lerpRead(BufferView<float> const& view, double pos)
+        {
+            assert(pos >= 0.0 && pos <= 1.0);
 
-            sampleDuration = sampleDur;
-            startTime = 0.0;
+            auto* data = view.data();
+            auto size = view.size();
+
+            auto const realPos = pos * view.size();
+            auto left = static_cast<size_t>(realPos);
+            auto right = std::min(left + 1, size - 1);
+            auto alpha = realPos - (double) left;
+
+            if (left >= size)
+                return FloatType(0);
+
+            if (right >= size)
+                return data[left];
+
+            return lerp<FloatType>(static_cast<float>(alpha), data[left], data[right]);
+        }
+
+        void reset () {
+            fade.reset();
         }
 
         elem::GainFade<FloatType> fade;
-        size_t bufferSize = 0;
-        size_t position = 0;
 
-        double sampleDuration = 0;
-        double startTime = 0;
+        double position = 0;
     };
 } // namespace elem

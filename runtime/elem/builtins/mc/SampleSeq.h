@@ -125,7 +125,9 @@ namespace elem
                 // Here a value of 1.0 is considered an onset, and anything else
                 // considered an offset.
                 if (fpEqual(prevEvent->second, FloatType(1.0))) {
-                    readers[activeReader].engage(prevEvent->first, t, activeBuffer->numSamples());
+                    // Map t to a normalized position relative to the sample
+                    double const pos = rtSampleDuration > 0.0 ? prevEvent->first / rtSampleDuration : 0.0;
+                    readers[activeReader].engage(pos);
                 }
             }
         }
@@ -139,8 +141,8 @@ namespace elem
             auto const sampleDur = sampleDuration.load();
 
             if (sampleDur != rtSampleDuration) {
-                readers[0].reset(sampleDur);
-                readers[1].reset(sampleDur);
+                readers[0].reset();
+                readers[1].reset();
                 rtSampleDuration = sampleDur;
             }
 
@@ -148,8 +150,8 @@ namespace elem
             while (bufferQueue.size() > 0) {
                 bufferQueue.pop(activeBuffer);
 
-                readers[0].reset(sampleDur);
-                readers[1].reset(sampleDur);
+                readers[0].reset();
+                readers[1].reset();
             }
 
             // Pull newest seq from queue

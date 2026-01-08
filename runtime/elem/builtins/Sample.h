@@ -122,7 +122,7 @@ namespace elem
                 // Rising edge
                 if (cv > FloatType(0.5)) {
                     readers[currentReader & 1].disengage();
-                    readers[++currentReader & 1].engage(ostart, 0, activeBuffer->numSamples());
+                    readers[++currentReader & 1].engage(0);
                 }
 
                 // If we're in trigger mode then we can ignore falling edges
@@ -137,18 +137,20 @@ namespace elem
                     .outputData = outputChannels.data(),
                     .numChannels = 1,
                     .numSamples = 1,
-                    .startOffset = ostart,
-                    .stopOffset = ostop,
+                    .startOffsetSamples = ostart,
+                    .stopOffsetSamples = ostop,
                     .shouldLoop = wantsLoop,
+                    .playbackRate = rate,
                 });
                 readers[1].readAdding(ReaderContext{
                     .source = activeBuffer.get(),
                     .outputData = outputChannels.data(),
                     .numChannels = 1,
                     .numSamples = 1,
-                    .startOffset = ostart,
-                    .stopOffset = ostop,
+                    .startOffsetSamples = ostart,
+                    .stopOffsetSamples = ostop,
                     .shouldLoop = wantsLoop,
+                    .playbackRate = rate,
                 });
             }
         }
@@ -170,6 +172,8 @@ namespace elem
         std::atomic<Mode> mode = Mode::Trigger;
         std::atomic<size_t> startOffset = 0;
         std::atomic<size_t> stopOffset = 0;
+
+        double normalizedPosition = 0;
     };
 
 } // namespace elem

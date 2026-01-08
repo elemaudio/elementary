@@ -126,7 +126,9 @@ namespace elem
                 // considered an offset.
                 if (fpEqual(prevEvent->second, FloatType(1.0))) {
                     auto const bufferView = activeBuffer->getChannelData(0);
-                    readers[activeReader].engage(prevEvent->first, t, bufferView.size());
+                    // Map t to a normalized position relative to the sample
+                    double const pos = rtSampleDuration > 0.0 ? prevEvent->first / rtSampleDuration : 0.0;
+                    readers[activeReader].engage(pos);
                 }
             }
         }
@@ -141,8 +143,8 @@ namespace elem
             auto const sampleDur = sampleDuration.load();
 
             if (sampleDur != rtSampleDuration) {
-                readers[0].reset(sampleDur);
-                readers[1].reset(sampleDur);
+                readers[0].reset();
+                readers[1].reset();
                 rtSampleDuration = sampleDur;
             }
 
@@ -150,8 +152,8 @@ namespace elem
             while (bufferQueue.size() > 0) {
                 bufferQueue.pop(activeBuffer);
 
-                readers[0].reset(sampleDur);
-                readers[1].reset(sampleDur);
+                readers[0].reset();
+                readers[1].reset();
             }
 
             // Pull newest seq from queue
