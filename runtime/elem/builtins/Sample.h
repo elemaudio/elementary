@@ -164,8 +164,6 @@ namespace elem
         std::atomic<Mode> mode = Mode::Trigger;
         std::atomic<size_t> startOffset = 0;
         std::atomic<size_t> stopOffset = 0;
-
-        double normalizedPosition = 0;
     };
 
 } // namespace elem
