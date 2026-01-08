@@ -11,7 +11,8 @@
 namespace elem
 {
     template <typename FloatType>
-    struct BufferReader {
+    class BufferReader {
+    public:
         BufferReader(double sampleRate, double fadeTime)
             : fade(sampleRate, fadeTime, fadeTime)
         {}
@@ -119,6 +120,7 @@ namespace elem
             fade.reset();
         }
 
+    private:
         elem::GainFade<FloatType> fade;
 
         double position = 0;
