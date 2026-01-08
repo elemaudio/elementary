@@ -132,25 +132,17 @@ namespace elem
 
                 auto outputChannels = std::array{&outputData[i]};
                 // Process both readers for the current sample
-                readers[0].readAdding(ReaderContext{
-                    .source = activeBuffer.get(),
-                    .outputData = outputChannels.data(),
-                    .numChannels = 1,
-                    .numSamples = 1,
-                    .startOffsetSamples = ostart,
-                    .stopOffsetSamples = ostop,
-                    .shouldLoop = wantsLoop,
-                    .playbackRate = rate,
-                });
-                readers[1].readAdding(ReaderContext{
-                    .source = activeBuffer.get(),
-                    .outputData = outputChannels.data(),
-                    .numChannels = 1,
-                    .numSamples = 1,
-                    .startOffsetSamples = ostart,
-                    .stopOffsetSamples = ostop,
-                    .shouldLoop = wantsLoop,
-                    .playbackRate = rate,
+                std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
+                    reader.readAdding(ReaderContext{
+                        .source = activeBuffer.get(),
+                        .outputData = outputChannels.data(),
+                        .numChannels = 1,
+                        .numSamples = 1,
+                        .startOffsetSamples = ostart,
+                        .stopOffsetSamples = ostop,
+                        .shouldLoop = wantsLoop,
+                        .playbackRate = rate,
+                    });
                 });
             }
         }
