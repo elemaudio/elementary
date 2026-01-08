@@ -35,6 +35,7 @@ namespace elem
             std::optional<uint64_t> stopOffsetSamples;
             bool shouldLoop = false;
             double playbackRate = 1.0;
+            size_t writeOffset = 0;
         };
 
         template <typename DestType>
@@ -80,7 +81,7 @@ namespace elem
                     }
         
                     auto const out = static_cast<DestType>(localFade(lerpRead(bufferView, pos)));
-                    ctx.outputData[j][i] += out;
+                    ctx.outputData[j][i + ctx.writeOffset] += out;
 
                     pos += (ctx.playbackRate / static_cast<double>(sampleLength));
                 }
