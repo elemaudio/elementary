@@ -220,17 +220,13 @@ namespace elem
                 // Clear and read
                 std::fill_n(scratchData, numSourceSamples, FloatType(0));
 
-                readers[0].readAdding(ReaderContext{
-                    .source = activeBuffer.get(),
-                    .outputData = &scratchData,
-                    .numChannels = 1,
-                    .numSamples = numSourceSamples,
-                });
-                readers[1].readAdding(ReaderContext{
-                    .source = activeBuffer.get(),
-                    .outputData = &scratchData,
-                    .numChannels = 1,
-                    .numSamples = numSourceSamples,
+                std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
+                    reader.readAdding(ReaderContext{
+                        .source = activeBuffer.get(),
+                        .outputData = &scratchData,
+                        .numChannels = 1,
+                        .numSamples = numSourceSamples,
+                    });
                 });
 
                 stretch.process(&scratchData, numSourceSamples, &outputData, numSamples);
@@ -238,17 +234,13 @@ namespace elem
                 // Clear and read
                 std::fill_n(outputData, numSamples, FloatType(0));
 
-                readers[0].readAdding(ReaderContext{
-                    .source = activeBuffer.get(),
-                    .outputData = &outputData,
-                    .numChannels = 1,
-                    .numSamples = numSamples,
-                });
-                readers[1].readAdding(ReaderContext{
-                    .source = activeBuffer.get(),
-                    .outputData = &outputData,
-                    .numChannels = 1,
-                    .numSamples = numSamples,
+                std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
+                    reader.readAdding(ReaderContext{
+                        .source = activeBuffer.get(),
+                        .outputData = &outputData,
+                        .numChannels = 1,
+                        .numSamples = numSamples,
+                    });
                 });
             }
         }

@@ -229,17 +229,13 @@ namespace elem
                 std::array<FloatType*, 2> ptrs {{scratchData, scratchData + (numSamples * 4)}};
                 auto** scratchPtrs = ptrs.data();
 
-                readers[0].readAdding(ReaderContext{
-                    .source = activeBuffer.get(),
-                    .outputData = scratchPtrs,
-                    .numChannels = ctx.numOutputChannels,
-                    .numSamples = numSourceSamples,
-                });
-                readers[1].readAdding(ReaderContext{
-                    .source = activeBuffer.get(),
-                    .outputData = scratchPtrs,
-                    .numChannels = ctx.numOutputChannels,
-                    .numSamples = numSourceSamples,
+                std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
+                    reader.readAdding(ReaderContext{
+                        .source = activeBuffer.get(),
+                        .outputData = scratchPtrs,
+                        .numChannels = ctx.numOutputChannels,
+                        .numSamples = numSourceSamples,
+                    });
                 });
 
                 stretch.process(scratchPtrs, static_cast<int>(numSourceSamples), outputData, static_cast<int>(numSamples));
@@ -249,17 +245,13 @@ namespace elem
                     std::fill_n(outputData[i], numSamples, FloatType(0));
                 }
 
-                readers[0].readAdding(ReaderContext{
-                    .source = activeBuffer.get(),
-                    .outputData = outputData,
-                    .numChannels = ctx.numOutputChannels,
-                    .numSamples = numSamples,
-                });
-                readers[1].readAdding(ReaderContext{
-                    .source = activeBuffer.get(),
-                    .outputData = outputData,
-                    .numChannels = ctx.numOutputChannels,
-                    .numSamples = numSamples,
+                std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
+                    reader.readAdding(ReaderContext{
+                        .source = activeBuffer.get(),
+                        .outputData = outputData,
+                        .numChannels = ctx.numOutputChannels,
+                        .numSamples = numSamples,
+                    });
                 });
             }
         }
