@@ -125,9 +125,7 @@ namespace elem
                 // Here a value of 1.0 is considered an onset, and anything else
                 // considered an offset.
                 if (fpEqual(prevEvent->second, FloatType(1.0))) {
-                    // Map t to a normalized position relative to the sample
-                    double const pos = rtSampleDuration > 0.0 ? prevEvent->first / rtSampleDuration : 0.0;
-                    readers[activeReader].engage(pos);
+                    readers[activeReader].engage(0);
                 }
             }
         }
