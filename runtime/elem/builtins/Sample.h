@@ -98,7 +98,7 @@ namespace elem
             // while playing the sample will cause a discontinuity.
             while (bufferQueue.size() > 0) {
                 bufferQueue.pop(activeBuffer);
-           }
+            }
 
             // If we don't have an input trigger or an active buffer, we can just return here
             if (numChannels < 1 || activeBuffer == nullptr)
