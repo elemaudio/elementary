@@ -150,8 +150,8 @@ namespace elem
                             .startOffsetSamples = ostart,
                             .stopOffsetSamples = ostop,
                             .shouldLoop = wantsLoop,
-                            .writeOffset = i,
                             .playbackRate = rate,
+                            .writeOffset = i,
                         });
                     });
 
@@ -175,8 +175,8 @@ namespace elem
                             .startOffsetSamples = ostart,
                             .stopOffsetSamples = ostop,
                             .shouldLoop = wantsLoop,
-                            .writeOffset = i,
                             .playbackRate = rate,
+                            .writeOffset = i,
                         });
                     });
 
@@ -198,8 +198,8 @@ namespace elem
                     .startOffsetSamples = ostart,
                     .stopOffsetSamples = ostop,
                     .shouldLoop = wantsLoop,
-                    .writeOffset = i,
                     .playbackRate = rate,
+                    .writeOffset = i,
                 });
             });
         }
