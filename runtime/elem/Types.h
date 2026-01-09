@@ -115,6 +115,10 @@ namespace elem
             : _data(__data), _size(__size)
         {}
 
+        static BufferView<FloatType> subview(FloatType* __data, size_t start, size_t length) {
+            return BufferView<FloatType>(__data + start, length);
+        }
+
         FloatType operator[] (size_t i) {
             return _data[i];
         }

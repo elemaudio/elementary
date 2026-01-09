@@ -1,97 +1,24 @@
 #pragma once
 
-#include "../helpers/FloatUtils.h"
-#include "../helpers/GainFade.h"
-
+#include "elem/GraphNode.h"
+#include "elem/SingleWriterSingleReaderQueue.h"
+#include "elem/Types.h"
+#include "elem/builtins/helpers/BufferReader.h"
+#include "elem/builtins/helpers/RefCountedPool.h"
+#include "elem/third-party/signalsmith-stretch/signalsmith-stretch.h"
 
 namespace elem
 {
 
-    namespace detail
-    {
-
-        template <typename FloatType>
-        struct MCBufferReader {
-            MCBufferReader(double sampleRate, double fadeTime)
-                : fade(sampleRate, fadeTime, fadeTime)
-            {
-            }
-
-            void engage (double start, double currentTime, size_t _bufferSize) {
-                startTime = start;
-                bufferSize = _bufferSize;
-                fade.fadeIn();
-
-                position = static_cast<size_t>(((currentTime - startTime) / sampleDuration) * (double) (bufferSize - 1u));
-                position = std::clamp<size_t>(position, 0, bufferSize);
-            }
-
-            void disengage() {
-                fade.fadeOut();
-            }
-
-            // Does the incoming time match what this reader is expecting?
-            //
-            // If we're not engaged, we don't have any expectations so we just say sure.
-            // If we are engaged, we try to map the incoming time onto a position in the
-            // buffer and see if that's far off from where we currently are.
-            bool isAlignedWithTime(double t) {
-                if (!fade.on())
-                    return true;
-
-                size_t newPos = static_cast<size_t>(((t - startTime) / sampleDuration) * (double) (bufferSize - 1u));
-                int delta = static_cast<int>(position) - static_cast<int>(newPos);
-                bool aligned = std::abs(delta) < 16;
-
-                return aligned;
-            }
-
-            template <typename DestType>
-            void readAdding(SharedResource* resource, DestType** outputData, size_t numChannels, size_t numSamples) {
-                elem::GainFade<FloatType> localFade(fade);
-
-                for (size_t j = 0; j < std::min(numChannels, resource->numChannels()); ++j) {
-                    auto bufferView = resource->getChannelData(j);
-                    auto bufferSize = bufferView.size();
-                    auto* sourceData = bufferView.data();
-
-                    // Reinitialize the local copy to match our member instance
-                    localFade = fade;
-
-                    for (size_t i = 0; (i < numSamples) && ((position + i) < bufferSize); ++i) {
-                        outputData[j][i] += static_cast<DestType>(localFade(sourceData[position + i]));
-                    }
-                }
-
-                // Here we have a localFade instance that has finished running over a block, which
-                // represents where our class instance should now be
-                fade = localFade;
-
-                // And update our position
-                position += numSamples;
-            }
-
-            void reset (double sampleDur) {
-                fade.reset();
-
-                sampleDuration = sampleDur;
-                startTime = 0.0;
-            }
-
-            elem::GainFade<FloatType> fade;
-            size_t bufferSize = 0;
-            size_t position = 0;
-
-            double sampleDuration = 0;
-            double startTime = 0;
-        };
-    }
-
     template <typename FloatType, bool WithStretch = false>
     struct StereoSampleSeqNode : public GraphNode<FloatType> {
+        using ReaderContext = typename BufferReader<FloatType>::template ReadContext<FloatType>;
+
+        static constexpr double FadeTime = 8.0;
+
         StereoSampleSeqNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
-            , readers({detail::MCBufferReader<float>(sr, 8.0), detail::MCBufferReader<float>(sr, 8.0)})
+            , readers({BufferReader<FloatType>(sr, FadeTime), BufferReader<FloatType>(sr, FadeTime)})
         {
             if constexpr (WithStretch) {
                 stretch.presetDefault(2, sr);
@@ -199,8 +126,8 @@ namespace elem
 
                 // Here a value of 1.0 is considered an onset, and anything else
                 // considered an offset.
-                if (detail::fpEqual(prevEvent->second, FloatType(1.0))) {
-                    readers[activeReader].engage(prevEvent->first, t, activeBuffer->numSamples());
+                if (fpEqual(prevEvent->second, FloatType(1.0))) {
+                    readers[activeReader].engage(0);
                 }
             }
         }
@@ -214,8 +141,8 @@ namespace elem
             auto const sampleDur = sampleDuration.load();
 
             if (sampleDur != rtSampleDuration) {
-                readers[0].reset(sampleDur);
-                readers[1].reset(sampleDur);
+                readers[0].reset();
+                readers[1].reset();
                 rtSampleDuration = sampleDur;
             }
 
@@ -223,8 +150,8 @@ namespace elem
             while (bufferQueue.size() > 0) {
                 bufferQueue.pop(activeBuffer);
 
-                readers[0].reset(sampleDur);
-                readers[1].reset(sampleDur);
+                readers[0].reset();
+                readers[1].reset();
             }
 
             // Pull newest seq from queue
@@ -304,8 +231,14 @@ namespace elem
                 std::array<FloatType*, 2> ptrs {{scratchData, scratchData + (numSamples * 4)}};
                 auto** scratchPtrs = ptrs.data();
 
-                readers[0].readAdding(activeBuffer.get(), scratchPtrs, ctx.numOutputChannels, numSourceSamples);
-                readers[1].readAdding(activeBuffer.get(), scratchPtrs, ctx.numOutputChannels, numSourceSamples);
+                std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
+                    reader.readAdding(ReaderContext(
+                        activeBuffer.get(),
+                        scratchPtrs,
+                        ctx.numOutputChannels,
+                        numSourceSamples
+                    ));
+                });
 
                 stretch.process(scratchPtrs, static_cast<int>(numSourceSamples), outputData, static_cast<int>(numSamples));
             } else {
@@ -314,8 +247,14 @@ namespace elem
                     std::fill_n(outputData[i], numSamples, FloatType(0));
                 }
 
-                readers[0].readAdding(activeBuffer.get(), outputData, ctx.numOutputChannels, numSamples);
-                readers[1].readAdding(activeBuffer.get(), outputData, ctx.numOutputChannels, numSamples);
+                std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
+                    reader.readAdding(ReaderContext(
+                        activeBuffer.get(),
+                        outputData,
+                        ctx.numOutputChannels,
+                        numSamples
+                    ));
+                });
             }
         }
 
@@ -331,7 +270,7 @@ namespace elem
         SingleWriterSingleReaderQueue<SharedResourcePtr> bufferQueue;
         SharedResourcePtr activeBuffer;
 
-        std::array<detail::MCBufferReader<float>, 2> readers;
+        std::array<BufferReader<FloatType>, 2> readers;
         size_t activeReader = 0;
         int64_t nextExpectedBlockStart = 0;
 

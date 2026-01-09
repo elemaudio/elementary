@@ -99,6 +99,10 @@ namespace elem
             return (targetGain.load() > FloatType(0.5));
         }
 
+        bool fadedOut() const {
+            return targetGain.load() == FloatType(0) && currentGain.load() == FloatType(0);
+        }
+
         bool settled() {
             return fpEqual(targetGain.load(), currentGain.load());
         }

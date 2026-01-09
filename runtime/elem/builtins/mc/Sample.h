@@ -5,8 +5,8 @@
 #include "../../Types.h"
 
 #include "../helpers/Change.h"
-#include "../helpers/GainFade.h"
-#include "../helpers/FloatUtils.h"
+#include "elem/builtins/helpers/BufferReader.h"
+#include <algorithm>
 
 
 namespace elem
@@ -23,6 +23,15 @@ namespace elem
     template <typename FloatType>
     struct MCSampleNode : public GraphNode<FloatType> {
         using GraphNode<FloatType>::GraphNode;
+        using ReaderContext = typename BufferReader<FloatType>::template ReadContext<FloatType>;
+
+        static constexpr double FadeTime = 4.0;
+
+        MCSampleNode(NodeId id, double sr, size_t blockSize)
+            : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
+            , readers({BufferReader<FloatType>(sr, FadeTime), BufferReader<FloatType>(sr, FadeTime)})
+        {
+        }
 
         int setProperty(std::string const& key, js::Value const& val, SharedResourceMap& resources) override
         {
@@ -85,8 +94,8 @@ namespace elem
         }
 
         void reset() override {
-            readers[0].noteOff();
-            readers[1].noteOff();
+            readers[0].disengage();
+            readers[1].disengage();
         }
 
         void process (BlockContext<FloatType> const& ctx) override {
@@ -96,16 +105,14 @@ namespace elem
             auto numOuts = ctx.numOutputChannels;
             auto numSamples = ctx.numSamples;
 
-            auto const sampleRate = GraphNode<FloatType>::getSampleRate();
-
             // First order of business: grab the most recent sample buffer to use if
             // there's anything in the queue. This behavior means that changing the buffer
             // while playing the sample will cause a discontinuity.
             while (bufferQueue.size() > 0) {
                 bufferQueue.pop(activeBuffer);
 
-                readers[0] = MCVariablePitchReader<FloatType>(sampleRate, activeBuffer);
-                readers[1] = MCVariablePitchReader<FloatType>(sampleRate, activeBuffer);
+                readers[0].reset();
+                readers[1].reset();
             }
 
             // First we clear the output buffers
@@ -136,12 +143,23 @@ namespace elem
 
                 if (cv > FloatType(0.5)) {
                     // Read from [i, j]
-                    readers[0].sumInto(outputData, numOuts, i, j - i, rate);
-                    readers[1].sumInto(outputData, numOuts, i, j - i, rate);
+                    std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
+                        reader.readAdding(ReaderContext(
+                            activeBuffer.get(),
+                            outputData,
+                            numOuts,
+                            j - i,
+                            ostart,
+                            ostop,
+                            wantsLoop,
+                            rate,
+                            i
+                        ));
+                    });
 
                     // Update voice state
-                    readers[currentReader & 1].noteOff();
-                    readers[++currentReader & 1].noteOn(ostart, ostop, wantsLoop);
+                    readers[currentReader & 1].disengage();
+                    readers[++currentReader & 1].engage(0);
 
                     // Update counters
                     i = j;
@@ -150,11 +168,22 @@ namespace elem
                 // If we're in trigger mode then we can ignore falling edges
                 if (cv < FloatType(-0.5) && playbackMode != Mode::Trigger) {
                     // Read from [i, j]
-                    readers[0].sumInto(outputData, numOuts, i, j - i, rate);
-                    readers[1].sumInto(outputData, numOuts, i, j - i, rate);
+                    std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
+                        reader.readAdding(ReaderContext(
+                            activeBuffer.get(),
+                            outputData,
+                            numOuts,
+                            j - i,
+                            ostart,
+                            ostop,
+                            wantsLoop,
+                            rate,
+                            i
+                        ));
+                    });
 
                     // Update voice state
-                    readers[currentReader & 1].noteOff();
+                    readers[currentReader & 1].disengage();
 
                     // Break so we can update our sample counters
                     // Update counters
@@ -162,15 +191,26 @@ namespace elem
                 }
             }
 
-            readers[0].sumInto(outputData, numOuts, i, j - i, rate);
-            readers[1].sumInto(outputData, numOuts, i, j - i, rate);
+            std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
+                reader.readAdding(ReaderContext(
+                    activeBuffer.get(),
+                    outputData,
+                    numOuts,
+                    j - i,
+                    ostart,
+                    ostop,
+                    wantsLoop,
+                    rate,
+                    i
+                ));
+            });
         }
 
         SingleWriterSingleReaderQueue<SharedResourcePtr> bufferQueue;
         SharedResourcePtr activeBuffer;
 
         Change<FloatType> change;
-        std::array<MCVariablePitchReader<FloatType>, 2> readers;
+        std::array<BufferReader<FloatType>, 2> readers;
         size_t currentReader = 0;
 
         enum class Mode
@@ -184,108 +224,6 @@ namespace elem
         std::atomic<size_t> startOffset = 0;
         std::atomic<size_t> stopOffset = 0;
         std::atomic<double> playbackRate = 1.0;
-    };
-
-    // A helper struct for reading from sample data with variable rate using
-    // linear interpolation.
-    template <typename FloatType>
-    struct MCVariablePitchReader
-    {
-        MCVariablePitchReader()
-            : sourceBuffer(nullptr), gainFade(44100.0, 4.0, 4.0)
-        {}
-
-        MCVariablePitchReader(FloatType _sampleRate, SharedResourcePtr _sourceBuffer)
-            : sourceBuffer(_sourceBuffer), gainFade(_sampleRate, 4.0, 4.0)
-        {}
-
-        MCVariablePitchReader(MCVariablePitchReader& other)
-            : sourceBuffer(other.sourceBuffer), gainFade(other.gainFade)
-        {}
-
-        void noteOn(size_t _startOffset, size_t _stopOffset, bool wantsLoop)
-        {
-            gainFade.fadeIn();
-
-            startOffset = (double) _startOffset;
-            stopOffset = (double) _stopOffset;
-            shouldLoop = wantsLoop;
-            pos = startOffset;
-        }
-
-        void noteOff()
-        {
-            gainFade.fadeOut();
-        }
-
-        FloatType lerpRead(BufferView<float> const& view, double pos)
-        {
-            auto* data = view.data();
-            auto size = view.size();
-
-            auto left = static_cast<size_t>(pos);
-            auto right = left + 1;
-            auto alpha = pos - (double) left;
-
-            if (left >= size)
-                return FloatType(0);
-
-            if (right >= size)
-                return data[left];
-
-            return lerp(static_cast<float>(alpha), data[left], data[right]);
-        }
-
-        void sumInto(FloatType** outputData, size_t numOuts, size_t writeOffset, size_t numSamples, double playbackRate)
-        {
-            elem::GainFade<FloatType> localFade(gainFade);
-
-            double readStart = startOffset;
-            double readStop = 0;
-
-            for (size_t i = 0; i < std::min(numOuts, sourceBuffer->numChannels()); ++i) {
-                auto bufferView = sourceBuffer->getChannelData(i);
-                size_t const sourceLength = bufferView.size();
-
-                readStop = static_cast<double>(sourceLength) - stopOffset;
-
-                // Reinitialize the local copy to match our member instance
-                localFade = gainFade;
-
-                for (size_t j = 0; j < numSamples; ++j) {
-                    double readPos = pos + static_cast<double>(j) * playbackRate;
-
-                    if (readPos >= readStop) {
-                        if (shouldLoop) {
-                            readPos = readStart + std::fmod(readPos - readStart, readStop - readStart);
-                        } else {
-                            continue;
-                        }
-                    }
-
-                    outputData[i][writeOffset + j] += localFade(lerpRead(bufferView, readPos));
-                }
-            }
-
-            // Here we have a localFade instance that has finished running over a block, which
-            // represents where our class instance should now be
-            gainFade = localFade;
-
-            // And update our position
-            pos += static_cast<double>(numSamples) * playbackRate;
-
-            if (pos >= readStop && shouldLoop) {
-                pos = readStart + std::fmod(pos - readStart, readStop - readStart);
-            }
-        }
-
-        SharedResourcePtr sourceBuffer;
-
-        GainFade<FloatType> gainFade;
-        bool shouldLoop = false;
-        double stopOffset = 0;
-        double startOffset = 0;
-        double pos = 0;
     };
 
 } // namespace elem
