@@ -18,9 +18,13 @@ namespace elem
     struct SampleSeqNode : public GraphNode<FloatType> {
         using ReaderContext = typename BufferReader<FloatType>::template ReadContext<FloatType>;
 
+        // Note: this is set to 1.1 ms to preserve backwards compatibility. Historically, a gain fade with
+        // a step size of 0.02 was used for SampleSeqNode, which comes out to roughly 1.1 ms at 44100 Hz.
+        static constexpr double FadeTime = 1.1;
+
         SampleSeqNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
-            , readers({BufferReader<FloatType>(sr, 8.0), BufferReader<FloatType>(sr, 8.0)})
+            , readers({BufferReader<FloatType>(sr, FadeTime), BufferReader<FloatType>(sr, FadeTime)})
         {
             if constexpr (WithStretch) {
                 stretch.presetDefault(1, sr);

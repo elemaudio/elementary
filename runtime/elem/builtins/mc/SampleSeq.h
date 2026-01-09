@@ -14,9 +14,11 @@ namespace elem
     struct StereoSampleSeqNode : public GraphNode<FloatType> {
         using ReaderContext = typename BufferReader<FloatType>::template ReadContext<FloatType>;
 
+        static constexpr double FadeTime = 8.0;
+
         StereoSampleSeqNode(NodeId id, FloatType const sr, int const blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
-            , readers({BufferReader<FloatType>(sr, 8.0), BufferReader<FloatType>(sr, 8.0)})
+            , readers({BufferReader<FloatType>(sr, FadeTime), BufferReader<FloatType>(sr, FadeTime)})
         {
             if constexpr (WithStretch) {
                 stretch.presetDefault(2, sr);

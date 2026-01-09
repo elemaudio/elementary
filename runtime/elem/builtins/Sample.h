@@ -21,9 +21,11 @@ namespace elem
         using GraphNode<FloatType>::GraphNode;
         using ReaderContext = typename BufferReader<FloatType>::template ReadContext<FloatType>;
 
+        static constexpr double FadeTime = 8.0;
+
         SampleNode(NodeId id, double sr, size_t blockSize)
             : GraphNode<FloatType>::GraphNode(id, sr, blockSize)
-            , readers({BufferReader<FloatType>(sr, 8.0), BufferReader<FloatType>(sr, 8.0)})
+            , readers({BufferReader<FloatType>(sr, FadeTime), BufferReader<FloatType>(sr, FadeTime)})
         {
         }
 
