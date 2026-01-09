@@ -28,15 +28,37 @@ namespace elem
 
         template <typename DestType>
         struct ReadContext {
+            ReadContext(
+                SharedResource* source,
+                DestType** outputData,
+                size_t numChannels,
+                size_t numSamples,
+                std::optional<uint64_t> startOffsetSamples = std::nullopt,
+                std::optional<uint64_t> stopOffsetSamples = std::nullopt,
+                bool shouldLoop = false,
+                double playbackRate = 1.0,
+                size_t writeOffset = 0
+            )
+                : source(source)
+                , outputData(outputData)
+                , numChannels(numChannels)
+                , numSamples(numSamples)
+                , startOffsetSamples(startOffsetSamples)
+                , stopOffsetSamples(stopOffsetSamples)
+                , shouldLoop(shouldLoop)
+                , playbackRate(playbackRate)
+                , writeOffset(writeOffset)
+            {}
+
             SharedResource* source;
             DestType** outputData;
             size_t numChannels;
             size_t numSamples;
             std::optional<uint64_t> startOffsetSamples;
             std::optional<uint64_t> stopOffsetSamples;
-            bool shouldLoop = false;
-            double playbackRate = 1.0;
-            size_t writeOffset = 0;
+            bool shouldLoop;
+            double playbackRate;
+            size_t writeOffset;
         };
 
         template <typename DestType>

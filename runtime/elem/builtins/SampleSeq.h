@@ -225,12 +225,12 @@ namespace elem
                 std::fill_n(scratchData, numSourceSamples, FloatType(0));
 
                 std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
-                    reader.readAdding(ReaderContext{
-                        .source = activeBuffer.get(),
-                        .outputData = &scratchData,
-                        .numChannels = 1,
-                        .numSamples = numSourceSamples,
-                    });
+                    reader.readAdding(ReaderContext(
+                        activeBuffer.get(),
+                        &scratchData,
+                        1,
+                        numSourceSamples
+                    ));
                 });
 
                 stretch.process(&scratchData, numSourceSamples, &outputData, numSamples);
@@ -239,12 +239,12 @@ namespace elem
                 std::fill_n(outputData, numSamples, FloatType(0));
 
                 std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
-                    reader.readAdding(ReaderContext{
-                        .source = activeBuffer.get(),
-                        .outputData = &outputData,
-                        .numChannels = 1,
-                        .numSamples = numSamples,
-                    });
+                    reader.readAdding(ReaderContext(
+                        activeBuffer.get(),
+                        &outputData,
+                        1,
+                        numSamples
+                    ));
                 });
             }
         }

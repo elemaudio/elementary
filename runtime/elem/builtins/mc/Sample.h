@@ -144,17 +144,17 @@ namespace elem
                 if (cv > FloatType(0.5)) {
                     // Read from [i, j]
                     std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
-                        reader.readAdding(ReaderContext{
-                            .source = activeBuffer.get(),
-                            .outputData = outputData,
-                            .numChannels = numOuts,
-                            .numSamples = j - i,
-                            .startOffsetSamples = ostart,
-                            .stopOffsetSamples = ostop,
-                            .shouldLoop = wantsLoop,
-                            .playbackRate = rate,
-                            .writeOffset = i,
-                        });
+                        reader.readAdding(ReaderContext(
+                            activeBuffer.get(),
+                            outputData,
+                            numOuts,
+                            j - i,
+                            ostart,
+                            ostop,
+                            wantsLoop,
+                            rate,
+                            i
+                        ));
                     });
 
                     // Update voice state
@@ -169,17 +169,17 @@ namespace elem
                 if (cv < FloatType(-0.5) && playbackMode != Mode::Trigger) {
                     // Read from [i, j]
                     std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
-                        reader.readAdding(ReaderContext{
-                            .source = activeBuffer.get(),
-                            .outputData = outputData,
-                            .numChannels = numOuts,
-                            .numSamples = j - i,
-                            .startOffsetSamples = ostart,
-                            .stopOffsetSamples = ostop,
-                            .shouldLoop = wantsLoop,
-                            .playbackRate = rate,
-                            .writeOffset = i,
-                        });
+                        reader.readAdding(ReaderContext(
+                            activeBuffer.get(),
+                            outputData,
+                            numOuts,
+                            j - i,
+                            ostart,
+                            ostop,
+                            wantsLoop,
+                            rate,
+                            i
+                        ));
                     });
 
                     // Update voice state
@@ -192,17 +192,17 @@ namespace elem
             }
 
             std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
-                reader.readAdding(ReaderContext{
-                    .source = activeBuffer.get(),
-                    .outputData = outputData,
-                    .numChannels = numOuts,
-                    .numSamples = j - i,
-                    .startOffsetSamples = ostart,
-                    .stopOffsetSamples = ostop,
-                    .shouldLoop = wantsLoop,
-                    .playbackRate = rate,
-                    .writeOffset = i,
-                });
+                reader.readAdding(ReaderContext(
+                    activeBuffer.get(),
+                    outputData,
+                    numOuts,
+                    j - i,
+                    ostart,
+                    ostop,
+                    wantsLoop,
+                    rate,
+                    i
+                ));
             });
         }
 

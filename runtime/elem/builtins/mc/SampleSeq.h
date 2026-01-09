@@ -232,12 +232,12 @@ namespace elem
                 auto** scratchPtrs = ptrs.data();
 
                 std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
-                    reader.readAdding(ReaderContext{
-                        .source = activeBuffer.get(),
-                        .outputData = scratchPtrs,
-                        .numChannels = ctx.numOutputChannels,
-                        .numSamples = numSourceSamples,
-                    });
+                    reader.readAdding(ReaderContext(
+                        activeBuffer.get(),
+                        scratchPtrs,
+                        ctx.numOutputChannels,
+                        numSourceSamples
+                    ));
                 });
 
                 stretch.process(scratchPtrs, static_cast<int>(numSourceSamples), outputData, static_cast<int>(numSamples));
@@ -248,12 +248,12 @@ namespace elem
                 }
 
                 std::for_each(readers.begin(), readers.end(), [&](auto& reader) {
-                    reader.readAdding(ReaderContext{
-                        .source = activeBuffer.get(),
-                        .outputData = outputData,
-                        .numChannels = ctx.numOutputChannels,
-                        .numSamples = numSamples,
-                    });
+                    reader.readAdding(ReaderContext(
+                        activeBuffer.get(),
+                        outputData,
+                        ctx.numOutputChannels,
+                        numSamples
+                    ));
                 });
             }
         }
