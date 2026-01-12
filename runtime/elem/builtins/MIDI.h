@@ -75,6 +75,17 @@ namespace elem
                         voiceMap[voiceIndex].lastModified = steadyClock + time;
                     }
                 }
+
+                if (event.message.isAllNotesOff()) {
+                    // Propagate the event for downstream nodes
+                    ctx.outputEvents.addEvent(time, MidiEvent(event));
+
+                    // Deallocate all voices
+                    std::for_each(voiceMap.begin(), voiceMap.end(), [this, &time](auto& voice) {
+                        voice.note = -1;
+                        voice.lastModified = steadyClock + time;
+                    });
+                }
             });
 
             steadyClock += ctx.numSamples;
@@ -153,7 +164,7 @@ namespace elem
                 if (time >= ctx.numSamples)
                     return;
 
-                if (!event.message.isNoteOn() && !event.message.isNoteOff())
+                if (!event.message.isNoteOn() && !event.message.isNoteOff() && !event.message.isAllNotesOff())
                     return;
 
                 if ((targetChannel >= 0) && (targetChannel != static_cast<int32_t>(event.message.getChannel0to15())))
@@ -166,10 +177,19 @@ namespace elem
                     std::fill_n(ctx.outputData[1] + framesProcessed, framesRemaining, noteVelocity);
                 }
 
-                noteFreq = event.message.getNoteNumber().getFrequency();
-                noteVelocity = event.message.isNoteOff()
-                    ? FloatType(0)
-                    : event.message.getVelocity() / (FloatType) 127;
+                if (event.message.isNoteOn()) {
+                    noteFreq = event.message.getNoteNumber().getFrequency();
+                    noteVelocity = event.message.getVelocity() / (FloatType) 127;
+                }
+
+                if (event.message.isNoteOff()) {
+                    noteFreq = event.message.getNoteNumber().getFrequency();
+                    noteVelocity = FloatType(0);
+                }
+
+                if (event.message.isAllNotesOff()) {
+                    noteVelocity = FloatType(0);
+                }
 
                 framesProcessed = time;
             });
