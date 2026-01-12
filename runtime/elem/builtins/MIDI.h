@@ -75,6 +75,12 @@ namespace elem
                         voiceMap[voiceIndex].lastModified = steadyClock + time;
                     }
                 }
+
+                if (event.message.isAllNotesOff())
+				{
+                    // Clear all voices on CC123 AllNotesOff
+					voiceMap.empty();
+				}
             });
 
             steadyClock += ctx.numSamples;
