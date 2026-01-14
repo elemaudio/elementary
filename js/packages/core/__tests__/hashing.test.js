@@ -1,8 +1,4 @@
-import {
-  el,
-  renderWithDelegate,
-} from '..';
-
+import { el, renderWithDelegate } from "..";
 
 const InstructionTypes = {
   CREATE_NODE: 0,
@@ -69,15 +65,27 @@ class HashlessRenderer {
   }
 
   appendChild(parentHash, childHash) {
-    this.batch.push([InstructionTypes.APPEND_CHILD, this.getMaskId(parentHash), this.getMaskId(childHash)]);
+    this.batch.push([
+      InstructionTypes.APPEND_CHILD,
+      this.getMaskId(parentHash),
+      this.getMaskId(childHash),
+    ]);
   }
 
   setProperty(hash, key, val) {
-    this.batch.push([InstructionTypes.SET_PROPERTY, this.getMaskId(hash), key, val]);
+    this.batch.push([
+      InstructionTypes.SET_PROPERTY,
+      this.getMaskId(hash),
+      key,
+      val,
+    ]);
   }
 
   activateRoots(roots) {
-    this.batch.push([InstructionTypes.ACTIVATE_ROOTS, roots.map(x => this.getMaskId(x))]);
+    this.batch.push([
+      InstructionTypes.ACTIVATE_ROOTS,
+      roots.map((x) => this.getMaskId(x)),
+    ]);
   }
 
   commitUpdates() {
@@ -103,38 +111,41 @@ function sortInstructionBatch(x) {
 
 // To test that our algorithm works even if the hashing function changes. We
 // want to see that the same sets of instructions come through
-test('instruction set similarity without hash values', function() {
+test("instruction set similarity without hash values", function () {
   let tr = new HashlessRenderer();
 
   tr.render(el.cycle(440));
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
 
-test('instruction set similarity without hash values 2', function() {
+test("instruction set similarity without hash values 2", function () {
   let tr = new HashlessRenderer();
 
-  let synthVoice = (hz) => el.mul(
-    0.25,
-    el.add(
-      el.blepsaw(el.mul(hz, 1.001)),
-      el.blepsquare(el.mul(hz, 0.994)),
-      el.blepsquare(el.mul(hz, 0.501)),
-      el.blepsaw(el.mul(hz, 0.496)),
-    ),
-  );
+  let synthVoice = (hz) =>
+    el.mul(
+      0.25,
+      el.add(
+        el.blepsaw(el.mul(hz, 1.001)),
+        el.blepsquare(el.mul(hz, 0.994)),
+        el.blepsquare(el.mul(hz, 0.501)),
+        el.blepsaw(el.mul(hz, 0.496)),
+      ),
+    );
 
   let train = el.train(4.8);
-  let arp = [0, 4, 7, 11, 12, 11, 7, 4].map(x => 261.63 * 0.5 * Math.pow(2, x / 12));
+  let arp = [0, 4, 7, 11, 12, 11, 7, 4]
+    .map((x) => 261.63 * 0.5 * Math.pow(2, x / 12))
+    .map(Math.round); // for snapshot stability
 
   let modulate = (x, rate, amt) => el.add(x, el.mul(amt, el.cycle(rate)));
   let env = el.adsr(0.01, 0.5, 0, 0.4, train);
-  let filt = (x) => el.lowpass(
-    el.add(40, el.mul(modulate(1840, 0.05, 1800), env)),
-    1,
-    x
-  );
+  let filt = (x) =>
+    el.lowpass(el.add(40, el.mul(modulate(1840, 0.05, 1800), env)), 1, x);
 
-  let out = el.mul(0.25, filt(synthVoice(el.seq({seq: arp, hold: true}, train, 0))));
+  let out = el.mul(
+    0.25,
+    filt(synthVoice(el.seq({ seq: arp, hold: true }, train, 0))),
+  );
   tr.render(out, out);
   expect(sortInstructionBatch(tr.getBatch())).toMatchSnapshot();
 });
