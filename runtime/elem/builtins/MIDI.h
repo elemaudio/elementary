@@ -242,4 +242,79 @@ namespace elem
         std::atomic<int32_t> steps = 0;
     };
 
+    // Maps incoming midi CC events into audio signal data.
+    //
+    // This will constantly emit an audio signal representing the value
+    // of the most recent midi CC event that it has processed, filtered
+    // by channel and control number.
+    template <typename FloatType>
+    struct MidiCCNode : public GraphNode<FloatType> {
+        using GraphNode<FloatType>::GraphNode;
+
+        int setProperty(std::string const& key, js::Value const& val) override
+        {
+            if (key == "channel") {
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                auto v = static_cast<int32_t>(std::max(0.0, (js::Number) val));
+                channelFilter.store(v);
+            }
+
+            if (key == "control") {
+                if (!val.isNumber())
+                    return ReturnCode::InvalidPropertyType();
+
+                auto v = static_cast<int32_t>(std::max(0.0, std::min(127.0, (js::Number) val)));
+                controlFilter.store(v);
+            }
+
+            if (key == "normalize") {
+                if (!val.isBool())
+                    return ReturnCode::InvalidPropertyType();
+
+                normalize.store((js::Boolean) val);
+            }
+
+            return GraphNode<FloatType>::setProperty(key, val);
+        }
+
+        void process (BlockContext<FloatType> const& ctx) override {
+            size_t framesProcessed = 0;
+            int32_t const targetChannel = channelFilter.load();
+            int32_t const targetControl = controlFilter.load();
+            bool const shouldNormalize = normalize.load();
+
+            ctx.inputEvents.template processEventsOfType<MidiEvent>([&](size_t time, MidiEvent const& event) {
+                if (time >= ctx.numSamples)
+                    return;
+
+                if (!event.message.isController())
+                    return;
+
+                if ((targetChannel >= 0) && (targetChannel != static_cast<int32_t>(event.message.getChannel0to15())))
+                    return;
+
+                if ((targetControl >= 0) && (targetControl != static_cast<int32_t>(event.message.getControllerNumber())))
+                    return;
+
+                auto framesRemaining = ctx.numSamples - framesProcessed;
+                std::fill_n(ctx.outputData[0] + framesProcessed, framesRemaining, ccValue);
+
+                auto rawValue = static_cast<FloatType>(event.message.getControllerValue());
+                ccValue = shouldNormalize ? (rawValue / FloatType(127)) : rawValue;
+
+                framesProcessed = time;
+            });
+
+            auto framesRemaining = ctx.numSamples - framesProcessed;
+            std::fill_n(ctx.outputData[0] + framesProcessed, framesRemaining, ccValue);
+        }
+
+        std::atomic<int32_t> channelFilter = -1;
+        std::atomic<int32_t> controlFilter = -1;
+        std::atomic<bool> normalize = false;
+        FloatType ccValue = 0;
+    };
+
 } // namespace elem

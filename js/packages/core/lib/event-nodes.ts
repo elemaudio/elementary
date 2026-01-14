@@ -81,6 +81,33 @@ export function midinoteshift(
 }
 
 /**
+ * Emits audio signals reflecting the value of incoming MIDI CC events.
+ *
+ * Unpacks the incoming MIDI CC event stream into an audio-rate signal
+ * representing the controller value. Can filter by channel and control number,
+ * and optionally normalize the output to the 0-1 range.
+ *
+ * @param {Object} props
+ * @param {string} [props.key] - An optional unique identifier for the node
+ * @param {number} [props.channel] - Filter incoming events, react only to those that match the channel number
+ * @param {number} [props.control] - Filter incoming events, react only to those that match the control number
+ * @param {boolean} [props.normalize] - When true, outputs values in range 0-1; when false, outputs raw values 0-127
+ * @param {...ElemNode} children - MIDI event stream(s) to process
+ * @returns {NodeRepr_t}
+ */
+export function midicc(
+  props: {
+    key?: string;
+    channel?: number;
+    control?: number;
+    normalize?: boolean;
+  },
+  ...children: Array<ElemNode>
+): NodeRepr_t {
+  return createNode("midicc", props, children.map(resolve));
+}
+
+/**
  * Emits audio rate signals carrying the current value of the parameter
  * identified by the given parameter index.
  *

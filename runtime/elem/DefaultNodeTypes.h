@@ -149,6 +149,7 @@ namespace elem
             callback("midinoteallocate",    GenericNodeFactory<MidiNoteAllocateNode<FloatType>>());
             callback("midinoteunpack",      GenericNodeFactory<MidiNoteUnpackNode<FloatType>>());
             callback("midinoteshift",       GenericNodeFactory<MidiNoteShiftNode<FloatType>>());
+            callback("midicc",              GenericNodeFactory<MidiCCNode<FloatType>>());
             callback("param",               GenericNodeFactory<ParameterValueNode<FloatType>>());
         }
     };
