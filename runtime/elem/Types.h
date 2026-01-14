@@ -90,6 +90,37 @@ namespace elem
     };
 
     //==============================================================================
+    // A struct representing the current global time in various units
+    struct CurrentTime {
+        int64_t sampleTime;
+        double beatTime;
+        double bpm;
+        double timeSignatureNumerator;
+        double timeSignatureDenominator;
+
+        CurrentTime()
+            : sampleTime(0)
+            , beatTime(0)
+            , bpm(120)
+            , timeSignatureNumerator(4)
+            , timeSignatureDenominator(4)
+        {}
+
+        explicit CurrentTime(
+            int64_t sampleTime,
+            double beatTime,
+            double bpm,
+            double timeSignatureNumerator,
+            double timeSignatureDenominator)
+            : sampleTime(sampleTime)
+            , beatTime(beatTime)
+            , bpm(bpm)
+            , timeSignatureNumerator(timeSignatureNumerator)
+            , timeSignatureDenominator(timeSignatureDenominator)
+        {}
+    };
+
+    //==============================================================================
     // A simple struct representing the inputs to a given GraphNode during the realtime
     // audio block processing step.
     template <typename FloatType>
@@ -104,6 +135,7 @@ namespace elem
         bool active;
         BlockEvents const& inputEvents;
         BlockEvents& outputEvents;
+        CurrentTime currentTime;
     };
 
     //==============================================================================

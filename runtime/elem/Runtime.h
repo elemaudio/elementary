@@ -297,7 +297,8 @@ namespace elem
             userData,
             true,
             emptyInputEvents,
-            emptyOutputEvents
+            emptyOutputEvents,
+            CurrentTime()
         });
     }
 
