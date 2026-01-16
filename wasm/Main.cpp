@@ -225,8 +225,6 @@ public:
             }
         }
 
-        auto const beatTime = sampleTimeToBeatTime(sampleTime, bpm, sampleRate);
-
         auto const currentTime = elem::CurrentTime {
             sampleTime,
             beatTime,
@@ -251,6 +249,7 @@ public:
         });
 
         sampleTime += static_cast<int64_t>(numSamples);
+        beatTime += sampleTimeToBeatTime(numSamples, bpm, sampleRate);
 
         // Prepare to receive new events before the next call
         inputEvents.clear();
@@ -275,12 +274,14 @@ public:
     void setCurrentTime(int const timeInSamples)
     {
         sampleTime = timeInSamples;
+        beatTime = sampleTimeToBeatTime(sampleTime, bpm, sampleRate);
     }
 
     void setCurrentTimeMs(double const timeInMs)
     {
         double const timeInSeconds = timeInMs / 1000.0;
         sampleTime = static_cast<int64_t>(timeInSeconds * sampleRate);
+        beatTime = sampleTimeToBeatTime(sampleTime, bpm, sampleRate);
     }
 
     void setBeatTime(double const timeInBeats)
@@ -288,6 +289,7 @@ public:
         if (sampleRate <= 0.0 || bpm <= 0.0)
             return;
 
+        beatTime = timeInBeats;
         sampleTime = beatTimeToSampleTime(timeInBeats, bpm, sampleRate);
     }
 
@@ -297,7 +299,8 @@ public:
             return;
 
         bpm = beatsPerMinute;
-        // sampleTime stays fixed, beatTime recalculated in next process()
+        // Recalculate sampleTime from beatTime at new BPM
+        sampleTime = beatTimeToSampleTime(beatTime, bpm, sampleRate);
     }
 
     void setTimeSignature(double const numerator, double const denominator)
@@ -458,6 +461,7 @@ private:
     std::vector<double*> scratchPointers;
 
     int64_t sampleTime = 0;
+    double beatTime = 0.0;
     double sampleRate = 0;
 
     double bpm = 120.0;
