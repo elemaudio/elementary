@@ -199,6 +199,33 @@ class ElementaryAudioWorkletProcessor extends AudioWorkletProcessor {
               result: this._native.setCurrentTimeMs(payload.time),
             },
           ]);
+        case "setBeatTime":
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: this._native.setBeatTime(payload.time),
+            },
+          ]);
+        case "setBpm":
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: this._native.setBpm(payload.bpm),
+            },
+          ]);
+        case "setTimeSignature":
+          return this.port.postMessage([
+            "reply",
+            {
+              requestId,
+              result: this._native.setTimeSignature(
+                payload.numerator,
+                payload.denominator,
+              ),
+            },
+          ]);
         case "pushMidiEvent":
           let packedValue = 0 | 0;
 

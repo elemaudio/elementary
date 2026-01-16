@@ -7,9 +7,22 @@
 #include "FFT.h"
 #include "Metro.h"
 #include "SampleTime.h"
+#include "elem/Types.h"
 
 
 using namespace emscripten;
+
+namespace {
+    inline double sampleTimeToBeatTime(int64_t sampleTime, double bpm, double sampleRate) {
+        if (sampleRate <= 0.0) return 0.0;
+        return (sampleTime / sampleRate) * (bpm / 60.0);
+    }
+
+    inline int64_t beatTimeToSampleTime(double beatTime, double bpm, double sampleRate) {
+        if (bpm <= 0.0) return 0;
+        return static_cast<int64_t>((beatTime * 60.0 / bpm) * sampleRate);
+    }
+}
 
 //==============================================================================
 /** The main processor for the WASM DSP. */
@@ -212,6 +225,13 @@ public:
             }
         }
 
+        auto const currentTime = elem::CurrentTime {
+            sampleTime,
+            beatTime,
+            bpm,
+            timeSignatureNumerator,
+            timeSignatureDenominator,
+        };
         // We just operate on our scratch data. Expect the JavaScript caller to hit
         // our getInputBufferData and getOutputBufferData to prepare and extract the actual
         // data for this processor
@@ -225,9 +245,11 @@ public:
             true,
             inputEvents,
             outputEvents,
+            currentTime,
         });
 
         sampleTime += static_cast<int64_t>(numSamples);
+        beatTime += sampleTimeToBeatTime(numSamples, bpm, sampleRate);
 
         // Prepare to receive new events before the next call
         inputEvents.clear();
@@ -252,12 +274,42 @@ public:
     void setCurrentTime(int const timeInSamples)
     {
         sampleTime = timeInSamples;
+        beatTime = sampleTimeToBeatTime(sampleTime, bpm, sampleRate);
     }
 
     void setCurrentTimeMs(double const timeInMs)
     {
         double const timeInSeconds = timeInMs / 1000.0;
         sampleTime = static_cast<int64_t>(timeInSeconds * sampleRate);
+        beatTime = sampleTimeToBeatTime(sampleTime, bpm, sampleRate);
+    }
+
+    void setBeatTime(double const timeInBeats)
+    {
+        if (sampleRate <= 0.0 || bpm <= 0.0)
+            return;
+
+        beatTime = timeInBeats;
+        sampleTime = beatTimeToSampleTime(timeInBeats, bpm, sampleRate);
+    }
+
+    void setBpm(double const beatsPerMinute)
+    {
+        if (beatsPerMinute <= 0.0)
+            return;
+
+        bpm = beatsPerMinute;
+        // Recalculate sampleTime from beatTime at new BPM
+        sampleTime = beatTimeToSampleTime(beatTime, bpm, sampleRate);
+    }
+
+    void setTimeSignature(double const numerator, double const denominator)
+    {
+        if (numerator <= 0.0 || denominator <= 0.0)
+            return;
+
+        timeSignatureNumerator = numerator;
+        timeSignatureDenominator = denominator;
     }
 
 private:
@@ -409,7 +461,12 @@ private:
     std::vector<double*> scratchPointers;
 
     int64_t sampleTime = 0;
+    double beatTime = 0.0;
     double sampleRate = 0;
+
+    double bpm = 120.0;
+    double timeSignatureNumerator = 4.0;
+    double timeSignatureDenominator = 4.0;
 
     size_t numInputChannels = 0;
     size_t numOutputChannels = 2;
@@ -435,5 +492,8 @@ EMSCRIPTEN_BINDINGS(Elementary) {
         .function("process", &ElementaryAudioProcessor::process)
         .function("processQueuedEvents", &ElementaryAudioProcessor::processQueuedEvents)
         .function("setCurrentTime", &ElementaryAudioProcessor::setCurrentTime)
-        .function("setCurrentTimeMs", &ElementaryAudioProcessor::setCurrentTimeMs);
+        .function("setCurrentTimeMs", &ElementaryAudioProcessor::setCurrentTimeMs)
+        .function("setBeatTime", &ElementaryAudioProcessor::setBeatTime)
+        .function("setBpm", &ElementaryAudioProcessor::setBpm)
+        .function("setTimeSignature", &ElementaryAudioProcessor::setTimeSignature);
 };

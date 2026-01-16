@@ -212,4 +212,16 @@ export default class OfflineRenderer extends EventEmitter {
   setCurrentTimeMs(t) {
     this._native.setCurrentTimeMs(t);
   }
+
+  setBeatTime(t: number) {
+    this._native.setBeatTime(t);
+  }
+
+  setBpm(bpm: number) {
+    this._native.setBpm(bpm);
+  }
+
+  setTimeSignature(numerator: number, denominator: number) {
+    this._native.setTimeSignature(numerator, denominator);
+  }
 }

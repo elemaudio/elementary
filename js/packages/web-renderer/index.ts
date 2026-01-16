@@ -223,6 +223,25 @@ export default class WebRenderer extends EventEmitter {
     });
   }
 
+  async setBeatTime(t: number) {
+    return await this._sendWorkletRequest("setBeatTime", {
+      time: t,
+    });
+  }
+
+  async setBpm(bpm: number) {
+    return await this._sendWorkletRequest("setBpm", {
+      bpm: bpm,
+    });
+  }
+
+  async setTimeSignature(numerator: number, denominator: number) {
+    return await this._sendWorkletRequest("setTimeSignature", {
+      numerator: numerator,
+      denominator: denominator,
+    });
+  }
+
   async pushMidiEvent(time, value) {
     return await this._sendWorkletRequest("pushMidiEvent", {
       time,
