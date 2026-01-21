@@ -1,6 +1,7 @@
 build
 dist
 node_modules
+target
 
 .merlin
 .cljs_node_repl

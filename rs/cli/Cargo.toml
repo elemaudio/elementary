@@ -1,0 +1,20 @@
+[package]
+name = "elementary-cli"
+publish = false
+version = { workspace = true }
+description = "An example CLI project demonstrating Elementary Audio runtime bindings"
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+
+[[bin]]
+name = "elementary"
+path = "src/main.rs"
+doc = false
+bench = false
+
+[dependencies]
+# TODO Update version on release
+elementary = { version = "5.0.0", path = "../elementary" }
