@@ -3,6 +3,10 @@
 #include <algorithm>
 #include <sstream>
 #include <unordered_map>
+#include <variant>
+#include <vector>
+
+#include "BlockEvents.h"
 
 
 namespace elem
@@ -98,6 +102,8 @@ namespace elem
         size_t numSamples;
         void* userData;
         bool active;
+        BlockEvents const& inputEvents;
+        BlockEvents& outputEvents;
     };
 
     //==============================================================================

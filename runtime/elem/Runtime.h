@@ -12,6 +12,8 @@
 #include "Value.h"
 #include "JSON.h"
 
+#include "third-party/choc/choc/platform/choc_Assert.h"
+
 
 #ifndef ELEM_DBG
   #ifdef NDEBUG
@@ -55,6 +57,13 @@ namespace elem
             size_t numOutputChannels,
             size_t numSamples,
             void* userData = nullptr);
+
+        // Run the internal audio processing callback with a BlockContext
+        //
+        // This allows invoking the process callback with a BlockContext
+        // directly. The BlockContext uses type-erased events, allowing
+        // the caller to pass any custom event types without template parameters.
+        void process(BlockContext<FloatType> const& ctx);
 
         //==============================================================================
         // Process queued events
@@ -150,6 +159,7 @@ namespace elem
 
         double sampleRate;
         int blockSize;
+
     };
 
     //==============================================================================
@@ -159,6 +169,7 @@ namespace elem
         : bufferAllocator(blockSize)
         , sampleRate(sampleRate)
         , blockSize(blockSize)
+        , renderSeqPool(4, static_cast<size_t>(blockSize))
     {
         DefaultNodeTypes<FloatType>::forEach([this](std::string const& type, NodeFactoryFn&& fn) {
             registerNodeType(type, std::move(fn));
@@ -274,6 +285,25 @@ namespace elem
     template <typename FloatType>
     void Runtime<FloatType>::process(const FloatType** inputChannelData, size_t numInputChannels, FloatType** outputChannelData, size_t numOutputChannels, size_t numSamples, void* userData)
     {
+        BlockEvents emptyInputEvents;
+        BlockEvents emptyOutputEvents;
+
+        process(BlockContext<FloatType> {
+            inputChannelData,
+            numInputChannels,
+            outputChannelData,
+            numOutputChannels,
+            numSamples,
+            userData,
+            true,
+            emptyInputEvents,
+            emptyOutputEvents
+        });
+    }
+
+    template <typename FloatType>
+    void Runtime<FloatType>::process(BlockContext<FloatType> const& ctx)
+    {
         if (rseqQueue.size() > 0) {
             std::shared_ptr<GraphRenderSequence<FloatType>> rseq;
 
@@ -285,7 +315,7 @@ namespace elem
         }
 
         if (rtRenderSeq) {
-            rtRenderSeq->process(inputChannelData, numInputChannels, outputChannelData, numOutputChannels, numSamples, userData);
+            rtRenderSeq->process(ctx);
         }
     }
 
@@ -325,6 +355,7 @@ namespace elem
 
         if (nodeTable.find(nodeId) == nodeTable.end())
             return ReturnCode::NodeNotFound();
+
 
         // This is intentionally called on the non-realtime thread. It is the job
         // of the GraphNode to ensure thread safety between calls to setProperty
@@ -513,6 +544,11 @@ namespace elem
             traverse(visited, visitOrder, connection.source);
         }
 
+        // These asserts check cases that shouldn't be possible, but they're
+        // here as a sanity check
+        CHOC_ASSERT(std::find(visitOrder.begin(), visitOrder.end(), n) == visitOrder.end());
+        CHOC_ASSERT(visited.count(n) == 0);
+
         visitOrder.push_back(n);
         visited.insert(n);
     }
@@ -521,13 +557,10 @@ namespace elem
     std::shared_ptr<GraphRenderSequence<FloatType>> Runtime<FloatType>::buildRenderSequence()
     {
         // Grab a fresh render sequence
-        auto rseq = renderSeqPool.allocate();
+        auto rseq = renderSeqPool.allocate(static_cast<size_t>(blockSize));
 
         // Clear in case it was already used
         rseq->reset();
-
-        // Reset our buffer allocator
-        bufferAllocator.reset();
 
         // Here we iterate all current roots and visit the graph from each
         // root, pushing onto the render sequence.
@@ -559,15 +592,14 @@ namespace elem
         }
 
         for (auto& ptr : sortedRoots) {
-            RootRenderSequence<FloatType> rrs(rseq->bufferMap, ptr);
+            RootRenderSequence<FloatType> rrs(rseq->bufferPool, rseq->eventsBufferPool, ptr);
 
             std::vector<NodeId> visitOrder;
             traverse(visited, visitOrder, ptr->getId());
 
             std::for_each(visitOrder.begin(), visitOrder.end(), [&](NodeId const& nid) {
                 auto& entry = nodeTable.at(nid);
-
-                rrs.push(bufferAllocator, entry.node, entry.inlets, entry.outlets);
+                rrs.push(entry.node, entry.inlets, entry.outlets);
             });
 
             rseq->push(std::move(rrs));
@@ -576,4 +608,4 @@ namespace elem
         return rseq;
     }
 
-} // namespace elem
+}  // namespace elem

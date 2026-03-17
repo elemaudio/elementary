@@ -18,7 +18,7 @@ namespace elem
 
             // If we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
-            if (numChannels < 1)
+            if (numChannels < 1 || inputData[0] == nullptr)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
             for (size_t i = 0; i < numSamples; ++i) {
@@ -39,7 +39,7 @@ namespace elem
 
             // If we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
-            if (numChannels < 2)
+            if (numChannels < 2 || inputData[0] == nullptr || inputData[1] == nullptr)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
             // Copy the first input to the output buffer
@@ -68,7 +68,7 @@ namespace elem
 
             // If we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
-            if (numChannels < 1)
+            if (numChannels < 1 || inputData[0] == nullptr)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
             // Copy the first input to the output buffer
@@ -79,6 +79,9 @@ namespace elem
             // Then for each remaining channel, perform the arithmetic operation
             // into the output buffer.
             for (size_t i = 1; i < numChannels; ++i) {
+                if (inputData[i] == nullptr)
+                    break;
+
                 for (size_t j = 0; j < numSamples; ++j) {
                     outputData[j] = op(outputData[j], inputData[i][j]);
                 }
@@ -114,7 +117,7 @@ namespace elem
 
             // If we don't have the inputs we need, we bail here and zero the buffer
             // hoping to prevent unexpected signals.
-            if (ch < 0 || ch >= numChannels)
+            if (ch < 0 || ch >= numChannels || inputData[ch] == nullptr)
                 return (void) std::fill_n(outputData, numSamples, FloatType(0));
 
             for (size_t i = 0; i < numSamples; ++i) {

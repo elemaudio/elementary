@@ -1,7 +1,8 @@
 #pragma once
 
 #include <memory>
-
+#include <vector>
+#include <functional>
 
 namespace elem
 {
@@ -29,16 +30,18 @@ namespace elem
     class RefCountedPool
     {
     public:
-        RefCountedPool(size_t capacity = 4)
+        template <typename... Args>
+        RefCountedPool(size_t capacity = 4, Args&&... args)
         {
             // Fill the pool with default-constructed shared_ptr<T>s
             for (size_t i = 0; i < capacity; ++i)
             {
-                internal.push_back(std::make_shared<ElementType>());
+                internal.push_back(std::make_shared<ElementType>(std::forward<Args>(args)...));
             }
         }
 
-        std::shared_ptr<ElementType> allocate()
+        template <typename... Args>
+        std::shared_ptr<ElementType> allocate(Args&&... args)
         {
             for (size_t i = 0; i < internal.size(); ++i)
             {
@@ -52,7 +55,7 @@ namespace elem
             }
 
             // If we exceed the pool size, dynamically allocate another element
-            auto next = std::make_shared<ElementType>();
+            auto next = std::make_shared<ElementType>(std::forward<Args>(args)...);
             internal.push_back(next);
 
             return next;

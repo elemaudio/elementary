@@ -1,12 +1,9 @@
-import invariant from 'invariant';
+import invariant from "invariant";
 
-import {
-  EventEmitter,
-  Renderer,
-} from '@elemaudio/core';
+import { EventEmitter, Renderer } from "@elemaudio/core";
 
 // NEEDS WASM_ASYNC COMPILATION FLAG IN THE WASM BUILD SCRIPT
-import Module from './elementary-wasm.cjs';
+import Module from "./elementary-wasm.cjs";
 
 export default class OfflineRenderer extends EventEmitter {
   private _module: any;
@@ -18,13 +15,16 @@ export default class OfflineRenderer extends EventEmitter {
 
   async initialize(options) {
     // Default option assignment
-    const config = Object.assign({
-      numInputChannels: 0,
-      numOutputChannels: 2,
-      sampleRate: 44100,
-      blockSize: 512,
-      virtualFileSystem: {},
-    }, options);
+    const config = Object.assign(
+      {
+        numInputChannels: 0,
+        numOutputChannels: 2,
+        sampleRate: 44100,
+        blockSize: 512,
+        virtualFileSystem: {},
+      },
+      options,
+    );
 
     // Unpack
     const {
@@ -41,17 +41,23 @@ export default class OfflineRenderer extends EventEmitter {
 
     try {
       this._module = await Module();
-      this._native = new this._module.ElementaryAudioProcessor(numInputChannels, numOutputChannels);
+      this._native = new this._module.ElementaryAudioProcessor(
+        numInputChannels,
+        numOutputChannels,
+      );
       this._native.prepare(sampleRate, blockSize);
     } catch (e) {
       if (e instanceof WebAssembly.RuntimeError) {
-        throw new Error('Failed to load the Elementary WASM backend. Running Elementary within Node.js requires Node v18, or Node v16 with --experimental-wasm-eh enabled.');
+        throw new Error(
+          "Failed to load the Elementary WASM backend. Running Elementary within Node.js requires Node v18, or Node v16 with --experimental-wasm-eh enabled.",
+        );
       }
 
       throw e;
     }
 
-    const validVFS = typeof virtualFileSystem === 'object' &&
+    const validVFS =
+      typeof virtualFileSystem === "object" &&
       virtualFileSystem !== null &&
       Object.keys(virtualFileSystem).length > 0;
 
@@ -60,7 +66,7 @@ export default class OfflineRenderer extends EventEmitter {
         let result = this._native.addSharedResource(key, val);
 
         if (!result.success) {
-          this.emit('error', new Error(result.message));
+          this.emit("error", new Error(result.message));
         }
       }
     }
@@ -71,7 +77,7 @@ export default class OfflineRenderer extends EventEmitter {
   }
 
   async render(...args) {
-    const {result, ...stats} = await this._renderer.render(...args);
+    const { result, ...stats } = await this._renderer.render(...args);
 
     if (!result.success) {
       return Promise.reject(result);
@@ -84,12 +90,30 @@ export default class OfflineRenderer extends EventEmitter {
     return this._renderer.createRef(kind, props, children);
   }
 
+  pushMidiEvent(time: number, value: Uint8Array) {
+    let packedValue = 0 | 0;
+
+    packedValue |= value[0] << 16;
+    packedValue |= value[1] << 8;
+    packedValue |= value[2];
+
+    this._native.pushMidiEvent(time, packedValue);
+  }
+
+  pushParamValueEvent(time: number, index: number, value: number) {
+    this._native.pushParamValueEvent(time, index, value);
+  }
+
   process(inputs: Array<Float32Array>, outputs: Array<Float32Array>) {
     if (!Array.isArray(inputs) || inputs.length !== this._numInputChannels)
-      throw new Error(`Invalid input data; expected an array of ${this._numInputChannels} Float32Array buffers.`);
+      throw new Error(
+        `Invalid input data; expected an array of ${this._numInputChannels} Float32Array buffers.`,
+      );
 
     if (!Array.isArray(outputs) || outputs.length !== this._numOutputChannels)
-      throw new Error(`Invalid output data; expected an array of ${this._numOutputChannels} Float32Array buffers.`);
+      throw new Error(
+        `Invalid output data; expected an array of ${this._numOutputChannels} Float32Array buffers.`,
+      );
 
     // Nothing to do
     if (outputs.length === 0) {
@@ -107,14 +131,14 @@ export default class OfflineRenderer extends EventEmitter {
         const internalData = this._native.getInputBufferData(i);
 
         for (let j = 0; j < this._blockSize; ++j) {
-          internalData[j] = (k + j) < buf.length ? buf[k + j] : 0;
+          internalData[j] = k + j < buf.length ? buf[k + j] : 0;
         }
       });
 
       this._native.process(this._blockSize);
 
       this._native.processQueuedEvents((evtBatch) => {
-        evtBatch.forEach(({type, event}) => {
+        evtBatch.forEach(({ type, event }) => {
           this.emit(type, event);
         });
       });
@@ -133,15 +157,22 @@ export default class OfflineRenderer extends EventEmitter {
   }
 
   updateVirtualFileSystem(vfs) {
-    const valid = typeof vfs === 'object' && vfs !== null;
+    const valid = typeof vfs === "object" && vfs !== null;
 
-    invariant(valid, "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values");
+    invariant(
+      valid,
+      "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values",
+    );
 
-    Object.keys(vfs).forEach(function(key) {
-      const validValue = typeof vfs[key] === 'object' &&
-        (Array.isArray(vfs[key]) || (vfs[key] instanceof Float32Array));
+    Object.keys(vfs).forEach(function (key) {
+      const validValue =
+        typeof vfs[key] === "object" &&
+        (Array.isArray(vfs[key]) || vfs[key] instanceof Float32Array);
 
-      invariant(validValue, "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values");
+      invariant(
+        validValue,
+        "Virtual file system must be an object mapping string type keys to Array<Float32Array> | Float32Array type values",
+      );
     });
 
     for (let [key, val] of Object.entries(vfs)) {
@@ -154,7 +185,7 @@ export default class OfflineRenderer extends EventEmitter {
 
     return {
       success: true,
-      message: 'Ok',
+      message: "Ok",
     };
   }
 
