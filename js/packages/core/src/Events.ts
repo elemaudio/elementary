@@ -7,6 +7,7 @@ type EventTypes = {
   fft: (data: { source?: string, data: { real: Float32Array, imag: Float32Array } }) => void;
   load: () => void;
   meter: (data: { source?: string, min: number; max: number, }) => void;
+  metro: (data: { source?: string }) => void;
   scope: (data: { source?: string, data: Float32Array[] }) => void;
   snapshot: (data: { source?: string, data: number }) => void;
 };
