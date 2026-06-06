@@ -15,4 +15,8 @@ if(BUILD_TESTING AND NOT ONLY_BUILD_WASM)
   target_link_libraries(runtime_tests PRIVATE elem::${TargetName})
   target_compile_features(runtime_tests PRIVATE cxx_std_17)
   add_test(NAME runtime_tests COMMAND runtime_tests)
+
+  add_executable(runtime_benchmarks tests/PhasorNodeBenchmark.cpp)
+  target_link_libraries(runtime_benchmarks PRIVATE elem::${TargetName})
+  target_compile_features(runtime_benchmarks PRIVATE cxx_std_17)
 endif()
