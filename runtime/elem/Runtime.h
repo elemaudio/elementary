@@ -491,8 +491,8 @@ namespace elem
     {
         js::Object ret;
 
-        for (auto& [nodeId, node] : nodeTable) {
-            ret.insert({nodeIdToHex(nodeId), node->getProperties()});
+        for (auto& [nodeId, entry] : nodeTable) {
+            ret.insert({nodeIdToHex(nodeId), entry.node->getProperties()});
         }
 
         return ret;
