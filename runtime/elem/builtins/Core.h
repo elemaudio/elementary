@@ -84,10 +84,13 @@ namespace elem
 
     template <typename FloatType, bool WithReset = false>
     struct PhasorNode : public GraphNode<FloatType> {
-        using GraphNode<FloatType>::GraphNode;
+        PhasorNode(NodeId id, double sr, size_t blockSize)
+            : GraphNode<FloatType>(id, sr, blockSize)
+            , sampleInterval(FloatType(1.0) / FloatType(sr))
+        {}
 
         FloatType tick (FloatType freq) {
-            FloatType step = freq * (FloatType(1.0) / FloatType(GraphNode<FloatType>::getSampleRate()));
+            FloatType step = freq * sampleInterval;
             FloatType y = phase;
 
             FloatType next = phase + step;
@@ -132,6 +135,7 @@ namespace elem
         }
 
         Change<FloatType> change;
+        FloatType sampleInterval;
         FloatType phase = 0;
     };
 
