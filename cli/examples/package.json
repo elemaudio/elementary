@@ -1,10 +1,10 @@
 {
   "type": "module",
   "scripts": {
-    "build": "esbuild *.js --bundle --outdir=dist"
+    "build": "esbuild *.js renderer/*.js --bundle --outdir=dist --outbase=."
   },
   "dependencies": {
-    "@elemaudio/core": "^3.2",
+    "@elemaudio/core": "^4.0",
     "esbuild": "^0.17.8"
   }
 }

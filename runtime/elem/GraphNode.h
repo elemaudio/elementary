@@ -6,6 +6,7 @@
 
 #include <unordered_map>
 #include <functional>
+#include <string>
 
 namespace elem
 {
@@ -35,6 +36,11 @@ namespace elem
         NodeId getId() { return nodeId; }
 
         //==============================================================================
+        // The kind of node this represents
+        std::string getKind() { return kind; }
+        void setKind(std::string k) { kind = std::move(k); }
+
+        //==============================================================================
         double getSampleRate() { return sampleRate; }
         size_t getBlockSize() { return blockSize; }
 
@@ -62,6 +68,7 @@ namespace elem
 
         // Returns a copy of the entire property object in its current state
         js::Object getProperties();
+        [[nodiscard]] js::Object getProperties() const;
 
         // Process the next block of audio data.
         //
@@ -89,6 +96,7 @@ namespace elem
     private:
         //==============================================================================
         NodeId nodeId;
+        std::string kind;
         std::unordered_map<std::string, js::Value> props;
 
         double sampleRate;
@@ -128,6 +136,11 @@ namespace elem
 
     template <typename FloatType>
     js::Object GraphNode<FloatType>::getProperties() {
+        return js::Object(props.begin(), props.end());
+    }
+
+    template <typename FloatType>
+    js::Object GraphNode<FloatType>::getProperties() const {
         return js::Object(props.begin(), props.end());
     }
 

@@ -1,12 +1,14 @@
 build
 dist
 node_modules
+.worktrees
 
 .merlin
 .cljs_node_repl
 .cpcache
 .cache
 .DS_Store
+.idea
 
 *.swp
 

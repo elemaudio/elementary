@@ -39,6 +39,17 @@ jobs:
           cmake --build . --config Release -j 8
           popd
 
+      - name: Test
+        shell: bash
+        run: |
+          set -x
+          set -e
+
+          # Run the native tests
+          pushd ./build/native/
+          ctest -C Release --output-on-failure
+          popd
+
   wasm:
     runs-on: ubuntu-latest
     steps:

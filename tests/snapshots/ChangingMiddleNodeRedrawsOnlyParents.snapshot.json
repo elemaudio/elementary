@@ -1,0 +1,265 @@
+{
+  "0x02dafc2d": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x4745aabb"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x592ad7e4"
+      }
+    ],
+    "kind": "add",
+    "outlets": [
+      {
+        "destination": "0x6db02b74",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x082673c0": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x2e74dac5",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 1000.0
+    }
+  },
+  "0x143afa6e": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x2e74dac5",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x4745aabb",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 1.0
+    }
+  },
+  "0x1ead3053": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x2e74dac5"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x592ad7e4"
+      }
+    ],
+    "kind": "add",
+    "outlets": [
+      {
+        "destination": "0x2f393ce6",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x2dbb8e97": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x479e61a7"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x2e74dac5",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x4745aabb",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x2e74dac5": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x082673c0"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x143afa6e"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x2dbb8e97"
+      }
+    ],
+    "kind": "svf",
+    "outlets": [
+      {
+        "destination": "0x1ead3053",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 3.0,
+      "mode": "lowpass"
+    }
+  },
+  "0x2f393ce6": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x1ead3053"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": false,
+      "channel": 0.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  },
+  "0x4745aabb": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x62c8054a"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x143afa6e"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x2dbb8e97"
+      }
+    ],
+    "kind": "svf",
+    "outlets": [
+      {
+        "destination": "0x02dafc2d",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 3.0,
+      "mode": "lowpass"
+    }
+  },
+  "0x479e61a7": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x2dbb8e97",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 440.0
+    }
+  },
+  "0x4bd5b93b": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x513adfab"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x592ad7e4",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x513adfab": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x4bd5b93b",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 220.0
+    }
+  },
+  "0x592ad7e4": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x4bd5b93b"
+      }
+    ],
+    "kind": "sin",
+    "outlets": [
+      {
+        "destination": "0x1ead3053",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x02dafc2d",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x62c8054a": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x4745aabb",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 500.0
+    }
+  },
+  "0x6db02b74": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x02dafc2d"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": true,
+      "channel": 0.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  }
+}

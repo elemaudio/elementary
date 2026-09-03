@@ -1,0 +1,1408 @@
+{
+  "0x05bfc38b": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x53153b81"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x506909fd"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x18a34a0d",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x0845ee19": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x4161b937"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x50689604"
+      }
+    ],
+    "kind": "add",
+    "outlets": [
+      {
+        "destination": "0x1ebff391",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x0aad11b3": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3ca59a13"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x53153b81",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x0cf0df3d": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x597c1ba2"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x36e37c86"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x506909fd",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x0d0b5f96": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x143afa6e"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x43019005"
+      }
+    ],
+    "kind": "sub",
+    "outlets": [
+      {
+        "destination": "0x45af1755",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x103a4752": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x44b82e5d",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.496
+    }
+  },
+  "0x143afa6e": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x1ebff391",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x4823f33a",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x597c1ba2",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x339b21b4",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x0d0b5f96",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 1.0
+    }
+  },
+  "0x1597c605": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x348f4d5e"
+      }
+    ],
+    "kind": "blepsquare",
+    "outlets": [
+      {
+        "destination": "0x42373723",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x17751439": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x38b88ead"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x2e058ba6"
+      }
+    ],
+    "kind": "div",
+    "outlets": [
+      {
+        "destination": "0x43019005",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x18a34a0d": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x05bfc38b"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x603f3054"
+      }
+    ],
+    "kind": "add",
+    "outlets": [
+      {
+        "destination": "0x6d5a709e",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x18d07c7c": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x52824f8c",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x753760ba",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.25
+    }
+  },
+  "0x1a1c2d33": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x238b51c1",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 6.91
+    }
+  },
+  "0x1ebff391": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x0845ee19"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x143afa6e"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x753760ba"
+      }
+    ],
+    "kind": "svf",
+    "outlets": [
+      {
+        "destination": "0x52824f8c",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 3.0,
+      "mode": "lowpass"
+    }
+  },
+  "0x1f2b7c19": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x29936b00"
+      }
+    ],
+    "kind": "blepsaw",
+    "outlets": [
+      {
+        "destination": "0x42373723",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x1ff1cd61": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x348f4d5e",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.994
+    }
+  },
+  "0x238b51c1": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x6d5a709e"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x1a1c2d33"
+      }
+    ],
+    "kind": "div",
+    "outlets": [
+      {
+        "destination": "0x2e058ba6",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x239bf85b": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x42f67ac8",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.501
+    }
+  },
+  "0x2495d4de": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x43b576d6"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x6d5ba1e6",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x288f351d": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x52824f8c"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": true,
+      "channel": 0.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  },
+  "0x29936b00": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x61aca52e"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x4be50ce3"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x1f2b7c19",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x2dccdaf4": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x53153b81"
+      }
+    ],
+    "kind": "counter",
+    "outlets": [
+      {
+        "destination": "0x66354d59",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x2e058ba6": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x238b51c1"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x3cc3c6a4"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x17751439",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x32d83d47": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x61aca52e",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x7050ac80",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x3f962b08",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.0
+    }
+  },
+  "0x32e137a3": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x603f3054",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.4
+    }
+  },
+  "0x339b21b4": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x66354d59"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x143afa6e"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x721c9344",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x348f4d5e": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x61aca52e"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x1ff1cd61"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x1597c605",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x36e37c86": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x53153b81",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x0cf0df3d",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.5
+    }
+  },
+  "0x37187afc": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x52824f8c"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": true,
+      "channel": 1.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  },
+  "0x389c5e74": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x6c3acc40",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 1840.0
+    }
+  },
+  "0x38b88ead": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x17751439",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": -1.0
+    }
+  },
+  "0x3999e90c": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x44b82e5d"
+      }
+    ],
+    "kind": "blepsaw",
+    "outlets": [
+      {
+        "destination": "0x42373723",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x3ca59a13": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x0aad11b3",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 4.8
+    }
+  },
+  "0x3cc3c6a4": {
+    "inlets": [],
+    "kind": "sr",
+    "outlets": [
+      {
+        "destination": "0x4d23bc0b",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x2e058ba6",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {}
+  },
+  "0x3e6a1ebb": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x6d5ba1e6",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 6.2831854820251465
+    }
+  },
+  "0x3f962b08": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x597c1ba2"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x32d83d47"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x721c9344",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x4161b937": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x0845ee19",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 40.0
+    }
+  },
+  "0x42373723": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x1f2b7c19"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x1597c605"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x70f39b3f"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x3999e90c"
+      }
+    ],
+    "kind": "add",
+    "outlets": [
+      {
+        "destination": "0x753760ba",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 4.0
+    }
+  },
+  "0x42f67ac8": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x61aca52e"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x239bf85b"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x70f39b3f",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x43019005": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x17751439"
+      }
+    ],
+    "kind": "exp",
+    "outlets": [
+      {
+        "destination": "0x554cbdbd",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x0d0b5f96",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x43ac7c7a": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x4d23bc0b",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x7cd1bc08",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.01
+    }
+  },
+  "0x43b576d6": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x2495d4de",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.05
+    }
+  },
+  "0x43f22ffc": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x47308848"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x45b2086d"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x6c3acc40",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x44b82e5d": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x61aca52e"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x103a4752"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x3999e90c",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x45af1755": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x0d0b5f96"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x55f3a462"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x554cbdbd",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x45b2086d": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x6d5ba1e6"
+      }
+    ],
+    "kind": "sin",
+    "outlets": [
+      {
+        "destination": "0x43f22ffc",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x47308848": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x43f22ffc",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 1800.0
+    }
+  },
+  "0x4823f33a": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x143afa6e"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x53153b81"
+      }
+    ],
+    "kind": "sub",
+    "outlets": [
+      {
+        "destination": "0x7050ac80",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x603f3054",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x4be50ce3": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x29936b00",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 1.001
+    }
+  },
+  "0x4d23bc0b": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x43ac7c7a"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x3cc3c6a4"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x66354d59",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x50689604": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x6c3acc40"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x554cbdbd"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x0845ee19",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x506909fd": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x7cd1bc08"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x0cf0df3d"
+      }
+    ],
+    "kind": "add",
+    "outlets": [
+      {
+        "destination": "0x05bfc38b",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x52824f8c": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x18d07c7c"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x1ebff391"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x37187afc",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x288f351d",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x53153b81": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x0aad11b3"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x36e37c86"
+      }
+    ],
+    "kind": "le",
+    "outlets": [
+      {
+        "destination": "0x61aca52e",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x4823f33a",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x65120e46",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x2dccdaf4",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x05bfc38b",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x554cbdbd": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x43019005"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x45af1755"
+      }
+    ],
+    "kind": "pole",
+    "outlets": [
+      {
+        "destination": "0x50689604",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x55f3a462": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x65120e46"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x7050ac80"
+      }
+    ],
+    "kind": "add",
+    "outlets": [
+      {
+        "destination": "0x45af1755",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x597c1ba2": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x143afa6e"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x66354d59"
+      }
+    ],
+    "kind": "sub",
+    "outlets": [
+      {
+        "destination": "0x3f962b08",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x0cf0df3d",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x603f3054": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x4823f33a"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x32e137a3"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x18a34a0d",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x61aca52e": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x53153b81"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x32d83d47"
+      }
+    ],
+    "kind": "seq",
+    "outlets": [
+      {
+        "destination": "0x44b82e5d",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x42f67ac8",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x348f4d5e",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x29936b00",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0,
+      "hold": true,
+      "seq": [
+        130.815,
+        164.81657214199782,
+        196.0010402616231,
+        246.94583642691146,
+        261.63,
+        246.94583642691146,
+        196.0010402616231,
+        164.81657214199782
+      ]
+    }
+  },
+  "0x65120e46": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x53153b81"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x721c9344"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x55f3a462",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x66354d59": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x2dccdaf4"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x4d23bc0b"
+      }
+    ],
+    "kind": "le",
+    "outlets": [
+      {
+        "destination": "0x597c1ba2",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x339b21b4",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x7cd1bc08",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x69f46ada": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x6d5a709e",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.0001
+    }
+  },
+  "0x6c3acc40": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x389c5e74"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x43f22ffc"
+      }
+    ],
+    "kind": "add",
+    "outlets": [
+      {
+        "destination": "0x50689604",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x6d5a709e": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x69f46ada"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x18a34a0d"
+      }
+    ],
+    "kind": "max",
+    "outlets": [
+      {
+        "destination": "0x238b51c1",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x6d5ba1e6": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3e6a1ebb"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x2495d4de"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x45b2086d",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x7050ac80": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x4823f33a"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x32d83d47"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x55f3a462",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x70f39b3f": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x42f67ac8"
+      }
+    ],
+    "kind": "blepsquare",
+    "outlets": [
+      {
+        "destination": "0x42373723",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x721c9344": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x339b21b4"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x3f962b08"
+      }
+    ],
+    "kind": "add",
+    "outlets": [
+      {
+        "destination": "0x65120e46",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x753760ba": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x18d07c7c"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x42373723"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x1ebff391",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x7cd1bc08": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x66354d59"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x43ac7c7a"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x506909fd",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  }
+}

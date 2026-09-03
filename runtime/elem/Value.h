@@ -48,15 +48,58 @@ namespace js
         Value (Null v)                  : var(v) {}
         Value (Boolean v)               : var(v) {}
         Value (Number v)                : var(v) {}
+        Value (int32_t v)               : var(static_cast<Number>(v)) {}
         Value (char const* v)           : var(String(v)) {}
         Value (String const& v)         : var(v) {}
+        Value (String&& v)              : var(std::move(v)) {}
         Value (Array const& v)          : var(v) {}
+        Value (Array&& v)               : var(std::move(v)) {}
         Value (Float32Array const& v)   : var(v) {}
+        Value (Float32Array&& v)        : var(std::move(v)) {}
         Value (Object const& v)         : var(v) {}
+        Value (Object&& v)              : var(std::move(v)) {}
         Value (Function const& v)       : var(v) {}
+
+        // Converting constructor from any std::variant whose alternatives are each
+        // themselves convertible to Value (e.g. std::variant<Boolean, Array>).
+        template <typename... Ts, typename = std::enable_if_t<(std::is_constructible_v<Value, Ts const&> && ...)>>
+        Value (std::variant<Ts...> const& v)
+            : var(std::visit([](auto const& x) -> VarType { return Value(x).var; }, v)) {}
+
+        template <typename... Ts, typename = std::enable_if_t<(std::is_constructible_v<Value, Ts&&> && ...)>>
+        Value (std::variant<Ts...>&& v)
+            : var(std::visit([](auto&& x) -> VarType { return Value(std::forward<decltype(x)>(x)).var; }, std::move(v))) {}
 
         Value (Value const& valueToCopy) : var(valueToCopy.var) {}
         Value (Value && valueToMove) noexcept : var(std::move(valueToMove.var)) {}
+
+        /**
+         * Compare two Values using the == operator of their underlying type.
+         * Comparing two values that do not have the exact same type will always return false (i.e. Array != Float32Array).
+         * Comparing Functions will always return false.
+         * Comparing Null and Undefined will only return true if both Values are of the same type.
+         */
+        bool operator== (Value const& other) const
+        {
+            if (var.index() != other.var.index()) return false;
+
+            return std::visit([&other](auto const& lhs) -> bool {
+                using T = std::decay_t<decltype(lhs)>;
+
+                if constexpr (std::is_same_v<T, Function>) {
+                    return false;
+                } else if constexpr (std::is_same_v<T, Undefined> || std::is_same_v<T, Null>) {
+                    return true;
+                } else {
+                    return lhs == std::get<T>(other.var);
+                }
+            }, var);
+        }
+
+        bool operator!= (Value const& other) const
+        {
+            return !(*this == other);
+        }
 
         //==============================================================================
         // Assignment

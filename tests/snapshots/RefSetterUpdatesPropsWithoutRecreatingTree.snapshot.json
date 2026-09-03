@@ -1,0 +1,104 @@
+{
+  "0x0296a2f0": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x39469f88",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "key": "__refKey:0",
+      "value": 550.0
+    }
+  },
+  "0x252dde60": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3e6a1ebb"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x39469f88"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x428b15b7",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x39469f88": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x0296a2f0"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x252dde60",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x3e6a1ebb": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x252dde60",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 6.2831854820251465
+    }
+  },
+  "0x428b15b7": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x252dde60"
+      }
+    ],
+    "kind": "sin",
+    "outlets": [
+      {
+        "destination": "0x4b038dda",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x4b038dda": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x428b15b7"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": true,
+      "channel": 0.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  }
+}

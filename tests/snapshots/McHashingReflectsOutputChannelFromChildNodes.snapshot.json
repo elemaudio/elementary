@@ -1,0 +1,145 @@
+{
+  "0x0dd2204b": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x7764ada3"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x5b620726"
+      }
+    ],
+    "kind": "add",
+    "outlets": [
+      {
+        "destination": "0x6406d28e",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x143afa6e": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x474915b0",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 1.0
+    }
+  },
+  "0x36e37c86": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x5b620726",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x7764ada3",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.5
+    }
+  },
+  "0x474915b0": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x143afa6e"
+      }
+    ],
+    "kind": "mc.sampleseq2",
+    "outlets": [
+      {
+        "destination": "0x5b620726",
+        "outletChannel": 1.0
+      },
+      {
+        "destination": "0x7764ada3",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "duration": 2.0,
+      "path": "/v/path",
+      "seq": [
+        {
+          "time": 0.0,
+          "value": 1.0
+        }
+      ]
+    }
+  },
+  "0x5b620726": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x36e37c86"
+      },
+      {
+        "outletChannel": 1.0,
+        "source": "0x474915b0"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x0dd2204b",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x6406d28e": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x0dd2204b"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": true,
+      "channel": 0.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  },
+  "0x7764ada3": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x36e37c86"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x474915b0"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x0dd2204b",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  }
+}

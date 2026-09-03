@@ -1,0 +1,124 @@
+{
+  "0x2dbb8e97": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x479e61a7"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x33922df7",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x31bc2e98": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3faa2928"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": true,
+      "channel": 1.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  },
+  "0x33922df7": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3e6a1ebb"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x2dbb8e97"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x3faa2928",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x3e6a1ebb": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x33922df7",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 6.2831854820251465
+    }
+  },
+  "0x3faa2928": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x33922df7"
+      }
+    ],
+    "kind": "sin",
+    "outlets": [
+      {
+        "destination": "0x31bc2e98",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x465861e9",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x465861e9": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3faa2928"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": true,
+      "channel": 0.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  },
+  "0x479e61a7": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x2dbb8e97",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 440.0
+    }
+  }
+}

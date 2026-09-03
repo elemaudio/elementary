@@ -1,0 +1,362 @@
+{
+  "0x0018501c": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x47e0b194",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "key": "fq1",
+      "value": 441.0
+    }
+  },
+  "0x020995fd": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x43eac1ac"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": true,
+      "channel": 0.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  },
+  "0x02185342": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x7dc5b52a",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "key": "fq3",
+      "value": 440.0
+    }
+  },
+  "0x031854d5": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x5b01b245",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "key": "fq2",
+      "value": 440.0
+    }
+  },
+  "0x14d7eb83": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x7d184b63"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x1548a993",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x1548a993": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3e6a1ebb"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x14d7eb83"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x4fc155cc",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x1b94988c": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3e6a1ebb"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x47e0b194"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x2265f3ab",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x1e873dd2": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3e6a1ebb"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x7dc5b52a"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x7322d4a1",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x2265f3ab": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x1b94988c"
+      }
+    ],
+    "kind": "sin",
+    "outlets": [
+      {
+        "destination": "0x43eac1ac",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x3e6a1ebb": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x1548a993",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x1e873dd2",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x5b07c5e5",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x1b94988c",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 6.2831854820251465
+    }
+  },
+  "0x43eac1ac": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x2265f3ab"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x6adedad6"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x7322d4a1"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x4fc155cc"
+      }
+    ],
+    "kind": "add",
+    "outlets": [
+      {
+        "destination": "0x020995fd",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 4.0
+    }
+  },
+  "0x47e0b194": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x0018501c"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x1b94988c",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x4fc155cc": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x1548a993"
+      }
+    ],
+    "kind": "sin",
+    "outlets": [
+      {
+        "destination": "0x43eac1ac",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x5b01b245": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x031854d5"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x5b07c5e5",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x5b07c5e5": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3e6a1ebb"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x5b01b245"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x6adedad6",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x6adedad6": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x5b07c5e5"
+      }
+    ],
+    "kind": "sin",
+    "outlets": [
+      {
+        "destination": "0x43eac1ac",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x7322d4a1": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x1e873dd2"
+      }
+    ],
+    "kind": "sin",
+    "outlets": [
+      {
+        "destination": "0x43eac1ac",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x7d184b63": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x14d7eb83",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "key": "fq4",
+      "value": 440.0
+    }
+  },
+  "0x7dc5b52a": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x02185342"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x1e873dd2",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  }
+}

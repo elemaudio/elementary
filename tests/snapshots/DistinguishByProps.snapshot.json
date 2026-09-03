@@ -1,0 +1,190 @@
+{
+  "0x17ea3d11": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x53294111",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 2.0
+    }
+  },
+  "0x2a36376f": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x79440c47"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": true,
+      "channel": 1.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  },
+  "0x324bbd15": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x7b0c9e0b"
+      }
+    ],
+    "kind": "seq",
+    "outlets": [
+      {
+        "destination": "0x79440c47",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "seq": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    }
+  },
+  "0x36e37c86": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x7b0c9e0b",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 0.5
+    }
+  },
+  "0x3e438567": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x7b0c9e0b"
+      }
+    ],
+    "kind": "seq",
+    "outlets": [
+      {
+        "destination": "0x63f7ab75",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "seq": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  },
+  "0x53294111": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x17ea3d11"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x7b0c9e0b",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x63f7ab75": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3e438567"
+      }
+    ],
+    "kind": "sample",
+    "outlets": [
+      {
+        "destination": "0x7e9b188c",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "path": "test/path.wav"
+    }
+  },
+  "0x79440c47": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x324bbd15"
+      }
+    ],
+    "kind": "sample",
+    "outlets": [
+      {
+        "destination": "0x2a36376f",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "path": "test/path.wav"
+    }
+  },
+  "0x7b0c9e0b": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x53294111"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x36e37c86"
+      }
+    ],
+    "kind": "le",
+    "outlets": [
+      {
+        "destination": "0x324bbd15",
+        "outletChannel": 0.0
+      },
+      {
+        "destination": "0x3e438567",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x7e9b188c": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x63f7ab75"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": true,
+      "channel": 0.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  }
+}

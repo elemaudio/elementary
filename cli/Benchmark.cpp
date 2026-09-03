@@ -10,23 +10,6 @@
 #include "Benchmark.h"
 
 
-const auto* kConsoleShimScript = R"script(
-(function() {
-  if (typeof globalThis.console === 'undefined') {
-    globalThis.console = {
-      log(...args) {
-        return __log__('[log]', ...args);
-      },
-      warn(...args) {
-        return __log__('[warn]', ...args);
-      },
-      error(...args) {
-        return __log__('[error]', ...args);
-      },
-    };
-  }
-})();
-)script";
 
 template <typename FloatType>
 void runBenchmark(std::string const& name, std::string const& inputFileName, std::function<void(elem::Runtime<FloatType>&)>&& initCallback) {

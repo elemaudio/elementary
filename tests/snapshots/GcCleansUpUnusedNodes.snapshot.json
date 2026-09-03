@@ -1,0 +1,104 @@
+{
+  "0x1da1597b": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x26571c9c"
+      }
+    ],
+    "kind": "sin",
+    "outlets": [
+      {
+        "destination": "0x4b3a2f7e",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x26571c9c": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x3e6a1ebb"
+      },
+      {
+        "outletChannel": 0.0,
+        "source": "0x51bea504"
+      }
+    ],
+    "kind": "mul",
+    "outlets": [
+      {
+        "destination": "0x1da1597b",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 2.0
+    }
+  },
+  "0x3e6a1ebb": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x26571c9c",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "value": 6.2831854820251465
+    }
+  },
+  "0x4b3a2f7e": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x1da1597b"
+      }
+    ],
+    "kind": "root",
+    "outlets": [],
+    "props": {
+      "_internal:numChildren": 1.0,
+      "active": true,
+      "channel": 0.0,
+      "fadeInMs": 20.0,
+      "fadeOutMs": 20.0
+    }
+  },
+  "0x51bea504": {
+    "inlets": [
+      {
+        "outletChannel": 0.0,
+        "source": "0x60b4c50c"
+      }
+    ],
+    "kind": "phasor",
+    "outlets": [
+      {
+        "destination": "0x26571c9c",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "_internal:numChildren": 1.0
+    }
+  },
+  "0x60b4c50c": {
+    "inlets": [],
+    "kind": "const",
+    "outlets": [
+      {
+        "destination": "0x51bea504",
+        "outletChannel": 0.0
+      }
+    ],
+    "props": {
+      "key": "bye",
+      "value": 880.0
+    }
+  }
+}

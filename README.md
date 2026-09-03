@@ -17,6 +17,8 @@
 * **Dynamic:** Most audio processing frameworks and tools facilitate building static processes. But what happens as your audio requirements change throughout the user journey? Elementary is designed to facilitate and adapt to the dynamic nature of modern audio applications.
 * **Portable:** By decoupling the JavaScript API from the underlying audio engine (the "what" from the "how"), Elementary enables writing portable applications. Whether the underlying engine is running in the browser, an audio plugin, or an embedded device, your JavaScript layer remains the same.
 
+Elementary also has community supported bindings for languages other than JavaScript in [Other Languages](https://www.elementary.audio/docs/other_languages/community-supported-language-bindings).
+
 ## Getting Started
 
 Every Elementary application starts with the [@elemaudio/core](https://www.elementary.audio/docs/packages/core) package ([npm](https://www.npmjs.com/package/@elemaudio/core), [source](./js/packages/core)), which provides the
@@ -27,6 +29,7 @@ If you're new to the project, we recommend studying the following workflows to g
 
 * Use the [@elemaudio/web-renderer](https://www.elementary.audio/docs/packages/web-renderer) package ([npm](https://www.npmjs.com/package/@elemaudio/web-renderer), [source](./js/packages/web-renderer)) with your favorite frontend UI library to make an audio web application
 * Use the [@elemaudio/offline-renderer](https://www.elementary.audio/docs/packages/offline-renderer) package ([npm](https://www.npmjs.com/package/@elemaudio/offline-renderer), [source](./js/packages/offline-renderer)) with Node.js for static file processing
+* Use the [elementary-swift](https://github.com/parkernilson/elementary-swift) package to develop an iOS or macOS application
 
 Once you're ready to dive in, we suggest starting with one of these ideas:
 

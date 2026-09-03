@@ -25,6 +25,13 @@
 
 namespace elem
 {
+    enum class RuntimeInstructionType {
+        CREATE_NODE = 0,
+        APPEND_CHILD = 2,
+        SET_PROPERTY = 3,
+        ACTIVATE_ROOTS = 4,
+        COMMIT_UPDATES = 5,
+    };
 
     // The Runtime is the primary interface for embedding the Elementary engine within
     // your project, independent of the JavaScript engine.
@@ -46,6 +53,9 @@ namespace elem
         //==============================================================================
         // Apply graph rendering instructions
         int applyInstructions(js::Array const& batch);
+
+        GraphNode<FloatType> const* findNode(NodeId const& id);
+        const std::set<NodeId>& getCurrentRoots();
 
         // Run the internal audio processing callback
         void process(
@@ -112,13 +122,6 @@ namespace elem
     private:
         //==============================================================================
         // The rendering interface
-        enum class InstructionType {
-          CREATE_NODE = 0,
-          APPEND_CHILD = 2,
-          SET_PROPERTY = 3,
-          ACTIVATE_ROOTS = 4,
-          COMMIT_UPDATES = 5,
-        };
 
         int createNode(js::Value const& nodeId, js::Value const& type);
         int setProperty(js::Value const& nodeId, js::Value const& prop, js::Value const& v);
@@ -182,24 +185,24 @@ namespace elem
             if(!ar[0].isNumber())
                 return ReturnCode::InvalidInstructionFormat();
 
-            auto const cmd = static_cast<InstructionType>(static_cast<int>((elem::js::Number) ar[0]));
+            auto const cmd = static_cast<RuntimeInstructionType>(static_cast<int>((elem::js::Number) ar[0]));
             auto res = ReturnCode::Ok();
 
             switch (cmd) {
-                case InstructionType::CREATE_NODE:
+                case RuntimeInstructionType::CREATE_NODE:
                     res = createNode(ar[1], ar[2]);
                     break;
-                case InstructionType::SET_PROPERTY:
+                case RuntimeInstructionType::SET_PROPERTY:
                     res = setProperty(ar[1], ar[2], ar[3]);
                     break;
-                case InstructionType::APPEND_CHILD:
+                case RuntimeInstructionType::APPEND_CHILD:
                     res = appendChild(ar[1], ar[2], ar[3]);
                     break;
-                case InstructionType::ACTIVATE_ROOTS:
+                case RuntimeInstructionType::ACTIVATE_ROOTS:
                     res = activateRoots(ar[1]);
                     shouldRebuild = true;
                     break;
-                case InstructionType::COMMIT_UPDATES:
+                case RuntimeInstructionType::COMMIT_UPDATES:
                     if (shouldRebuild) {
                         rseqQueue.push(buildRenderSequence());
                     }
@@ -215,6 +218,19 @@ namespace elem
         }
 
         return ReturnCode::Ok();
+    }
+
+    template <typename FloatType>
+    GraphNode<FloatType> const* Runtime<FloatType>::findNode(NodeId const& id) {
+        if (const auto& node = nodeTable.find(id); node != nodeTable.end()) {
+            return node->second.node.get();
+        }
+        return nullptr;
+    }
+
+    template <typename FloatType>
+    const std::set<NodeId>& Runtime<FloatType>::getCurrentRoots() {
+        return currentRoots;
     }
 
     template <typename FloatType>
@@ -307,6 +323,7 @@ namespace elem
             return ReturnCode::NodeAlreadyExists();
 
         auto node = nodeFactory[type](nodeId, sampleRate, blockSize);
+        node->setKind(type);
         nodeTable.insert({nodeId, {node, {}, {}}});
 
         return ReturnCode::Ok();
@@ -491,8 +508,29 @@ namespace elem
     {
         js::Object ret;
 
-        for (auto& [nodeId, node] : nodeTable) {
-            ret.insert({nodeIdToHex(nodeId), node->getProperties()});
+        for (auto& [nodeId, entry] : nodeTable) {
+            js::Array inlets;
+            for (auto const& inlet : entry.inlets) {
+                inlets.push_back(js::Value(js::Object {
+                    {"source", js::Value(nodeIdToHex(inlet.source))},
+                    {"outletChannel", static_cast<js::Number>(inlet.outletChannel)},
+                }));
+            }
+
+            js::Array outlets;
+            for (auto const& outlet : entry.outlets) {
+                outlets.push_back(js::Value(js::Object {
+                    {"destination", js::Value(nodeIdToHex(outlet.destination))},
+                    {"outletChannel", static_cast<js::Number>(outlet.outletChannel)},
+                }));
+            }
+
+            ret.insert({nodeIdToHex(nodeId), js::Value(js::Object {
+                {"kind", js::Value(entry.node->getKind())},
+                {"props", js::Value(entry.node->getProperties())},
+                {"inlets", js::Value(std::move(inlets))},
+                {"outlets", js::Value(std::move(outlets))},
+            })});
         }
 
         return ret;
@@ -575,5 +613,4 @@ namespace elem
 
         return rseq;
     }
-
 } // namespace elem
